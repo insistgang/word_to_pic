@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应链网络优化</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.8em;
+            color: #ccc;
+        }
+        
+        .main-chart {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 500px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+        }
+        
+        .legend {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            font-size: 0.9em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ff6b6b;"></div>
+            <span>配送中心</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffa500;"></div>
+            <span>仓库节点</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #00d2ff;"></div>
+            <span>客户节点</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🔗 供应链网络优化</h1>
+            <p>智能配送网络拓扑与路径优化分析</p>
+        </div>
+        
+        <!-- 优化指标概览 -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">92%</div>
+                <div class="stat-label">路径优化率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15.3%</div>
+                <div class="stat-label">成本节约</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">8.5</div>
+                <div class="stat-label">平均配送(分钟)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">98.7%</div>
+                <div class="stat-label">准时率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1.2亿</div>
+                <div class="stat-label">年度节约</div>
+            </div>
+        </div>
+        
+        <!-- 主要图表区域 -->
+        <div class="main-chart">
+            <div class="chart-container" id="mainChart"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化主图表
+        function initMainChart() {
+            const chart = echarts.init(document.getElementById('mainChart'));
+            
+            const option = {
+                backgroundColor: 'transparent',
+                title: {
+                    text: '长三角智能供应链网络拓扑',
+                    left: 'center',
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 18
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.dataType === 'node') {
+                            const data = params.data;
+                            return `<strong>${data.name}</strong><br>
+                                   类型: ${data.category}<br>
+                                   容量: ${data.value || 'N/A'}<br>
+                                   状态: ${data.status || '正常'}`;
+                        } else if (params.dataType === 'edge') {
+                            const data = params.data;
+                            return `<strong>${data.sourceName} → ${data.targetName}</strong><br>
+                                   距离: ${data.distance}km<br>
+                                   流量: ${data.flow}/h<br>
+                                   效率: ${data.efficiency}%`;
+                        }
+                    }
+                },
+                animationDuration: 1500,
+                animationEasingUpdate: 'quinticInOut',
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: [
+                        // 配送中心
+                        {
+                            name: '上海配送中心',
+                            x: 300,
+                            y: 200,
+                            symbolSize: 100,
+                            itemStyle: { color: '#ff6b6b' },
+                            category: '配送中心',
+                            value: 5000,
+                            status: '高效运行'
+                        },
+                        // 仓库节点
+                        {
+                            name: '南京仓库',
+                            x: 150,
+                            y: 300,
+                            symbolSize: 70,
+                            itemStyle: { color: '#ffa500' },
+                            category: '仓库节点',
+                            value: 2000,
+                            status: '正常'
+                        },
+                        {
+                            name: '杭州仓库',
+                            x: 450,
+                            y: 300,
+                            symbolSize: 70,
+                            itemStyle: { color: '#ffa500' },
+                            category: '仓库节点',
+                            value: 1800,
+                            status: '正常'
+                        },
+                        {
+                            name: '苏州仓库',
+                            x: 300,
+                            y: 350,
+                            symbolSize: 65,
+                            itemStyle: { color: '#ffa500' },
+                            category: '仓库节点',
+                            value: 1500,
+                            status: '正常'
+                        },
+                        {
+                            name: '合肥仓库',
+                            x: 100,
+                            y: 200,
+                            symbolSize: 60,
+                            itemStyle: { color: '#ffa500' },
+                            category: '仓库节点',
+                            value: 1200,
+                            status: '正常'
+                        },
+                        // 客户节点
+                        {
+                            name: '瑞金医院',
+                            x: 200,
+                            y: 450,
+                            symbolSize: 50,
+                            itemStyle: { color: '#00d2ff' },
+                            category: '客户节点',
+                            value: 500,
+                            status: '高优先级'
+                        },
+                        {
+                            name: '华山医院',
+                            x: 400,
+                            y: 450,
+                            symbolSize: 50,
+                            itemStyle: { color: '#00d2ff' },
+                            category: '客户节点',
+                            value: 450,
+                            status: '高优先级'
+                        },
+                        {
+                            name: '中山医院',
+                            x: 300,
+                            y: 500,
+                            symbolSize: 45,
+                            itemStyle: { color: '#00d2ff' },
+                            category: '客户节点',
+                            value: 400,
+                            status: '正常'
+                        },
+                        {
+                            name: '新华医院',
+                            x: 150,
+                            y: 400,
+                            symbolSize: 40,
+                            itemStyle: { color: '#00d2ff' },
+                            category: '客户节点',
+                            value: 350,
+                            status: '正常'
+                        },
+                        {
+                            name: '仁济医院',
+                            x: 500,
+                            y: 400,
+                            symbolSize: 40,
+                            itemStyle: { color: '#00d2ff' },
+                            category: '客户节点',
+                            value: 320,
+                            status: '正常'
+                        }
+                    ],
+                    links: [
+                        {
+                            source: '上海配送中心',
+                            target: '南京仓库',
+                            sourceName: '上海配送中心',
+                            targetName: '南京仓库',
+                            distance: 280,
+                            flow: 120,
+                            efficiency: 95,
+                            lineStyle: { 
+                                color: '#ff6b6b',
+                                width: 4,
+                                opacity: 0.8
+                            }
+                        },
+                        {
+                            source: '上海配送中心',
+                            target: '杭州仓库',
+                            sourceName: '上海配送中心',
+                            targetName: '杭州仓库',
+                            distance: 180,
+                            flow: 150,
+                            efficiency: 98,
+                            lineStyle: { 
+                                color: '#ff6b6b',
+                                width: 5,
+                                opacity: 0.8
+                            }
+                        },
+                        {
+                            source: '上海配送中心',
+                            target: '苏州仓库',
+                            sourceName: '上海配送中心',
+                            targetName: '苏州仓库',
+                            distance: 100,
+                            flow: 180,
+                            efficiency: 99,
+                            lineStyle: { 
+                                color: '#ff6b6b',
+                                width: 6,
+                                opacity: 0.8
+                            }
+                        },
+                        {
+                            source: '上海配送中心',
+                            target: '合肥仓库',
+                            sourceName: '上海配送中心',
+                            targetName: '合肥仓库',
+                            distance: 450,
+                            flow: 80,
+                            efficiency: 88,
+                            lineStyle: { 
+                                color: '#ff6b6b',
+                                width: 3,
+                                opacity: 0.8
+                            }
+                        },
+                        {
+                            source: '南京仓库',
+                            target: '瑞金医院',
+                            sourceName: '南京仓库',
+                            targetName: '瑞金医院',
+                            distance: 120,
+                            flow: 45,
+                            efficiency: 96,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 3,
+                                opacity: 0.6
+                            }
+                        },
+                        {
+                            source: '南京仓库',
+                            target: '新华医院',
+                            sourceName: '南京仓库',
+                            targetName: '新华医院',
+                            distance: 80,
+                            flow: 35,
+                            efficiency: 94,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 2,
+                                opacity: 0.6
+                            }
+                        },
+                        {
+                            source: '杭州仓库',
+                            target: '华山医院',
+                            sourceName: '杭州仓库',
+                            targetName: '华山医院',
+                            distance: 150,
+                            flow: 50,
+                            efficiency: 97,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 3,
+                                opacity: 0.6
+                            }
+                        },
+                        {
+                            source: '杭州仓库',
+                            target: '仁济医院',
+                            sourceName: '杭州仓库',
+                            targetName: '仁济医院',
+                            distance: 100,
+                            flow: 40,
+                            efficiency: 95,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 2,
+                                opacity: 0.6
+                            }
+                        },
+                        {
+                            source: '苏州仓库',
+                            target: '中山医院',
+                            sourceName: '苏州仓库',
+                            targetName: '中山医院',
+                            distance: 120,
+                            flow: 55,
+                            efficiency: 98,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 4,
+                                opacity: 0.6
+                            }
+                        },
+                        {
+                            source: '合肥仓库',
+                            target: '瑞金医院',
+                            sourceName: '合肥仓库',
+                            targetName: '瑞金医院',
+                            distance: 180,
+                            flow: 25,
+                            efficiency: 92,
+                            lineStyle: { 
+                                color: '#ffa500',
+                                width: 2,
+                                opacity: 0.6
+                            }
+                        }
+                    ],
+                    categories: [
+                        { name: '配送中心' },
+                        { name: '仓库节点' },
+                        { name: '客户节点' }
+                    ],
+                    roam: true,
+                    draggable: true,
+                    focusNodeAdjacency: true,
+                    label: {
+                        show: true,
+                        position: 'bottom',
+                        fontSize: 12,
+                        color: '#fff'
+                    },
+                    lineStyle: {
+                        opacity: 0.9,
+                        width: 2,
+                        curveness: 0.1
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        lineStyle: {
+                            width: 10
+                        }
+                    },
+                    force: {
+                        repulsion: [1000, 50],
+                        edgeLength: [100, 300],
+                        friction: 0.6,
+                        gravity: 0.1,
+                        layoutAnimation: true
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+            
+            // 响应式处理
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+            
+            return chart;
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            console.log("初始化供应链网络优化...");
+            
+            try {
+                window.mainChart = initMainChart();
+                console.log("供应链网络优化初始化完成");
+            } catch (error) {
+                console.error("初始化失败:", error);
+            }
+        });
+    </script>
+</body>
+</html>

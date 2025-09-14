@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流投资与经济效益分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldGradient 3s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+        
+        @keyframes goldGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .panel:hover::before {
+            left: 100%;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .investment-overview {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .investment-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 237, 78, 0.1));
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .investment-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+        
+        .investment-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .investment-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .roi-analysis {
+            grid-column: 1 / 3;
+            grid-row: 2;
+        }
+        
+        .investment-distribution {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .cost-benefit {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .market-forecast {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .funding-sources {
+            grid-column: 3;
+            grid-row: 3;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+        
+        .chart-container.medium {
+            min-height: 280px;
+        }
+        
+        .chart-container.small {
+            min-height: 250px;
+        }
+        
+        .metric-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .metric-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .metric-label {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .metric-change {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .positive {
+            color: #00ff00;
+        }
+        
+        .negative {
+            color: #ff4444;
+        }
+        
+        .funding-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .funding-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .funding-amount {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .funding-source {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        
+        .investment-highlight {
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 237, 78, 0.2));
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .highlight-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .highlight-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .trend-indicator {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            margin-left: 5px;
+        }
+        
+        .trend-up {
+            border-bottom: 8px solid #00ff00;
+        }
+        
+        .trend-down {
+            border-top: 8px solid #ff4444;
+        }
+        
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .roi-analysis {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+            
+            .investment-distribution {
+                grid-column: 1;
+                grid-row: 3;
+            }
+            
+            .cost-benefit {
+                grid-column: 2;
+                grid-row: 3;
+            }
+            
+            .market-forecast {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .funding-sources {
+                grid-column: 2;
+                grid-row: 4;
+            }
+        }
+        
+        .glow {
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 低空物流投资与经济效益分析平台</h1>
+            <p>投资回报 • 成本效益 • 市场预测</p>
+        </div>
+        
+        <!-- 投资概览 -->
+        <div class="investment-overview">
+            <div class="investment-card pulse">
+                <div class="investment-value">125.3亿</div>
+                <div class="investment-label">总投资规模</div>
+                <div class="trend-indicator trend-up"></div>
+            </div>
+            <div class="investment-card pulse">
+                <div class="investment-value">18.7%</div>
+                <div class="investment-label">平均ROI</div>
+                <div class="trend-indicator trend-up"></div>
+            </div>
+            <div class="investment-card pulse">
+                <div class="investment-value">2.8年</div>
+                <div class="investment-label">投资回收期</div>
+                <div class="trend-indicator trend-down"></div>
+            </div>
+            <div class="investment-card pulse">
+                <div class="investment-value">45.8%</div>
+                <div class="investment-label">年复合增长率</div>
+                <div class="trend-indicator trend-up"></div>
+            </div>
+            <div class="investment-card pulse">
+                <div class="investment-value">120亿</div>
+                <div class="investment-label">2030年市场规模</div>
+                <div class="trend-indicator trend-up"></div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <!-- ROI分析 -->
+            <div class="panel roi-analysis">
+                <div class="panel-title">📈 投资回报率分析</div>
+                <div class="chart-container" id="roiChart"></div>
+                <div class="investment-highlight">
+                    <div class="highlight-title">预期累计收益</div>
+                    <div class="highlight-value glow">285.6亿</div>
+                </div>
+            </div>
+            
+            <!-- 投资分布 -->
+            <div class="panel investment-distribution">
+                <div class="panel-title">🎯 投资领域分布</div>
+                <div class="chart-container medium" id="distributionChart"></div>
+                <div class="metric-list">
+                    <div class="metric-item">
+                        <span class="metric-label">基础设施</span>
+                        <span class="metric-value">35%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">技术研发</span>
+                        <span class="metric-value">28%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">运营服务</span>
+                        <span class="metric-value">22%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">人才培养</span>
+                        <span class="metric-value">15%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 成本效益 -->
+            <div class="panel cost-benefit">
+                <div class="panel-title">⚖️ 成本效益对比</div>
+                <div class="chart-container small" id="costBenefitChart"></div>
+                <div class="metric-list">
+                    <div class="metric-item">
+                        <span class="metric-label">成本降低</span>
+                        <span class="metric-value">32% <span class="metric-change positive">+8%</span></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">效率提升</span>
+                        <span class="metric-value">156% <span class="metric-change positive">+23%</span></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">投资回报率</span>
+                        <span class="metric-value">18.7% <span class="metric-change positive">+3.2%</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 市场预测 -->
+            <div class="panel market-forecast">
+                <div class="panel-title">🔮 市场规模预测</div>
+                <div class="chart-container small" id="forecastChart"></div>
+                <div class="investment-highlight">
+                    <div class="highlight-title">2030年预测</div>
+                    <div class="highlight-value">120亿</div>
+                </div>
+            </div>
+            
+            <!-- 资金来源 -->
+            <div class="panel funding-sources">
+                <div class="panel-title">💵 资金来源结构</div>
+                <div class="chart-container small" id="fundingChart"></div>
+                <div class="funding-breakdown">
+                    <div class="funding-item">
+                        <div class="funding-amount">62.5亿</div>
+                        <div class="funding-source">政府投资</div>
+                    </div>
+                    <div class="funding-item">
+                        <div class="funding-amount">37.8亿</div>
+                        <div class="funding-source">社会资本</div>
+                    </div>
+                    <div class="funding-item">
+                        <div class="funding-amount">15.2亿</div>
+                        <div class="funding-source">企业自筹</div>
+                    </div>
+                    <div class="funding-item">
+                        <div class="funding-amount">9.8亿</div>
+                        <div class="funding-source">银行贷款</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        function initCharts() {
+            initROIAnalysis();
+            initInvestmentDistribution();
+            initCostBenefit();
+            initMarketForecast();
+            initFundingSources();
+        }
+        
+        // ROI分析
+        function initROIAnalysis() {
+            const chart = echarts.init(document.getElementById('roiChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' }
+                },
+                legend: {
+                    data: ['累计投资', '累计收益', 'ROI率'],
+                    textStyle: { color: '#fff' },
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '金额(亿元)',
+                        position: 'left',
+                        axisLine: { lineStyle: { color: '#ffd700' } }
+                    },
+                    {
+                        type: 'value',
+                        name: 'ROI率(%)',
+                        position: 'right',
+                        axisLine: { lineStyle: { color: '#00ff00' } }
+                    }
+                ],
+                series: [
+                    {
+                        name: '累计投资',
+                        type: 'line',
+                        data: [45.2, 78.5, 102.3, 118.7, 125.3, 128.9, 130.5],
+                        itemStyle: { color: '#ffd700' },
+                        lineStyle: { width: 3 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(255, 215, 0, 0.3)' },
+                                { offset: 1, color: 'rgba(255, 215, 0, 0.1)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: '累计收益',
+                        type: 'line',
+                        data: [8.5, 25.8, 58.2, 102.5, 165.8, 235.6, 285.6],
+                        itemStyle: { color: '#00ff00' },
+                        lineStyle: { width: 3 }
+                    },
+                    {
+                        name: 'ROI率',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [18.8, 32.9, 56.9, 86.3, 132.3, 182.8, 218.8],
+                        itemStyle: { color: '#ff6b6b' },
+                        lineStyle: { width: 2, type: 'dashed' }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 投资分布
+        function initInvestmentDistribution() {
+            const chart = echarts.init(document.getElementById('distributionChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}%'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: [
+                            {value: 35, name: '基础设施', itemStyle: {color: '#ffd700'}},
+                            {value: 28, name: '技术研发', itemStyle: {color: '#ffed4e'}},
+                            {value: 22, name: '运营服务', itemStyle: {color: '#fff59d'}},
+                            {value: 15, name: '人才培养', itemStyle: {color: '#ffeb3b'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 11
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(255, 215, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 成本效益
+        function initCostBenefit() {
+            const chart = echarts.init(document.getElementById('costBenefitChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['传统物流', '低空物流'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        name: '成本(元/单)',
+                        type: 'bar',
+                        data: [45, 30.6],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: '#ff6b6b' },
+                                { offset: 1, color: '#ffd700' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 市场预测
+        function initMarketForecast() {
+            const chart = echarts.init(document.getElementById('forecastChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '市场规模(亿元)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [2.3, 3.8, 7.5, 15, 45, 120],
+                        itemStyle: { color: '#ffd700' },
+                        lineStyle: { width: 3 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(255, 215, 0, 0.3)' },
+                                { offset: 1, color: 'rgba(255, 215, 0, 0.1)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 资金来源
+        function initFundingSources() {
+            const chart = echarts.init(document.getElementById('fundingChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}亿元'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: '60%',
+                        data: [
+                            {value: 62.5, name: '政府投资', itemStyle: {color: '#ffd700'}},
+                            {value: 37.8, name: '社会资本', itemStyle: {color: '#ffed4e'}},
+                            {value: 15.2, name: '企业自筹', itemStyle: {color: '#fff59d'}},
+                            {value: 9.8, name: '银行贷款', itemStyle: {color: '#ffeb3b'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 10
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // 定时更新数据
+            setInterval(function() {
+                const investmentValues = document.querySelectorAll('.investment-value');
+                investmentValues.forEach(value => {
+                    if (value.textContent.includes('亿')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 5;
+                        value.textContent = (base + fluctuation).toFixed(1) + '亿';
+                    } else if (value.textContent.includes('%')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        value.textContent = (base + fluctuation).toFixed(1) + '%';
+                    }
+                });
+            }, 7000);
+        });
+    </script>
+</body>
+</html>

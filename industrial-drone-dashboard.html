@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G60科创走廊工业级无人机应用数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+                
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .feature-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature-item .feature-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+        
+        .feature-item .feature-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .industrial-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏭 G60科创走廊工业级无人机应用</h1>
+            <p>上海金山区-苏州工业园区"研发-制造-应用"闭环数据</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>转运效率提升</h4>
+                <div class="value">3倍</div>
+                <div class="unit">京东物流智狼系统</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>单票成本降低</h4>
+                <div class="value">22%</div>
+                <div class="unit">无锡试点数据</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>停线损失减少</h4>
+                <div class="value">600万</div>
+                <div class="unit">元/年</div>
+            </div>
+            <div class="kpi-card">
+                <h4>2027年目标产能</h4>
+                <div class="value">200+</div>
+                <div class="unit">架/年</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>⚡ 京东物流应用效果</h3>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🎯 制造领域需求差异</h3>
+                <div class="chart-container">
+                    <canvas id="industryChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 载重需求对比分析</h3>
+                <div class="chart-container">
+                    <canvas id="payloadChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🔧 作业能力指标</h3>
+                <div class="chart-container">
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📈 发展目标路径</h3>
+                <div class="chart-container">
+                    <canvas id="targetChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 工业级无人机核心价值</h3>
+            <div class="insight-item">
+                <strong>精密货物运输闭环：</strong>上海金山区无人机制造基地与苏州工业园区形成的"研发-制造-应用"闭环，推动电子元件、汽车零部件等精密货物的低空运输常态化
+            </div>
+            <div class="insight-item">
+                <strong>智能化生产协同：</strong>"智狼系统+无人机"组合使车间到仓库的转运效率提升3倍，单票成本降低22%，正快速复制到上海临港新片区智能制造园区
+            </div>
+            <div class="insight-item">
+                <strong>专业化需求分化：</strong>电子信息产业偏好5-10kg轻型无人机（无尘环境），汽车制造业需要25-50kg中型机型（紧急调拨）
+            </div>
+            <div class="insight-item">
+                <strong>政策明确导向：</strong>上海市行动方案重点发展中远程大载重机型，预计2027年实现年产200架以上工业级无人机的制造能力
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 京东物流应用效果
+        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(efficiencyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['转运效率提升', '单票成本降低', '停线损失减少'],
+                datasets: [{
+                    label: '改善指标',
+                    data: [300, 22, 600],
+                    backgroundColor: ['#27ae60', '#3498db', '#e74c3c'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '转运效率提升') return value + '%';
+                            if (label === '单票成本降低') return value + '%';
+                            if (label === '停线损失减少') return value + '万元';
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 制造领域需求差异
+        const industryCtx = document.getElementById('industryChart').getContext('2d');
+        new Chart(industryCtx, {
+            type: 'radar',
+            data: {
+                labels: ['载重需求', '环境要求', '作业频率', '紧急程度', '成本敏感度'],
+                datasets: [{
+                    label: '电子信息产业',
+                    data: [30, 90, 70, 40, 80],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    borderWidth: 2
+                }, {
+                    label: '汽车制造业',
+                    data: [85, 50, 60, 95, 45],
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 载重需求对比分析
+        const payloadCtx = document.getElementById('payloadChart').getContext('2d');
+        new Chart(payloadCtx, {
+            type: 'bar',
+            data: {
+                labels: ['电子信息产业', '汽车制造业', '其他制造业'],
+                datasets: [{
+                    label: '载重需求 (kg)',
+                    data: [7.5, 37.5, 20],
+                    backgroundColor: ['#3498db', '#e74c3c', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + 'kg';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '载重量 (kg)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 作业能力指标
+        const capacityCtx = document.getElementById('capacityChart').getContext('2d');
+        new Chart(capacityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['无尘运输要求', '紧急调拨能力', '常规运输'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: ['#3498db', '#e74c3c', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 发展目标路径
+        const targetCtx = document.getElementById('targetChart').getContext('2d');
+        new Chart(targetCtx, {
+            type: 'line',
+            data: {
+                labels: ['2024', '2025', '2026', '2027'],
+                datasets: [{
+                    label: '工业级无人机年产量',
+                    data: [50, 100, 150, 200],
+                    borderColor: '#f39c12',
+                    backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#f39c12',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value) => {
+                            return value + '架';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '产量 (架)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试区域对比大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .chart {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试区域对比大屏</h1>
+    
+    <div class="chart" id="testChart"></div>
+    
+    <script>
+        console.log("ECharts版本:", echarts.version);
+        
+        try {
+            const chart = echarts.init(document.getElementById('testChart'));
+            const option = {
+                title: {
+                    text: '测试图表',
+                    textStyle: { color: 'white' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['上海', '南京', '杭州'],
+                    axisLabel: { color: 'white' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: 'white' }
+                },
+                series: [{
+                    type: 'bar',
+                    data: [100, 80, 90],
+                    itemStyle: { color: '#667eea' }
+                }]
+            };
+            chart.setOption(option);
+            console.log("图表初始化成功");
+        } catch (error) {
+            console.error("图表初始化失败:", error);
+        }
+    </script>
+</body>
+</html>

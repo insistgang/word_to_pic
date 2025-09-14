@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流技术发展趋势分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5, #00d2ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            text-shadow: 0 0 30px rgba(0, 210, 255, 0.5);
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .panel:hover::before {
+            left: 100%;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 210, 255, 0.2);
+            border-color: rgba(0, 210, 255, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #00d2ff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+        
+        .tech-overview {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .tech-card {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1));
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .tech-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(0, 210, 255, 0.5);
+        }
+        
+        .tech-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.5));
+        }
+        
+        .tech-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #00d2ff;
+        }
+        
+        .tech-level {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .maturity-assessment {
+            grid-column: 1 / 3;
+            grid-row: 2;
+        }
+        
+        .innovation-trends {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .patent-analysis {
+            grid-column: 4;
+            grid-row: 2;
+        }
+        
+        .tech-comparison {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .development-roadmap {
+            grid-column: 2 / 4;
+            grid-row: 3;
+        }
+        
+        .future-prospects {
+            grid-column: 4;
+            grid-row: 3;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+        }
+        
+        .chart-container.medium {
+            min-height: 250px;
+        }
+        
+        .chart-container.small {
+            min-height: 220px;
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+        
+        .milestone-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .milestone-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .milestone-year {
+            font-weight: bold;
+            color: #00d2ff;
+            margin-right: 10px;
+        }
+        
+        .milestone-desc {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        
+        .tech-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(0, 210, 255, 0.2);
+            border: 1px solid rgba(0, 210, 255, 0.5);
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .tech-tag:hover {
+            background: rgba(0, 210, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .indicator-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .indicator-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00d2ff;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+        
+        .indicator-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto auto;
+            }
+            
+            .maturity-assessment {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+            
+            .innovation-trends {
+                grid-column: 1;
+                grid-row: 3;
+            }
+            
+            .patent-analysis {
+                grid-column: 2;
+                grid-row: 3;
+            }
+            
+            .tech-comparison {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .development-roadmap {
+                grid-column: 2;
+                grid-row: 4;
+            }
+            
+            .future-prospects {
+                grid-column: 1 / -1;
+                grid-row: 5;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .glow {
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 低空物流技术发展趋势分析平台</h1>
+            <p>技术创新 • 发展预测 • 未来展望</p>
+        </div>
+        
+        <!-- 技术概览 -->
+        <div class="tech-overview">
+            <div class="tech-card pulse">
+                <div class="tech-icon">🎯</div>
+                <div class="tech-name">导航精度</div>
+                <div class="tech-level">当前: 95%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 95%"></div>
+                </div>
+                <div class="tech-level">目标: 99%</div>
+            </div>
+            <div class="tech-card pulse">
+                <div class="tech-icon">🛡️</div>
+                <div class="tech-name">避障技术</div>
+                <div class="tech-level">当前: 88%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 88%"></div>
+                </div>
+                <div class="tech-level">目标: 98%</div>
+            </div>
+            <div class="tech-card pulse">
+                <div class="tech-icon">🔋</div>
+                <div class="tech-name">电池续航</div>
+                <div class="tech-level">当前: 75%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <div class="tech-level">目标: 95%</div>
+            </div>
+            <div class="tech-card pulse">
+                <div class="tech-icon">📡</div>
+                <div class="tech-name">通信技术</div>
+                <div class="tech-level">当前: 92%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 92%"></div>
+                </div>
+                <div class="tech-level">目标: 99%</div>
+            </div>
+            <div class="tech-card pulse">
+                <div class="tech-icon">🤖</div>
+                <div class="tech-name">自主飞行</div>
+                <div class="tech-level">当前: 68%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 68%"></div>
+                </div>
+                <div class="tech-level">目标: 90%</div>
+            </div>
+            <div class="tech-card pulse">
+                <div class="tech-icon">❄️</div>
+                <div class="tech-name">冷链温控</div>
+                <div class="tech-level">当前: 82%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 82%"></div>
+                </div>
+                <div class="tech-level">目标: 96%</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <!-- 技术成熟度评估 -->
+            <div class="panel maturity-assessment">
+                <div class="panel-title">📊 技术成熟度雷达图</div>
+                <div class="chart-container" id="maturityChart"></div>
+            </div>
+            
+            <!-- 创新趋势 -->
+            <div class="panel innovation-trends">
+                <div class="panel-title">🔥 创新热度趋势</div>
+                <div class="chart-container medium" id="innovationChart"></div>
+            </div>
+            
+            <!-- 专利分析 -->
+            <div class="panel patent-analysis">
+                <div class="panel-title">📈 专利申请趋势</div>
+                <div class="chart-container small" id="patentChart"></div>
+                <div class="indicator-grid">
+                    <div class="indicator-item">
+                        <div class="indicator-value">2,847</div>
+                        <div class="indicator-label">累计专利</div>
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-value">68%</div>
+                        <div class="indicator-label">年增长率</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 技术对比 -->
+            <div class="panel tech-comparison">
+                <div class="panel-title">⚖️ 技术路线对比</div>
+                <div class="chart-container small" id="comparisonChart"></div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <div class="tech-tag">多旋翼</div>
+                    <div class="tech-tag">固定翼</div>
+                    <div class="tech-tag">垂直起降</div>
+                    <div class="tech-tag">eVTOL</div>
+                </div>
+            </div>
+            
+            <!-- 发展路线图 -->
+            <div class="panel development-roadmap">
+                <div class="panel-title">🗺️ 技术发展路线图</div>
+                <div class="chart-container" id="roadmapChart"></div>
+                <div class="milestone-list">
+                    <div class="milestone-item">
+                        <span class="milestone-year">2025</span>
+                        <span class="milestone-desc">规模化商业应用启动</span>
+                    </div>
+                    <div class="milestone-item">
+                        <span class="milestone-year">2027</span>
+                        <span class="milestone-desc">城市空中交通网络建成</span>
+                    </div>
+                    <div class="milestone-item">
+                        <span class="milestone-year">2030</span>
+                        <span class="milestone-desc">完全自主飞行系统普及</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 未来展望 -->
+            <div class="panel future-prospects">
+                <div class="panel-title">🔮 未来技术展望</div>
+                <div class="chart-container small" id="futureChart"></div>
+                <div class="indicator-grid">
+                    <div class="indicator-item">
+                        <div class="indicator-value glow">2035</div>
+                        <div class="indicator-label">智能飞行时代</div>
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-value">85%</div>
+                        <div class="indicator-label">自动驾驶占比</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        function initCharts() {
+            initMaturityAssessment();
+            initInnovationTrends();
+            initPatentAnalysis();
+            initTechComparison();
+            initDevelopmentRoadmap();
+            initFutureProspects();
+        }
+        
+        // 技术成熟度雷达图
+        function initMaturityAssessment() {
+            const chart = echarts.init(document.getElementById('maturityChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                radar: {
+                    indicator: [
+                        { name: '导航精度', max: 100, axisLabel: { color: '#fff' } },
+                        { name: '避障技术', max: 100, axisLabel: { color: '#fff' } },
+                        { name: '电池续航', max: 100, axisLabel: { color: '#fff' } },
+                        { name: '通信技术', max: 100, axisLabel: { color: '#fff' } },
+                        { name: '自主飞行', max: 100, axisLabel: { color: '#fff' } },
+                        { name: '冷链温控', max: 100, axisLabel: { color: '#fff' } }
+                    ],
+                    shape: 'circle',
+                    splitNumber: 5,
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    splitArea: { show: false }
+                },
+                series: [
+                    {
+                        name: '当前水平',
+                        type: 'radar',
+                        data: [
+                            {
+                                value: [95, 88, 75, 92, 68, 82],
+                                name: '当前水平',
+                                itemStyle: { color: '#00d2ff' },
+                                areaStyle: {
+                                    color: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
+                                        { offset: 0, color: 'rgba(0, 210, 255, 0.1)' },
+                                        { offset: 1, color: 'rgba(0, 210, 255, 0.4)' }
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        name: '2030目标',
+                        type: 'radar',
+                        data: [
+                            {
+                                value: [99, 98, 95, 99, 90, 96],
+                                name: '2030目标',
+                                itemStyle: { color: '#3a7bd5' },
+                                lineStyle: { type: 'dashed' }
+                            }
+                        ]
+                    }
+                ],
+                legend: {
+                    data: ['当前水平', '2030目标'],
+                    textStyle: { color: '#fff' },
+                    top: 10
+                }
+            };
+            chart.setOption(option);
+        }
+        
+        // 创新热度趋势
+        function initInnovationTrends() {
+            const chart = echarts.init(document.getElementById('innovationChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '创新指数',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        name: 'AI技术',
+                        type: 'line',
+                        data: [65, 72, 78, 85, 92, 98],
+                        itemStyle: { color: '#00d2ff' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(0, 210, 255, 0.3)' },
+                                { offset: 1, color: 'rgba(0, 210, 255, 0.1)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: '5G通信',
+                        type: 'line',
+                        data: [45, 52, 58, 65, 72, 78],
+                        itemStyle: { color: '#3a7bd5' },
+                        lineStyle: { type: 'dashed' }
+                    }
+                ],
+                legend: {
+                    textStyle: { color: '#fff' },
+                    top: 10
+                }
+            };
+            chart.setOption(option);
+        }
+        
+        // 专利分析
+        function initPatentAnalysis() {
+            const chart = echarts.init(document.getElementById('patentChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2020', '2021', '2022', '2023', '2024'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '专利数量',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        data: [320, 580, 920, 1250, 1680],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#00d2ff' },
+                                { offset: 1, color: '#3a7bd5' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 技术对比
+        function initTechComparison() {
+            const chart = echarts.init(document.getElementById('comparisonChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['30%', '60%'],
+                        data: [
+                            {value: 45, name: '多旋翼', itemStyle: {color: '#00d2ff'}},
+                            {value: 25, name: '固定翼', itemStyle: {color: '#3a7bd5'}},
+                            {value: 20, name: '垂直起降', itemStyle: {color: '#667eea'}},
+                            {value: 10, name: 'eVTOL', itemStyle: {color: '#764ba2'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 10
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 发展路线图
+        function initDevelopmentRoadmap() {
+            const chart = echarts.init(document.getElementById('roadmapChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '技术成熟度',
+                    max: 100,
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        name: '导航精度',
+                        type: 'line',
+                        data: [95, 96, 97, 97.5, 98, 98.5, 99],
+                        itemStyle: { color: '#00d2ff' },
+                        lineStyle: { width: 3 }
+                    },
+                    {
+                        name: '避障技术',
+                        type: 'line',
+                        data: [88, 90, 92, 94, 95, 96, 98],
+                        itemStyle: { color: '#3a7bd5' },
+                        lineStyle: { width: 3 }
+                    },
+                    {
+                        name: '自主飞行',
+                        type: 'line',
+                        data: [68, 75, 80, 85, 87, 89, 90],
+                        itemStyle: { color: '#667eea' },
+                        lineStyle: { width: 3 }
+                    }
+                ],
+                legend: {
+                    textStyle: { color: '#fff' },
+                    top: 10
+                }
+            };
+            chart.setOption(option);
+        }
+        
+        // 未来展望
+        function initFutureProspects() {
+            const chart = echarts.init(document.getElementById('futureChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        type: 'gauge',
+                        startAngle: 180,
+                        endAngle: 0,
+                        progress: {
+                            show: true,
+                            width: 15,
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#00d2ff' },
+                                    { offset: 1, color: '#3a7bd5' }
+                                ])
+                            }
+                        },
+                        pointer: {
+                            show: false
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                width: 15,
+                                color: [[1, 'rgba(255,255,255,0.1)']]
+                            }
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        axisLabel: {
+                            show: false
+                        },
+                        title: {
+                            show: false
+                        },
+                        detail: {
+                            valueAnimation: true,
+                            width: '60%',
+                            lineHeight: 40,
+                            borderRadius: 8,
+                            offsetCenter: [0, '0%'],
+                            fontSize: 20,
+                            fontWeight: 'bold',
+                            formatter: '{value}%',
+                            color: '#fff'
+                        },
+                        data: [{ value: 85 }]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // 动画进度条
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+            
+            // 定时更新数据
+            setInterval(function() {
+                const indicators = document.querySelectorAll('.indicator-value');
+                indicators.forEach(indicator => {
+                    if (indicator.textContent.includes(',')) {
+                        const value = parseInt(indicator.textContent.replace(',', ''));
+                        const fluctuation = Math.floor((Math.random() - 0.5) * 50);
+                        indicator.textContent = (value + fluctuation).toLocaleString();
+                    }
+                });
+            }, 8000);
+        });
+    </script>
+</body>
+</html>

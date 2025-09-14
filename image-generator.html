@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告文档配图生成器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea, select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .image-container {
+            margin-top: 20px;
+            border: 2px dashed #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .generated-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 5px;
+        }
+        .download-btn {
+            background: #28a745;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 报告文档配图生成器</h1>
+        
+        <div class="input-group">
+            <label for="description">图片描述（中文或英文）：</label>
+            <textarea id="description" placeholder="请描述您想要的图片，例如：一个现代化的办公室，有人在用电脑工作，简约风格..."></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label for="style">图片风格：</label>
+            <select id="style">
+                <option value="realistic">真实照片</option>
+                <option value="cartoon">卡通风格</option>
+                <option value="watercolor">水彩画</option>
+                <option value="oil-painting">油画</option>
+                <option value="sketch">素描</option>
+                <option value="minimalist">极简主义</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="size">图片尺寸：</label>
+            <select id="size">
+                <option value="1024x1024">正方形 (1024x1024)</option>
+                <option value="1024x768">横向 (1024x768)</option>
+                <option value="768x1024">纵向 (768x1024)</option>
+                <option value="1280x720">宽屏 (1280x720)</option>
+            </select>
+        </div>
+        
+        <button onclick="generateImage()" id="generateBtn">🎨 生成图片</button>
+        
+        <div class="result" id="result" style="display: none;">
+            <div class="image-container" id="imageContainer">
+                <div class="loading" id="loading">正在生成图片，请稍候...</div>
+            </div>
+            <button onclick="downloadImage()" class="download-btn" id="downloadBtn" style="display: none;">📥 下载图片</button>
+        </div>
+    </div>
+
+    <script>
+        let currentImageData = null;
+        
+        async function generateImage() {
+            const description = document.getElementById('description').value;
+            const style = document.getElementById('style').value;
+            const size = document.getElementById('size').value;
+            
+            if (!description.trim()) {
+                alert('请输入图片描述');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const result = document.getElementById('result');
+            const loading = document.getElementById('loading');
+            const imageContainer = document.getElementById('imageContainer');
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = '生成中...';
+            result.style.display = 'block';
+            loading.style.display = 'block';
+            imageContainer.innerHTML = '<div class="loading">正在生成图片，请稍候...</div>';
+            
+            try {
+                // 使用OpenAI DALL-E API或其他图片生成服务
+                const response = await fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: description,
+                        style: style,
+                        size: size
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('图片生成失败');
+                }
+                
+                const data = await response.json();
+                currentImageData = data.imageUrl;
+                
+                // 显示生成的图片
+                imageContainer.innerHTML = `<img src="${currentImageData}" alt="生成的图片" class="generated-image">`;
+                document.getElementById('downloadBtn').style.display = 'block';
+                
+            } catch (error) {
+                console.error('生成图片时出错:', error);
+                imageContainer.innerHTML = `<div style="color: red;">生成失败，请稍后重试</div>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎨 生成图片';
+            }
+        }
+        
+        function downloadImage() {
+            if (!currentImageData) return;
+            
+            const link = document.createElement('a');
+            link.href = currentImageData;
+            link.download = `report-image-${Date.now()}.png`;
+            link.click();
+        }
+        
+        // 示例提示词
+        const examplePrompts = [
+            "一个现代化的办公室环境，明亮的灯光，简约的装饰",
+            "数据分析图表，专业的商务风格，清晰的数据可视化",
+            "团队合作场景，多元文化背景，积极的氛围",
+            "科技感十足的会议室，数字化展示屏",
+            "环保主题的插图，绿色植物，可持续发展概念"
+        ];
+        
+        // 随机显示示例提示词
+        document.getElementById('description').placeholder = 
+            "例如：" + examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
+    </script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流市场增长趋势数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+        
+        .growth-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .growth-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .growth-item .growth-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 5px;
+        }
+        
+        .growth-item .growth-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .market-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-chart {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 低空物流市场增长趋势</h1>
+            <p>2025-2030年上海低空经济产业发展预测</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>2025年美团单平台</h4>
+                <div class="value">60万</div>
+                <div class="unit">累计配送量</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>单航线年营收</h4>
+                <div class="value">182.5万</div>
+                <div class="unit">元/航线</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>2027年产业规模</h4>
+                <div class="value">500亿</div>
+                <div class="unit">核心产业规模</div>
+            </div>
+            <div class="kpi-card">
+                <h4>2030年市场规模</h4>
+                <div class="value">120亿</div>
+                <div class="unit">城市生活服务</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>💰 市场规模增长预测</h3>
+                <div class="chart-container">
+                    <canvas id="marketGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🚀 增长驱动因素</h3>
+                <div class="chart-container">
+                    <canvas id="driverChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 2025-2030年复合增长率65%</h3>
+                <div class="chart-container">
+                    <canvas id="cagrChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🎯 运营能力提升</h3>
+                <div class="chart-container">
+                    <canvas id="operationChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🌏 长三角市场占比</h3>
+                <div class="chart-container">
+                    <canvas id="regionShareChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 市场增长核心洞察</h3>
+            <div class="insight-item">
+                <strong>高速增长态势：</strong>2025-2030年复合增长率将保持在65%以上，到2030年上海城市生活服务低空物流市场规模将突破120亿元，占长三角区域总量的45%
+            </div>
+            <div class="insight-item">
+                <strong>政策强力驱动：</strong>根据《上海市低空经济产业高质量发展行动方案》规划，到2027年核心产业规模将突破500亿元，其中末端配送占比预计达15%，规模约75亿元
+            </div>
+            <div class="insight-item">
+                <strong>三大驱动引擎：</strong>航线数量从当前3条扩展至2027年的"100+场景应用"，单机日均订单从25单提升至40单，客单价从8元向12元结构性升级
+            </div>
+            <div class="insight-item">
+                <strong>服务价值提升：</strong>冷链、加急等增值服务推动客单价提升，体现从基础物流向高附加值服务的转型升级趋势
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 市场规模增长预测
+        const marketGrowthCtx = document.getElementById('marketGrowthChart').getContext('2d');
+        new Chart(marketGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '城市生活服务市场规模',
+                    data: [2.3, 3.8, 7.5, 15, 45, 120],
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '末端配送总规模',
+                    data: [7.5, 12, 75, 150, 300, 600],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#9b59b6',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (value, context) => {
+                            if (context.dataIndex === 0) return value + '亿';
+                            return '';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '市场规模 (亿元)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 增长驱动因素
+        const driverCtx = document.getElementById('driverChart').getContext('2d');
+        new Chart(driverCtx, {
+            type: 'radar',
+            data: {
+                labels: ['航线扩展', '订单密度', '客单价提升', '政策支持', '技术进步', '需求增长'],
+                datasets: [{
+                    label: '2025年',
+                    data: [30, 40, 25, 70, 60, 50],
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderColor: '#9b59b6',
+                    borderWidth: 2
+                }, {
+                    label: '2030年',
+                    data: [95, 85, 80, 90, 95, 90],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 2025-2030年复合增长率65%
+        const cagrCtx = document.getElementById('cagrChart').getContext('2d');
+        new Chart(cagrCtx, {
+            type: 'bar',
+            data: {
+                labels: ['航线数量增长', '单机订单增长', '客单价增长', '市场规模增长'],
+                datasets: [{
+                    label: '2025-2030年增长幅度',
+                    data: [3233, 60, 50, 5117],
+                    backgroundColor: ['#9b59b6', '#3498db', '#f39c12', '#27ae60'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '航线数量增长') return '32倍';
+                            if (label === '单机订单增长') return '60%';
+                            if (label === '客单价增长') return '50%';
+                            if (label === '市场规模增长') return '51倍';
+                            return value + '%';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '增长幅度 (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 运营能力提升
+        const operationCtx = document.getElementById('operationChart').getContext('2d');
+        new Chart(operationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['航线扩展贡献', '效率提升贡献', '客单价提升贡献'],
+                datasets: [{
+                    data: [45, 30, 25],
+                    backgroundColor: ['#9b59b6', '#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 长三角市场占比
+        const regionShareCtx = document.getElementById('regionShareChart').getContext('2d');
+        new Chart(regionShareCtx, {
+            type: 'pie',
+            data: {
+                labels: ['上海', '江苏', '浙江', '安徽'],
+                datasets: [{
+                    data: [45, 25, 20, 10],
+                    backgroundColor: ['#9b59b6', '#3498db', '#27ae60', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

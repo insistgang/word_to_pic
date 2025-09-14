@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流政策支持分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(231, 76, 60, 0.5);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(231, 76, 60, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .panel:hover::before {
+            left: 100%;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.2);
+            border-color: rgba(231, 76, 60, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #e74c3c;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+        
+        .policy-overview {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .policy-card {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .policy-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(231, 76, 60, 0.5);
+        }
+        
+        .policy-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+        }
+        
+        .policy-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .funding-analysis {
+            grid-column: 1 / 2;
+            grid-row: 2;
+        }
+        
+        .regulatory-framework {
+            grid-column: 2 / 3;
+            grid-row: 2;
+        }
+        
+        .policy-impact {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .implementation-status {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .comparative-analysis {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .future-prospects {
+            grid-column: 3;
+            grid-row: 3;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+        }
+        
+        .chart-container.medium {
+            min-height: 250px;
+        }
+        
+        .chart-container.small {
+            min-height: 220px;
+        }
+        
+        .policy-timeline {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-right: 10px;
+        }
+        
+        .timeline-event {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        
+        .policy-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .metric-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .metric-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        
+        .policy-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .policy-tag:hover {
+            background: rgba(231, 76, 60, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .region-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .region-name {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        
+        .region-support {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .region-trend {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .implementation-progress {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .progress-label {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        
+        .progress-bar {
+            flex: 2;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .progress-value {
+            font-weight: bold;
+            color: #e74c3c;
+            min-width: 40px;
+        }
+        
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .funding-analysis {
+                grid-column: 1;
+                grid-row: 2;
+            }
+            
+            .regulatory-framework {
+                grid-column: 2;
+                grid-row: 2;
+            }
+            
+            .policy-impact {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+            
+            .implementation-status {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .comparative-analysis {
+                grid-column: 2;
+                grid-row: 4;
+            }
+            
+            .future-prospects {
+                grid-column: 1 / -1;
+                grid-row: 5;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ 低空物流政策支持分析平台</h1>
+            <p>政策解读 • 资金支持 • 实施进展</p>
+        </div>
+        
+        <!-- 政策概览 -->
+        <div class="policy-overview">
+            <div class="policy-card pulse">
+                <div class="policy-value">125.3亿</div>
+                <div class="policy-label">总政策资金支持</div>
+            </div>
+            <div class="policy-card pulse">
+                <div class="policy-value">18项</div>
+                <div class="policy-label">支持政策文件</div>
+            </div>
+            <div class="policy-card pulse">
+                <div class="policy-value">8个</div>
+                <div class="policy-label">重点支持城市</div>
+            </div>
+            <div class="policy-card pulse">
+                <div class="policy-value">85%</div>
+                <div class="policy-label">政策落实率</div>
+            </div>
+            <div class="policy-card pulse">
+                <div class="policy-value">45.8%</div>
+                <div class="policy-label">政策推动增长率</div>
+            </div>
+            <div class="policy-card pulse">
+                <div class="policy-value">3年</div>
+                <div class="policy-label">平均政策周期</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <!-- 资金支持分析 -->
+            <div class="panel funding-analysis">
+                <div class="panel-title">💰 资金支持分析</div>
+                <div class="chart-container medium" id="fundingChart"></div>
+                <div class="policy-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">62.5亿</div>
+                        <div class="metric-label">政府投资</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">37.8亿</div>
+                        <div class="metric-label">社会资本</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">15.2亿</div>
+                        <div class="metric-label">企业自筹</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">9.8亿</div>
+                        <div class="metric-label">银行贷款</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 监管框架 -->
+            <div class="panel regulatory-framework">
+                <div class="panel-title">⚖️ 监管框架体系</div>
+                <div class="chart-container medium" id="regulatoryChart"></div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <div class="policy-tag">安全管理</div>
+                    <div class="policy-tag">空域管理</div>
+                    <div class="policy-tag">资质认证</div>
+                    <div class="policy-tag">保险机制</div>
+                    <div class="policy-tag">数据保护</div>
+                </div>
+            </div>
+            
+            <!-- 政策影响 -->
+            <div class="panel policy-impact">
+                <div class="panel-title">📈 政策影响评估</div>
+                <div class="chart-container small" id="impactChart"></div>
+                <div class="policy-timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-date">2024.03</span>
+                        <span class="timeline-event">《长三角低空物流发展指导意见》发布</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-date">2024.06</span>
+                        <span class="timeline-event">首批试点城市确定，专项资金到位</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-date">2024.09</span>
+                        <span class="timeline-event">空域管理改革试点启动</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 实施状态 -->
+            <div class="panel implementation-status">
+                <div class="panel-title">🚀 政策实施状态</div>
+                <div class="chart-container small" id="implementationChart"></div>
+                <div class="implementation-progress">
+                    <span class="progress-label">基础设施建设</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%"></div>
+                    </div>
+                    <span class="progress-value">78%</span>
+                </div>
+                <div class="implementation-progress">
+                    <span class="progress-label">监管体系完善</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <span class="progress-value">65%</span>
+                </div>
+                <div class="implementation-progress">
+                    <span class="progress-label">技术标准制定</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                    <span class="progress-value">85%</span>
+                </div>
+                <div class="implementation-progress">
+                    <span class="progress-label">人才培养计划</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 52%"></div>
+                    </div>
+                    <span class="progress-value">52%</span>
+                </div>
+            </div>
+            
+            <!-- 对比分析 -->
+            <div class="panel comparative-analysis">
+                <div class="panel-title">📊 区域政策对比</div>
+                <div class="chart-container small" id="comparativeChart"></div>
+                <div class="region-comparison">
+                    <span class="region-name">上海</span>
+                    <span class="region-support">7.5亿 <span class="region-trend">+15%</span></span>
+                </div>
+                <div class="region-comparison">
+                    <span class="region-name">南京</span>
+                    <span class="region-support">37.5亿 <span class="region-trend">+28%</span></span>
+                </div>
+                <div class="region-comparison">
+                    <span class="region-name">杭州</span>
+                    <span class="region-support">20.0亿 <span class="region-trend">+22%</span></span>
+                </div>
+                <div class="region-comparison">
+                    <span class="region-name">苏州</span>
+                    <span class="region-support">18.5亿 <span class="region-trend">+18%</span></span>
+                </div>
+            </div>
+            
+            <!-- 未来展望 -->
+            <div class="panel future-prospects">
+                <div class="panel-title">🔮 未来政策展望</div>
+                <div class="chart-container small" id="prospectsChart"></div>
+                <div class="policy-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">2026</div>
+                        <div class="metric-label">全面推广</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">200亿</div>
+                        <div class="metric-label">预计总投入</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">12个</div>
+                        <div class="metric-label">扩展城市</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">95%</div>
+                        <div class="metric-label">目标落实率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        function initCharts() {
+            initFundingAnalysis();
+            initRegulatoryFramework();
+            initPolicyImpact();
+            initImplementationStatus();
+            initComparativeAnalysis();
+            initFutureProspects();
+        }
+        
+        // 资金支持分析
+        function initFundingAnalysis() {
+            const chart = echarts.init(document.getElementById('fundingChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['政府投资', '社会资本', '企业自筹'],
+                    textStyle: { color: '#fff' },
+                    top: 10
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024', '2025', '2026', '2027', '2028'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '资金规模(亿元)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        name: '政府投资',
+                        type: 'bar',
+                        stack: 'total',
+                        data: [15.2, 18.5, 22.3, 25.8, 28.9],
+                        itemStyle: { color: '#e74c3c' }
+                    },
+                    {
+                        name: '社会资本',
+                        type: 'bar',
+                        stack: 'total',
+                        data: [8.5, 12.3, 15.7, 18.2, 21.4],
+                        itemStyle: { color: '#f39c12' }
+                    },
+                    {
+                        name: '企业自筹',
+                        type: 'bar',
+                        stack: 'total',
+                        data: [3.2, 4.8, 6.5, 8.9, 11.2],
+                        itemStyle: { color: '#3498db' }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 监管框架
+        function initRegulatoryFramework() {
+            const chart = echarts.init(document.getElementById('regulatoryChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: [
+                            {value: 30, name: '安全管理', itemStyle: {color: '#e74c3c'}},
+                            {value: 25, name: '空域管理', itemStyle: {color: '#f39c12'}},
+                            {value: 20, name: '资质认证', itemStyle: {color: '#3498db'}},
+                            {value: 15, name: '保险机制', itemStyle: {color: '#2ecc71'}},
+                            {value: 10, name: '数据保护', itemStyle: {color: '#9b59b6'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 11
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 政策影响
+        function initPolicyImpact() {
+            const chart = echarts.init(document.getElementById('impactChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '影响指数',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [65, 78, 85, 92],
+                        itemStyle: { color: '#e74c3c' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(231, 76, 60, 0.3)' },
+                                { offset: 1, color: 'rgba(231, 76, 60, 0.1)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 实施状态
+        function initImplementationStatus() {
+            const chart = echarts.init(document.getElementById('implementationChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '完成度(%)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['基础设施建设', '监管体系完善', '技术标准制定', '人才培养计划'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        data: [78, 65, 85, 52],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: '#e74c3c' },
+                                { offset: 1, color: '#c0392b' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 对比分析
+        function initComparativeAnalysis() {
+            const chart = echarts.init(document.getElementById('comparativeChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: '60%',
+                        data: [
+                            {value: 35, name: '上海', itemStyle: {color: '#e74c3c'}},
+                            {value: 28, name: '南京', itemStyle: {color: '#f39c12'}},
+                            {value: 18, name: '杭州', itemStyle: {color: '#3498db'}},
+                            {value: 12, name: '苏州', itemStyle: {color: '#2ecc71'}},
+                            {value: 7, name: '其他', itemStyle: {color: '#9b59b6'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 10
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 未来展望
+        function initFutureProspects() {
+            const chart = echarts.init(document.getElementById('prospectsChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024', '2025', '2026', '2027', '2028'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '预期投入(亿元)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [45, 68, 95, 125, 150],
+                        itemStyle: { color: '#e74c3c' },
+                        lineStyle: { width: 3 },
+                        symbolSize: 8
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // 动画进度条
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+            
+            // 定时更新数据
+            setInterval(function() {
+                const policyValues = document.querySelectorAll('.policy-value');
+                policyValues.forEach(value => {
+                    if (value.textContent.includes('亿')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 5;
+                        value.textContent = (base + fluctuation).toFixed(1) + '亿';
+                    } else if (value.textContent.includes('%')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        value.textContent = Math.max(70, Math.min(100, base + fluctuation)).toFixed(0) + '%';
+                    }
+                });
+            }, 7000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海医疗无人机配送数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .efficiency-card {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+                
+        .policy-support {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+        }
+        
+        .medical-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 上海医疗无人机配送数据</h1>
+            <p>瑞金医院等三甲机构应用效果分析</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <h4>血液制品损耗率降低</h4>
+                <div class="value">85%</div>
+                <div class="unit">从8%降至1.2%</div>
+            </div>
+            <div class="kpi-card success">
+                <h4>急救响应时间缩短</h4>
+                <div class="value">18</div>
+                <div class="unit">分钟</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>财政补贴覆盖率</h4>
+                <div class="value">70%</div>
+                <div class="unit">试点项目</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>试点医院数量</h4>
+                <div class="value">12</div>
+                <div class="unit">市级医院</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>🏥 医疗需求三级分化</h3>
+                <div class="chart-container">
+                    <canvas id="demandChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 血液制品损耗率对比</h3>
+                <div class="chart-container">
+                    <canvas id="wasteChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>⚡ 效益提升分析</h3>
+                <div class="chart-container">
+                    <canvas id="benefitChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h4>🎯 政策支持力度</h4>
+                <div class="chart-container">
+                    <canvas id="policyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📈 试点医院进展</h3>
+                <div class="chart-container">
+                    <canvas id="hospitalChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 医疗无人机核心价值</h3>
+            <div class="insight-item">
+                <strong>生命救治保障：</strong>急救响应时间缩短18分钟，显著提升脑卒中患者生存率，时间就是生命
+            </div>
+            <div class="insight-item">
+                <strong>医疗资源优化：</strong>血液制品损耗率从8%降至1.2%，完全符合GSP规范要求，大幅降低医疗成本
+            </div>
+            <div class="insight-item">
+                <strong>需求层次分明：</strong>常规药品补充(65%)、紧急救治物资(25%)、器官转运(10%)形成完整的医疗物流体系
+            </div>
+            <div class="insight-item">
+                <strong>政策强力推动：</strong>纳入公共卫生应急体系，70%财政补贴覆盖率，推动12家市级医院开展试点应用
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 医疗需求三级分化
+        const demandCtx = document.getElementById('demandChart').getContext('2d');
+        new Chart(demandCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['常规药品补充', '紧急救治物资', '器官转运等特殊需求'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: [
+                        '#3498db',
+                        '#e74c3c',
+                        '#f39c12'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 血液制品损耗率对比
+        const wasteCtx = document.getElementById('wasteChart').getContext('2d');
+        new Chart(wasteCtx, {
+            type: 'bar',
+            data: {
+                labels: ['传统配送', '无人机配送'],
+                datasets: [{
+                    label: '血液制品损耗率 (%)',
+                    data: [8, 1.2],
+                    backgroundColor: ['#e74c3c', '#27ae60'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value, context) => {
+                            return value + '%';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '损耗率 (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 效益提升分析
+        const benefitCtx = document.getElementById('benefitChart').getContext('2d');
+        new Chart(benefitCtx, {
+            type: 'radar',
+            data: {
+                labels: ['响应速度', '成本控制', '资源利用率', '患者满意度', '合规性'],
+                datasets: [{
+                    label: '传统配送',
+                    data: [60, 40, 50, 55, 70],
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 2
+                }, {
+                    label: '无人机配送',
+                    data: [90, 85, 88, 92, 95],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 政策支持力度
+        const policyCtx = document.getElementById('policyChart').getContext('2d');
+        new Chart(policyCtx, {
+            type: 'pie',
+            data: {
+                labels: ['财政补贴覆盖', '医院自筹资金'],
+                datasets: [{
+                    data: [70, 30],
+                    backgroundColor: [
+                        '#16a085',
+                        '#95a5a6'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 试点医院进展
+        const hospitalCtx = document.getElementById('hospitalChart').getContext('2d');
+        new Chart(hospitalCtx, {
+            type: 'line',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [{
+                    label: '试点医院数量',
+                    data: [3, 6, 9, 12],
+                    borderColor: '#8e44ad',
+                    backgroundColor: 'rgba(142, 68, 173, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '医院数量'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "report-image-generator",
+  "version": "1.0.0",
+  "description": "报告文档配图生成器",
+  "main": "image-generator-server.js",
+  "scripts": {
+    "start": "node image-generator-server.js",
+    "dev": "nodemon image-generator-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "openai": "^4.24.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

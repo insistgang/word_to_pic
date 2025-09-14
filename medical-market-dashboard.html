@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗低空物流高价值细分市场数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+      .dashboard .chart-card:nth-child(4) {
+          grid-column: span 2;
+      }
+      
+      .dashboard .chart-card:nth-child(5) {
+          grid-column: span 1;
+      }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+            
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+            
+                .medical-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .medical-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .medical-item .medical-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+        
+        .medical-item .medical-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .medical-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+            
+            .medical-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 医疗低空物流高价值细分市场</h1>
+            <p>复旦大学附属肿瘤医院等试点机构市场数据分析</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>单院年配送费用</h4>
+                <div class="value">360万</div>
+                <div class="unit">元/年</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>12家试点医院规模</h4>
+                <div class="value">4320万</div>
+                <div class="unit">市场规模</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>2030年市场规模</h4>
+                <div class="value">25亿</div>
+                <div class="unit">医疗低空物流</div>
+            </div>
+            <div class="kpi-card">
+                <h4>年复合增长率</h4>
+                <div class="value">55%</div>
+                <div class="unit">医疗细分市场</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>📈 医疗市场规模增长预测</h3>
+                <div class="chart-container">
+                    <canvas id="marketGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🏥 三甲医院覆盖率提升</h3>
+                <div class="chart-container">
+                    <canvas id="coverageChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>💰 采购结构分析</h3>
+                <div class="chart-container">
+                    <canvas id="procurementChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🚀 增长动力分析</h3>
+                <div class="chart-container">
+                    <canvas id="growthDriverChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🌏 长三角医疗协同</h3>
+                <div class="chart-container">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 医疗低空物流市场核心价值</h3>
+            <div class="insight-item">
+                <strong>高价值细分市场：</strong>2025年复旦大学附属肿瘤医院等试点机构实践显示，单院年无人机配送费用约360万元，全市12家试点医院形成约4320万元市场规模，成为低空物流的高价值细分领域
+            </div>
+            <div class="insight-item">
+                <strong>覆盖率驱动增长：</strong>随着三甲医院覆盖率从当前15%提升至2027年的50%，预计市场规模将达1.8亿元，政府购买服务占比58%，医院自主采购占32%
+            </div>
+            <div class="insight-item">
+                <strong>服务升级趋势：</strong>冷链运输等增值服务占比从10%提升至30%，应急响应机制完善使订单量年增40%，体现医疗服务质量与效率的双重提升
+            </div>
+            <div class="insight-item">
+                <strong>区域协同发展：</strong>长三角医疗联盟的形成带来跨区域配送需求，预计区域协同订单将占上海总量的20%，推动医疗资源优化配置和区域一体化发展
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 医疗市场规模增长预测
+        const marketGrowthCtx = document.getElementById('marketGrowthChart').getContext('2d');
+        new Chart(marketGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '医疗低空物流市场规模',
+                    data: [0.43, 0.67, 1.8, 4.5, 12, 25],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#e74c3c',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (value, context) => {
+                            if (context.dataIndex === 0) return value + '亿';
+                            return '';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '市场规模 (亿元)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 三甲医院覆盖率提升
+        const coverageCtx = document.getElementById('coverageChart').getContext('2d');
+        new Chart(coverageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '三甲医院覆盖率',
+                    data: [15, 25, 50, 65, 80, 90],
+                    backgroundColor: '#e74c3c',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '覆盖率 (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 采购结构分析
+        const procurementCtx = document.getElementById('procurementChart').getContext('2d');
+        new Chart(procurementCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['政府购买服务', '医院自主采购', '社会资本参与'],
+                datasets: [{
+                    data: [58, 32, 10],
+                    backgroundColor: ['#e74c3c', '#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 增长动力分析
+        const growthDriverCtx = document.getElementById('growthDriverChart').getContext('2d');
+        new Chart(growthDriverCtx, {
+            type: 'radar',
+            data: {
+                labels: ['应急响应', '冷链运输', '跨区域协同', '技术进步', '政策支持', '成本效益'],
+                datasets: [{
+                    label: '2025年',
+                    data: [60, 30, 20, 70, 80, 65],
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 2
+                }, {
+                    label: '2030年',
+                    data: [90, 80, 75, 95, 95, 90],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 长三角医疗协同 - 修改为两排显示的饼图
+        const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+        new Chart(regionalCtx, {
+            type: 'pie',
+            data: {
+                labels: ['上海本地订单', '长三角协同订单', '全国其他区域'],
+                datasets: [{
+                    data: [80, 20, 0],
+                    backgroundColor: ['#e74c3c', '#3498db', '#95a5a6'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 20
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 13
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    const labels = data.labels;
+                                    const dataset = data.datasets[0];
+                                    
+                                    // 分成两排显示
+                                    return labels.map((label, i) => ({
+                                        text: label,
+                                        fillStyle: dataset.backgroundColor[i],
+                                        strokeStyle: dataset.borderColor,
+                                        lineWidth: dataset.borderWidth,
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 18
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        },
+                        anchor: 'center',
+                        align: 'center'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

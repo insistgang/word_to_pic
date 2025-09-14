@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长三角低空物流区域对比分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .kpi-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .kpi-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 350px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ 长三角低空物流区域对比分析平台</h1>
+            <p>多维度对比分析长三角各城市发展状况和投资机会</p>
+        </div>
+        
+        <!-- KPI概览 -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-value">8</div>
+                <div class="kpi-label">覆盖城市</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">120亿</div>
+                <div class="kpi-label">2030年市场规模</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">760</div>
+                <div class="kpi-label">总航线数</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">35%</div>
+                <div class="kpi-label">年增长率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2.8万</div>
+                <div class="kpi-label">日均配送量</div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="chart">
+            <h3 class="chart-title">🏙️ 城市发展热度对比</h3>
+            <div class="chart-container" id="cityHeatChart"></div>
+        </div>
+        
+        <div class="chart">
+            <h3 class="chart-title">💰 投资规模对比</h3>
+            <div class="chart-container" id="investmentComparisonChart"></div>
+        </div>
+        
+        <div class="chart">
+            <h3 class="chart-title">🏆 市场份额分析</h3>
+            <div class="chart-container" id="marketShareChart"></div>
+        </div>
+        
+        <div class="chart">
+            <h3 class="chart-title">📈 增长趋势预测</h3>
+            <div class="chart-container" id="growthTrendChart"></div>
+        </div>
+        
+        <div class="chart">
+            <h3 class="chart-title">🔗 数据关联分析</h3>
+            <div class="chart-container" id="correlationChart"></div>
+        </div>
+        
+        <div class="chart">
+            <h3 class="chart-title">📊 竞争力排名</h3>
+            <div class="chart-container" id="competitivenessChart"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 确保ECharts加载完成
+        function initCharts() {
+            console.log("开始初始化图表...");
+            
+            try {
+                // 城市发展热度对比
+                const cityHeatChart = echarts.init(document.getElementById('cityHeatChart'));
+                const cityHeatOption = {
+                    backgroundColor: 'transparent',
+                    title: {
+                        text: '长三角城市发展热度指数',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['上海', '南京', '杭州', '苏州', '合肥', '宁波'],
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '热度指数',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    series: [{
+                        name: '发展热度',
+                        type: 'bar',
+                        data: [95, 85, 88, 82, 78, 75],
+                        itemStyle: { color: '#667eea' }
+                    }]
+                };
+                cityHeatChart.setOption(cityHeatOption);
+                console.log("城市发展热度图表初始化成功");
+                
+                // 投资规模对比
+                const investmentComparisonChart = echarts.init(document.getElementById('investmentComparisonChart'));
+                const investmentOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['上海', '南京', '杭州', '苏州', '合肥', '宁波'],
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '投资金额(亿)',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    series: [
+                        {
+                            name: '2023年投资',
+                            type: 'bar',
+                            data: [45, 28, 25, 22, 18, 15],
+                            itemStyle: { color: '#667eea' }
+                        },
+                        {
+                            name: '2024年预计',
+                            type: 'bar',
+                            data: [52, 35, 32, 28, 24, 20],
+                            itemStyle: { color: '#764ba2' }
+                        }
+                    ]
+                };
+                investmentComparisonChart.setOption(investmentOption);
+                console.log("投资规模对比图表初始化成功");
+                
+                // 市场份额分析
+                const marketShareChart = echarts.init(document.getElementById('marketShareChart'));
+                const marketOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    series: [{
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: [
+                            { value: 35, name: '上海', itemStyle: { color: '#667eea' } },
+                            { value: 25, name: '江苏', itemStyle: { color: '#764ba2' } },
+                            { value: 20, name: '浙江', itemStyle: { color: '#4facfe' } },
+                            { value: 12, name: '安徽', itemStyle: { color: '#00d2ff' } },
+                            { value: 8, name: '其他', itemStyle: { color: '#43e97b' } }
+                        ],
+                        label: {
+                            show: true,
+                            color: '#fff',
+                            formatter: '{b}: {c}%'
+                        }
+                    }]
+                };
+                marketShareChart.setOption(marketOption);
+                console.log("市场份额分析图表初始化成功");
+                
+                // 增长趋势预测
+                const growthTrendChart = echarts.init(document.getElementById('growthTrendChart'));
+                const growthOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['2023', '2024', '2025', '2026', '2027', '2028'],
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '市场规模(亿)',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    series: [{
+                        name: '市场规模',
+                        type: 'line',
+                        data: [45, 65, 85, 105, 120, 140],
+                        itemStyle: { color: '#667eea' },
+                        smooth: true
+                    }]
+                };
+                growthTrendChart.setOption(growthOption);
+                console.log("增长趋势预测图表初始化成功");
+                
+                // 数据关联分析
+                const correlationChart = echarts.init(document.getElementById('correlationChart'));
+                const correlationOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    xAxis: {
+                        type: 'value',
+                        name: '投资规模',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '市场规模',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    series: [{
+                        type: 'scatter',
+                        data: [
+                            [45, 95], [28, 65], [25, 58], [22, 52], [18, 42], [15, 38],
+                            [35, 72], [20, 45], [30, 68], [25, 55]
+                        ],
+                        symbolSize: 15,
+                        itemStyle: {
+                            color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                                { offset: 0, color: '#667eea' },
+                                { offset: 1, color: '#764ba2' }
+                            ])
+                        }
+                    }]
+                };
+                correlationChart.setOption(correlationOption);
+                console.log("数据关联分析图表初始化成功");
+                
+                // 竞争力排名
+                const competitivenessChart = echarts.init(document.getElementById('competitivenessChart'));
+                const competitivenessOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    radar: {
+                        indicator: [
+                            { name: '政策支持', max: 10 },
+                            { name: '基础设施', max: 10 },
+                            { name: '市场规模', max: 10 },
+                            { name: '技术水平', max: 10 },
+                            { name: '人才储备', max: 10 }
+                        ],
+                        axisLine: { lineStyle: { color: '#666' } },
+                        splitLine: { lineStyle: { color: '#666' } },
+                        name: {
+                            textStyle: { color: '#ccc' }
+                        }
+                    },
+                    series: [{
+                        type: 'radar',
+                        data: [
+                            {
+                                value: [9, 8, 9, 8, 7],
+                                name: '上海',
+                                itemStyle: { color: '#667eea' }
+                            },
+                            {
+                                value: [7, 8, 7, 6, 8],
+                                name: '南京',
+                                itemStyle: { color: '#764ba2' }
+                            },
+                            {
+                                value: [8, 7, 8, 8, 7],
+                                name: '杭州',
+                                itemStyle: { color: '#4facfe' }
+                            }
+                        ]
+                    }]
+                };
+                competitivenessChart.setOption(competitivenessOption);
+                console.log("竞争力排名图表初始化成功");
+                
+                // 响应式处理
+                window.addEventListener('resize', function() {
+                    cityHeatChart.resize();
+                    investmentComparisonChart.resize();
+                    marketShareChart.resize();
+                    growthTrendChart.resize();
+                    correlationChart.resize();
+                    competitivenessChart.resize();
+                });
+                
+                console.log("所有图表初始化完成");
+                
+            } catch (error) {
+                console.error("图表初始化失败:", error);
+            }
+        }
+        
+        // 等待页面和ECharts完全加载
+        window.addEventListener('load', function() {
+            console.log("页面加载完成");
+            if (typeof echarts !== 'undefined') {
+                setTimeout(initCharts, 100);
+            } else {
+                console.error("ECharts未加载");
+            }
+        });
+    </script>
+</body>
+</html>

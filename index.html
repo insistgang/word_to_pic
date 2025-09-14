@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海无人机配送数据总览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .stats-summary {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+        
+        .stat-item .label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard-card.delivery {
+            border-color: #3498db;
+        }
+        
+        .dashboard-card.medical {
+            border-color: #e74c3c;
+        }
+        
+        .card-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .delivery .card-icon {
+            color: #3498db;
+        }
+        
+        .medical .card-icon {
+            color: #e74c3c;
+        }
+        
+        .card-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .card-description {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .metric-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .metric-item .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .metric-item .metric-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .delivery .metric-value {
+            color: #3498db;
+        }
+        
+        .medical .metric-value {
+            color: #e74c3c;
+        }
+        
+        .explore-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .explore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .delivery .explore-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .medical .explore-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .industrial {
+            border-color: #f39c12;
+        }
+        
+        .industrial .card-icon {
+            color: #f39c12;
+        }
+        
+        .industrial .metric-value {
+            color: #f39c12;
+        }
+        
+        .industrial .explore-btn {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .delta {
+            border-color: #16a085;
+        }
+        
+        .delta .card-icon {
+            color: #16a085;
+        }
+        
+        .delta .metric-value {
+            color: #16a085;
+        }
+        
+        .delta .explore-btn {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+        }
+        
+        .growth {
+            border-color: #9b59b6;
+        }
+        
+        .growth .card-icon {
+            color: #9b59b6;
+        }
+        
+        .growth .metric-value {
+            color: #9b59b6;
+        }
+        
+        .growth .explore-btn {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        
+        .medical-market {
+            border-color: #e74c3c;
+        }
+        
+        .medical-market .card-icon {
+            color: #e74c3c;
+        }
+        
+        .medical-market .metric-value {
+            color: #e74c3c;
+        }
+        
+        .medical-market .explore-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .industrial-market {
+            border-color: #f39c12;
+        }
+        
+        .industrial-market .card-icon {
+            color: #f39c12;
+        }
+        
+        .industrial-market .metric-value {
+            color: #f39c12;
+        }
+        
+        .industrial-market .explore-btn {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .user-profile {
+            border-color: #667eea;
+        }
+        
+        .user-profile .card-icon {
+            color: #667eea;
+        }
+        
+        .user-profile .metric-value {
+            color: #667eea;
+        }
+        
+        .user-profile .explore-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .merchant-application {
+            border-color: #e67e22;
+        }
+        
+        .merchant-application .card-icon {
+            color: #e67e22;
+        }
+        
+        .merchant-application .metric-value {
+            color: #e67e22;
+        }
+        
+        .merchant-application .explore-btn {
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+        }
+        
+        .medical-standards {
+            border-color: #e74c3c;
+        }
+        
+        .medical-standards .card-icon {
+            color: #e74c3c;
+        }
+        
+        .medical-standards .metric-value {
+            color: #e74c3c;
+        }
+        
+        .medical-standards .explore-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .government-support {
+            border-color: #2c3e50;
+        }
+        
+        .government-support .card-icon {
+            color: #2c3e50;
+        }
+        
+        .government-support .metric-value {
+            color: #2c3e50;
+        }
+        
+        .government-support .explore-btn {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-summary {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .key-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚁 上海无人机配送数据分析平台</h1>
+            <p>美团杨浦区3条航线运营数据深度分析</p>
+            <div class="stats-summary">
+                <div class="stat-item">
+                    <div class="number">12</div>
+                    <div class="label">数据仪表盘</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">65亿</div>
+                    <div class="label">2030年特色产业规模</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">40%</div>
+                    <div class="label">农资成本降低</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">30条</div>
+                    <div class="label">2030年航线数量</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card delivery">
+                <div class="card-icon">🛵</div>
+                <h2 class="card-title">城市生活服务配送</h2>
+                <p class="card-description">
+                    美团在杨浦区开通的3条航线（合生汇至黄兴公园、互联宝地园区及复旦大学）实现单线日均最高300单配送能力，3公里半径配送时效压缩至10分钟以内。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">10分钟</div>
+                        <div class="metric-label">3公里配送时效</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">71.15%</div>
+                        <div class="metric-label">时效性保障需求</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">210%</div>
+                        <div class="metric-label">暴雨天气订单增长</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">75%</div>
+                        <div class="metric-label">高密度区域复购率</div>
+                    </div>
+                </div>
+                
+                <a href="drone-delivery-dashboard.html" class="explore-btn">📊 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card medical">
+                <div class="card-icon">🏥</div>
+                <h2 class="card-title">医疗无人机配送</h2>
+                <p class="card-description">
+                    瑞金医院等三甲机构的测算表明，无人机配送使血液制品损耗率从8%降至1.2%，完全符合GSP规范要求，同时将急救响应时间缩短18分钟。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">1.2%</div>
+                        <div class="metric-label">血液制品损耗率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">18分钟</div>
+                        <div class="metric-label">急救响应时间缩短</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">70%</div>
+                        <div class="metric-label">财政补贴覆盖率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">85%</div>
+                        <div class="metric-label">损耗率降低幅度</div>
+                    </div>
+                </div>
+                
+                <a href="medical-drone-dashboard.html" class="explore-btn">📈 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card industrial">
+                <div class="card-icon">🏭</div>
+                <h2 class="card-title">工业级无人机应用</h2>
+                <p class="card-description">
+                    G60科创走廊催生工业级无人机应用热潮。上海金山区与苏州工业园区形成"研发-制造-应用"闭环，推动电子元件、汽车零部件等精密货物低空运输常态化。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">3倍</div>
+                        <div class="metric-label">转运效率提升</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">22%</div>
+                        <div class="metric-label">单票成本降低</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">600万</div>
+                        <div class="metric-label">停线损失减少/年</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">200+</div>
+                        <div class="metric-label">2027年产能目标</div>
+                    </div>
+                </div>
+                
+                <a href="industrial-drone-dashboard.html" class="explore-btn">🏭 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card delta">
+                <div class="card-icon">🌊</div>
+                <h2 class="card-title">长三角特色经济带</h2>
+                <p class="card-description">
+                    舟山群岛沪舟甬低空航线网络将岛际物资运输时间从3小时压缩至30-40分钟，年市场需求超50亿元，形成差异化低空物流需求。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">82%</div>
+                        <div class="metric-label">运输时间压缩</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">30%</div>
+                        <div class="metric-label">香气物质保留率提升</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">2小时+</div>
+                        <div class="metric-label">山区场景省时</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">98%</div>
+                        <div class="metric-label">偏远村寨覆盖率</div>
+                    </div>
+                </div>
+                
+                <a href="yangtze-delta-dashboard.html" class="explore-btn">🌊 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card growth">
+                <div class="card-icon">📈</div>
+                <h2 class="card-title">市场增长趋势</h2>
+                <p class="card-description">
+                    2025-2030年复合增长率将保持在65%以上，到2030年上海城市生活服务低空物流市场规模将突破120亿元，占长三角区域总量的45%。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">65%</div>
+                        <div class="metric-label">年复合增长率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">100+</div>
+                        <div class="metric-label">2027年航线数量</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">40单</div>
+                        <div class="metric-label">单机日均订单</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">12元</div>
+                        <div class="metric-label">升级后客单价</div>
+                    </div>
+                </div>
+                
+                <a href="market-growth-dashboard.html" class="explore-btn">📈 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card medical-market">
+                <div class="card-icon">🏥</div>
+                <h2 class="card-title">医疗细分市场</h2>
+                <p class="card-description">
+                    医疗领域成为低空物流的高价值细分市场，单院年配送费用360万元，2030年市场规模将突破25亿元，年复合增长率55%。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">360万</div>
+                        <div class="metric-label">单院年费用</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">58%</div>
+                        <div class="metric-label">政府购买服务</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">30%</div>
+                        <div class="metric-label">增值服务占比</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">20%</div>
+                        <div class="metric-label">区域协同订单</div>
+                    </div>
+                </div>
+                
+                <a href="medical-market-dashboard.html" class="explore-btn">🏥 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card industrial-market">
+                <div class="card-icon">🏭</div>
+                <h2 class="card-title">工业细分市场</h2>
+                <p class="card-description">
+                    工业级应用构成市场主力板块，2025年规模68亿元，2030年将突破110亿元，年复合增长率50%，是低空经济的核心支柱。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">150万</div>
+                        <div class="metric-label">单架设备价值</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">23%</div>
+                        <div class="metric-label">物流配送占比</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">90%</div>
+                        <div class="metric-label">客户留存率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">25元</div>
+                        <div class="metric-label">紧急调拨溢价</div>
+                    </div>
+                </div>
+                
+                <a href="industrial-market-dashboard.html" class="explore-btn">🏭 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card special-industry">
+                <div class="card-icon">🌊</div>
+                <h2 class="card-title">特色产业物流</h2>
+                <p class="card-description">
+                    特色产业物流呈现差异化增长，2030年市场规模将达65亿元，上海占比提升至15%，航线网络扩展至30条，年货运量突破10万吨。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">50亿</div>
+                        <div class="metric-label">海岛物流需求</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">40%</div>
+                        <div class="metric-label">农资成本降低</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">35%</div>
+                        <div class="metric-label">冷链需求年增</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">70%+</div>
+                        <div class="metric-label">农业补贴覆盖率</div>
+                    </div>
+                </div>
+                
+                <a href="special-industry-dashboard.html" class="explore-btn">🌊 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card user-profile">
+                <div class="card-icon">👥</div>
+                <h2 class="card-title">用户画像分析</h2>
+                <p class="card-description">
+                    上海无人机配送用户呈现年轻化、高学历特征。25-35岁城市白领占核心用户群体的63%，本科及以上学历占比78%，月均使用频次4.2次。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">63%</div>
+                        <div class="metric-label">25-35岁核心用户</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">78%</div>
+                        <div class="metric-label">本科及以上学历</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">71.15%</div>
+                        <div class="metric-label">时效保障需求</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">75%</div>
+                        <div class="metric-label">月费套餐续订率</div>
+                    </div>
+                </div>
+                
+                <a href="user-profile-dashboard.html" class="explore-btn">👥 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card merchant-application">
+                <div class="card-icon">🏪</div>
+                <h2 class="card-title">商家应用格局</h2>
+                <p class="card-description">
+                    上海商家形成多元化无人机应用格局。大型连锁企业倾向自建团队，中小商家选择共享运力，策略分化明显。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">68%</div>
+                        <div class="metric-label">中小餐饮采用率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">40%</div>
+                        <div class="metric-label">高峰期运力缺口</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">22%</div>
+                        <div class="metric-label">边际成本下降</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">65%</div>
+                        <div class="metric-label">技术观望比例</div>
+                    </div>
+                </div>
+                
+                <a href="merchant-application-dashboard.html" class="explore-btn">🏪 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card medical-standards">
+                <div class="card-icon">🏥</div>
+                <h2 class="card-title">医疗机构标准</h2>
+                <p class="card-description">
+                    上海医疗机构建立严格的无人机应用标准。三级医院接受度达82%，要求"99.9%准点率"，形成高门槛准入机制。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">82%</div>
+                        <div class="metric-label">三级医院接受度</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">95%</div>
+                        <div class="metric-label">合规要求覆盖率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">210%</div>
+                        <div class="metric-label">区域中心增速</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">99.9%</div>
+                        <div class="metric-label">准点率要求</div>
+                    </div>
+                </div>
+                
+                <a href="medical-standards-dashboard.html" class="explore-btn">🏥 查看详细数据</a>
+            </div>
+            
+            <div class="dashboard-card government-support">
+                <div class="card-icon">🏛️</div>
+                <h2 class="card-title">政府支持体系</h2>
+                <p class="card-description">
+                    上海市政府构建多维度低空物流支持体系。推进"空联网"建设，实施分类分级监管，提供最高500万财政补贴。
+                </p>
+                
+                <div class="key-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">5个</div>
+                        <div class="metric-label">新城航线网络</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">2027年</div>
+                        <div class="metric-label">监管平台建成</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">1小时</div>
+                        <div class="metric-label">应急救援响应</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">500万</div>
+                        <div class="metric-label">财政补贴上限</div>
+                    </div>
+                </div>
+                
+                <a href="government-support-dashboard.html" class="explore-btn">🏛️ 查看详细数据</a>
+            </div>
+        </div>
+        
+        <!-- 系统状态监控卡片 -->
+        <div class="dashboard-card">
+            <div class="card-icon">📊</div>
+            <h2>系统状态监控中心</h2>
+            <p class="card-description">
+                实时监控所有24个数据大屏的运行状态、性能指标和健康度，确保系统稳定运行
+            </p>
+            
+            <div class="key-metrics">
+                <div class="metric-item">
+                    <div class="metric-value">24个</div>
+                    <div class="metric-label">数据大屏总数</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">24个</div>
+                    <div class="metric-label">正常运行中</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">146个</div>
+                    <div class="metric-label">交互图表</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">6.1个</div>
+                    <div class="metric-label">平均图表数</div>
+                </div>
+            </div>
+            
+            <a href="dashboard-status-monitor.html" class="explore-btn">📊 进入监控中心</a>
+        </div>
+        
+          
+        <div class="footer">
+            <p>📊 数据来源：美团配送、瑞金医院等三甲机构 | 📅 更新时间：2024年</p>
+        </div>
+    </div>
+</body>
+</html>

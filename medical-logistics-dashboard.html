@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长三角医疗低空物流智能监控中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ff6b6b;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        
+        .kpi-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(238, 90, 36, 0.2));
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+        
+        .kpi-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .market-trends {
+            grid-column: 1 / 3;
+            grid-row: 2;
+        }
+        
+        .hospital-network {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .service-types {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .emergency-response {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .regional-analysis {
+            grid-column: 3;
+            grid-row: 3;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .chart-container.small {
+            height: 250px;
+        }
+        
+        .alert-panel {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .alert-item {
+            padding: 8px 0;
+            border-left: 3px solid #ff6b6b;
+            padding-left: 10px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff00;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .hospital-list {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .hospital-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .hospital-status {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-planning {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .market-trends {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+            
+            .hospital-network {
+                grid-column: 1;
+                grid-row: 3;
+            }
+            
+            .service-types {
+                grid-column: 2;
+                grid-row: 3;
+            }
+            
+            .emergency-response {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .regional-analysis {
+                grid-column: 2;
+                grid-row: 4;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 长三角医疗低空物流智能监控中心</h1>
+            <p>实时监控 • 智能调度 • 生命救援</p>
+        </div>
+        
+        <!-- KPI指标 -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">25亿</div>
+                <div class="kpi-label">2030年市场规模</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">360万</div>
+                <div class="kpi-label">单院年配送费用</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">55%</div>
+                <div class="kpi-label">年复合增长率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">276</div>
+                <div class="kpi-label">医疗航线数量</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">15%</div>
+                <div class="kpi-label">三甲医院覆盖率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">98.5%</div>
+                <div class="kpi-label">应急响应成功率</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <!-- 市场趋势分析 -->
+            <div class="panel market-trends">
+                <div class="panel-title">📈 医疗低空物流市场发展趋势</div>
+                <div class="chart-container" id="marketTrendChart"></div>
+            </div>
+            
+            <!-- 医院网络分布 -->
+            <div class="panel hospital-network">
+                <div class="panel-title">🏥 医院网络覆盖</div>
+                <div class="chart-container small" id="hospitalChart"></div>
+                <div class="hospital-list">
+                    <div class="hospital-item">
+                        <span>复旦大学附属肿瘤医院</span>
+                        <span class="hospital-status status-active">运行中</span>
+                    </div>
+                    <div class="hospital-item">
+                        <span>上海交通大学医学院附属瑞金医院</span>
+                        <span class="hospital-status status-active">运行中</span>
+                    </div>
+                    <div class="hospital-item">
+                        <span>复旦大学附属中山医院</span>
+                        <span class="hospital-status status-pending">测试中</span>
+                    </div>
+                    <div class="hospital-item">
+                        <span>上海市第一人民医院</span>
+                        <span class="hospital-status status-planning">规划中</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 服务类型分布 -->
+            <div class="panel service-types">
+                <div class="panel-title">🚑 医疗服务类型</div>
+                <div class="chart-container small" id="serviceTypeChart"></div>
+            </div>
+            
+            <!-- 应急响应监控 -->
+            <div class="panel emergency-response">
+                <div class="panel-title">⚡ 应急响应监控</div>
+                <div class="chart-container small" id="emergencyChart"></div>
+                <div class="alert-panel">
+                    <div class="alert-item">
+                        <span class="status-indicator"></span>
+                        【紧急】复旦大学附属华山医院急需A型血制品，预计15分钟送达
+                    </div>
+                    <div class="alert-item">
+                        <span class="status-indicator"></span>
+                        【优先】上海市儿童医院需要急救药品，正在调度无人机
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 区域分析 -->
+            <div class="panel regional-analysis">
+                <div class="panel-title">📍 区域发展对比</div>
+                <div class="chart-container small" id="regionalChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        function initCharts() {
+            initMarketTrend();
+            initHospitalNetwork();
+            initServiceTypes();
+            initEmergencyResponse();
+            initRegionalAnalysis();
+        }
+        
+        // 市场趋势图
+        function initMarketTrend() {
+            const chart = echarts.init(document.getElementById('marketTrendChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    borderColor: '#ff6b6b',
+                    textStyle: { color: '#fff' }
+                },
+                legend: {
+                    data: ['市场规模', '医院覆盖率', '服务单价'],
+                    textStyle: { color: '#fff' },
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '市场规模(亿元)',
+                        position: 'left',
+                        axisLine: { lineStyle: { color: '#ff6b6b' } }
+                    },
+                    {
+                        type: 'value',
+                        name: '覆盖率(%)',
+                        position: 'right',
+                        axisLine: { lineStyle: { color: '#3498db' } }
+                    }
+                ],
+                series: [
+                    {
+                        name: '市场规模',
+                        type: 'bar',
+                        data: [0.43, 0.67, 1.8, 4.5, 12, 25],
+                        itemStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        name: '医院覆盖率',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [15, 25, 50, 75, 85, 95],
+                        itemStyle: { color: '#3498db' },
+                        lineStyle: { width: 3 }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 医院网络图
+        function initHospitalNetwork() {
+            const chart = echarts.init(document.getElementById('hospitalChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}家'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: [
+                            {value: 12, name: '三甲医院', itemStyle: {color: '#ff6b6b'}},
+                            {value: 28, name: '二级医院', itemStyle: {color: '#f39c12'}},
+                            {value: 45, name: '社区医院', itemStyle: {color: '#3498db'}},
+                            {value: 15, name: '专科医院', itemStyle: {color: '#9b59b6'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 11
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 服务类型图
+        function initServiceTypes() {
+            const chart = echarts.init(document.getElementById('serviceTypeChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}%'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: '60%',
+                        data: [
+                            {value: 65, name: '常规药品', itemStyle: {color: '#ff6b6b'}},
+                            {value: 25, name: '紧急救治', itemStyle: {color: '#e74c3c'}},
+                            {value: 7, name: '器官转运', itemStyle: {color: '#c0392b'}},
+                            {value: 3, name: '血液制品', itemStyle: {color: '#a93226'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 10
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 应急响应图
+        function initEmergencyResponse() {
+            const chart = echarts.init(document.getElementById('emergencyChart'));
+            const hours = [];
+            const now = new Date();
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+                hours.push(time.getHours() + ':00');
+            }
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    borderColor: '#ff6b6b'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: hours,
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '响应次数',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [2, 3, 1, 5, 8, 12, 15, 18, 22, 19, 16, 14, 10, 8, 6, 5, 4, 3, 2, 4, 6, 9, 11, 13],
+                        itemStyle: { color: '#ff6b6b' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {offset: 0, color: 'rgba(255, 107, 107, 0.3)'},
+                                {offset: 1, color: 'rgba(255, 107, 107, 0.1)'}
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 区域分析图
+        function initRegionalAnalysis() {
+            const chart = echarts.init(document.getElementById('regionalChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['上海', '南京', '杭州', '苏州', '合肥'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        data: [95, 78, 82, 71, 65],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                {offset: 0, color: '#ff6b6b'},
+                                {offset: 1, color: '#ee5a24'}
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // 定时更新数据
+            setInterval(function() {
+                // 更新KPI数据
+                const kpiValues = document.querySelectorAll('.kpi-value');
+                kpiValues.forEach(kpi => {
+                    if (kpi.textContent.includes('亿')) {
+                        const base = parseFloat(kpi.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        kpi.textContent = (base + fluctuation).toFixed(1) + '亿';
+                    }
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

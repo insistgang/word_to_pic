@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长三角低空物流数据可视化大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: #e0e0e0;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 15px;
+            padding: 15px;
+            height: calc(100vh - 100px);
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            height: calc(100% - 45px);
+            min-height: 200px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .kpi-item {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .kpi-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .kpi-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        
+        /* 布局结构 */
+        .top-kpi {
+            grid-column: 1 / -1;
+            grid-row: 1;
+        }
+        
+        .left-panel {
+            grid-column: 1;
+            grid-row: 2 / -1;
+        }
+        
+        .center-main {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .center-bottom {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .right-top {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .right-bottom {
+            grid-column: 3;
+            grid-row: 3;
+        }
+        
+        .data-source {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .time-display {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1em;
+            color: #fff;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .top-kpi {
+                grid-column: 1 / -1;
+            }
+            
+            .left-panel {
+                grid-column: 1;
+                grid-row: 2;
+            }
+            
+            .center-main {
+                grid-column: 2;
+                grid-row: 2;
+            }
+            
+            .center-bottom {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+            
+            .right-top {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .right-bottom {
+                grid-column: 2;
+                grid-row: 4;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="time-display" id="timeDisplay"></div>
+    
+    <div class="header">
+        <h1>长三角低空物流数据可视化大屏</h1>
+        <p>数据来源：市场调研 | 政府统计 | 企业运营 | 用户调研</p>
+    </div>
+    
+    <div class="dashboard">
+        <!-- 顶部KPI指标 -->
+        <div class="chart-card top-kpi">
+            <h3>核心业务指标 (2025-2030预测)</h3>
+            <div class="kpi-grid">
+                <div class="kpi-item">
+                    <div class="kpi-value" id="totalMarket">120亿元</div>
+                    <div class="kpi-label">2030年市场规模</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" id="growthRate">3233%</div>
+                    <div class="kpi-label">五年复合增长率</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" id="routeCount">600条</div>
+                    <div class="kpi-label">规划航线数量</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" id="userSatisfaction">92%</div>
+                    <div class="kpi-label">用户满意度</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" id="medicalGrowth">25亿元</div>
+                    <div class="kpi-label">医疗物流市场规模</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" id="industrialEfficiency">300%</div>
+                    <div class="kpi-label">工业效率提升</div>
+                </div>
+            </div>
+            <div class="data-source">数据来源：市场增长趋势分析、政府支持政策研究</div>
+        </div>
+        
+        <!-- 左侧用户分析 -->
+        <div class="chart-card left-panel">
+            <h3>用户画像分析</h3>
+            <div class="chart-container" id="userAnalysisChart"></div>
+            <div class="data-source">数据来源：用户调研问卷、消费行为分析</div>
+        </div>
+        
+        <!-- 中部主要趋势图 -->
+        <div class="chart-card center-main">
+            <h3>低空物流市场增长趋势 (2025-2030)</h3>
+            <div class="chart-container" id="marketTrendChart"></div>
+            <div class="data-source">数据来源：行业研究报告、市场预测模型</div>
+        </div>
+        
+        <!-- 右侧应用场景 -->
+        <div class="chart-card right-top">
+            <h3>应用场景分布</h3>
+            <div class="chart-container" id="applicationChart"></div>
+            <div class="data-source">数据来源：企业应用案例调研</div>
+        </div>
+        
+        <!-- 中部区域对比 -->
+        <div class="chart-card center-bottom">
+            <h3>长三角区域发展对比</h3>
+            <div class="chart-container" id="regionComparisonChart"></div>
+            <div class="data-source">数据来源：长三角区域发展规划、各省统计数据</div>
+        </div>
+        
+        <!-- 右侧技术评估 -->
+        <div class="chart-card right-bottom">
+            <h3>技术成熟度评估</h3>
+            <div class="chart-container" id="techAssessmentChart"></div>
+            <div class="data-source">数据来源：技术专家评估、行业标准分析</div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        const charts = {};
+        
+        // 时间显示
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('timeDisplay').textContent = timeStr;
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // 初始化图表函数
+        function initChart(chartId, option) {
+            const chartDom = document.getElementById(chartId);
+            charts[chartId] = echarts.init(chartDom);
+            charts[chartId].setOption(option);
+            
+            // 响应式调整
+            window.addEventListener('resize', () => {
+                charts[chartId].resize();
+            });
+        }
+        
+        // 用户画像分析图（改进版）
+        function createUserAnalysisChart() {
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['年龄分布', '教育水平分布'],
+                    textStyle: {
+                        color: '#2c3e50'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '百分比(%)',
+                    nameTextStyle: {
+                        color: '#2c3e50'
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2c3e50'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(44, 62, 80, 0.1)'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['25-35岁', '18-25岁', '35-45岁', '45岁以上', '本科及以上', '大专', '高中及以下'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2c3e50'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '年龄分布',
+                        type: 'bar',
+                        data: [63, 18, 12, 7, 0, 0, 0],
+                        itemStyle: {
+                            color: '#3498db'
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{c}%'
+                        }
+                    },
+                    {
+                        name: '教育水平分布',
+                        type: 'bar',
+                        data: [0, 0, 0, 0, 78, 15, 7],
+                        itemStyle: {
+                            color: '#e74c3c'
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{c}%'
+                        }
+                    }
+                ]
+            };
+            initChart('userAnalysisChart', option);
+        }
+        
+        // 市场增长趋势图（改进版）
+        function createMarketTrendChart() {
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['市场规模(亿元)', '同比增长率(%)', '医疗物流(亿元)'],
+                    textStyle: {
+                        color: '#2c3e50'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2c3e50'
+                        }
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '市场规模(亿元)',
+                        nameTextStyle: {
+                            color: '#2c3e50'
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#2c3e50'
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: 'rgba(44, 62, 80, 0.1)'
+                            }
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '增长率(%)',
+                        nameTextStyle: {
+                            color: '#2c3e50'
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#2c3e50'
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: 'rgba(44, 62, 80, 0.1)'
+                            }
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '市场规模(亿元)',
+                        type: 'line',
+                        smooth: true,
+                        data: [2.3, 3.8, 7.5, 15, 45, 120],
+                        itemStyle: {
+                            color: '#3498db'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {offset: 0, color: 'rgba(52, 152, 219, 0.3)'},
+                                {offset: 1, color: 'rgba(52, 152, 219, 0.1)'}
+                            ])
+                        }
+                    },
+                    {
+                        name: '同比增长率(%)',
+                        type: 'line',
+                        smooth: true,
+                        yAxisIndex: 1,
+                        data: [65, 97, 100, 200, 167],
+                        itemStyle: {
+                            color: '#e74c3c'
+                        },
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    {
+                        name: '医疗物流(亿元)',
+                        type: 'line',
+                        smooth: true,
+                        data: [0.43, 0.67, 1.8, 4.5, 12, 25],
+                        itemStyle: {
+                            color: '#27ae60'
+                        }
+                    }
+                ]
+            };
+            initChart('marketTrendChart', option);
+        }
+        
+        // 应用场景分布图（改进版）
+        function createApplicationChart() {
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}%'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    textStyle: {
+                        color: '#2c3e50'
+                    }
+                },
+                series: [
+                    {
+                        name: '应用场景',
+                        type: 'pie',
+                        radius: '50%',
+                        data: [
+                            {value: 35, name: '医疗配送', itemStyle: {color: '#e74c3c'}},
+                            {value: 28, name: '工业物流', itemStyle: {color: '#3498db'}},
+                            {value: 20, name: '商业配送', itemStyle: {color: '#f39c12'}},
+                            {value: 10, name: '应急物资', itemStyle: {color: '#27ae60'}},
+                            {value: 7, name: '其他', itemStyle: {color: '#95a5a6'}}
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{b}: {c}%'
+                        }
+                    }
+                ]
+            };
+            initChart('applicationChart', option);
+        }
+        
+        // 区域发展对比图（改进版）
+        function createRegionComparisonChart() {
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['航线数量占比(%)', '投资规模(亿元)', '企业数量'],
+                    textStyle: {
+                        color: '#2c3e50'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['上海', '江苏', '浙江', '安徽'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2c3e50'
+                        }
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '百分比/数量',
+                        nameTextStyle: {
+                            color: '#2c3e50'
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#2c3e50'
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: 'rgba(44, 62, 80, 0.1)'
+                            }
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '投资(亿元)',
+                        nameTextStyle: {
+                            color: '#2c3e50'
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#2c3e50'
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: 'rgba(44, 62, 80, 0.1)'
+                            }
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '航线数量占比(%)',
+                        type: 'bar',
+                        data: [45, 25, 20, 10],
+                        itemStyle: {
+                            color: '#3498db'
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}%'
+                        }
+                    },
+                    {
+                        name: '投资规模(亿元)',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [7.5, 37.5, 20, 15],
+                        itemStyle: {
+                            color: '#e74c3c'
+                        },
+                        symbolSize: 8
+                    },
+                    {
+                        name: '企业数量',
+                        type: 'bar',
+                        data: [120, 80, 60, 30],
+                        itemStyle: {
+                            color: '#27ae60'
+                        }
+                    }
+                ]
+            };
+            initChart('regionComparisonChart', option);
+        }
+        
+        // 技术成熟度评估图（改进版）
+        function createTechAssessmentChart() {
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                radar: {
+                    indicator: [
+                        {name: '导航精度', max: 100},
+                        {name: '避障技术', max: 100},
+                        {name: '电池续航', max: 100},
+                        {name: '载重能力', max: 100},
+                        {name: '通信稳定性', max: 100},
+                        {name: '成本控制', max: 100}
+                    ],
+                    shape: 'polygon',
+                    splitNumber: 5,
+                    axisName: {
+                        color: '#2c3e50',
+                        fontSize: 12
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(44, 62, 80, 0.1)'
+                        }
+                    },
+                    splitArea: {
+                        show: false
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(44, 62, 80, 0.1)'
+                        }
+                    }
+                },
+                legend: {
+                    data: ['当前水平', '行业目标', '国际领先'],
+                    textStyle: {
+                        color: '#2c3e50'
+                    }
+                },
+                series: [{
+                    name: '技术评估',
+                    type: 'radar',
+                    data: [
+                        {
+                            value: [95, 88, 75, 82, 90, 78],
+                            name: '当前水平',
+                            areaStyle: {
+                                color: 'rgba(52, 152, 219, 0.3)'
+                            },
+                            lineStyle: {
+                                color: '#3498db'
+                            }
+                        },
+                        {
+                            value: [98, 95, 90, 95, 98, 90],
+                            name: '行业目标',
+                            areaStyle: {
+                                color: 'rgba(231, 76, 60, 0.2)'
+                            },
+                            lineStyle: {
+                                color: '#e74c3c',
+                                type: 'dashed'
+                            }
+                        },
+                        {
+                            value: [99, 98, 95, 98, 99, 95],
+                            name: '国际领先',
+                            areaStyle: {
+                                color: 'rgba(39, 174, 96, 0.2)'
+                            },
+                            lineStyle: {
+                                color: '#27ae60',
+                                type: 'dotted'
+                            }
+                        }
+                    ]
+                }]
+            };
+            initChart('techAssessmentChart', option);
+        }
+        
+        // 初始化所有图表
+        function initAllCharts() {
+            createUserAnalysisChart();
+            createMarketTrendChart();
+            createApplicationChart();
+            createRegionComparisonChart();
+            createTechAssessmentChart();
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initAllCharts);
+    </script>
+</body>
+</html>

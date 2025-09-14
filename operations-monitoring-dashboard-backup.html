@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流实时运营监控中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .kpi-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .kpi-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 350px;
+        }
+        
+        .real-time-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+        
+        .pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="real-time-indicator">
+        <span class="pulse"></span>实时监控中
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚁 低空物流实时运营监控中心</h1>
+            <p>实时监控无人机运营状态，提供智能调度和告警功能</p>
+        </div>
+        
+        <!-- KPI概览 -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-value" id="activeDrones">156</div>
+                <div class="kpi-label">活跃无人机</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="totalFlights">2,847</div>
+                <div class="kpi-label">今日总飞行架次</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="successRate">98.5%</div>
+                <div class="kpi-label">任务成功率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="activeAlerts">3</div>
+                <div class="kpi-label">活跃告警</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="avgDeliveryTime">12.3</div>
+                <div class="kpi-label">平均配送时间(分钟)</div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <!-- 实时飞行跟踪 -->
+            <div class="chart-card">
+                <h3 class="chart-title">🛩️ 实时飞行跟踪</h3>
+                <div class="chart-container" id="flightTrackingChart"></div>
+            </div>
+            
+            <!-- 运营指标监控 -->
+            <div class="chart-card">
+                <h3 class="chart-title">📊 运营指标监控</h3>
+                <div class="chart-container" id="operationsChart"></div>
+            </div>
+            
+            <!-- 实时告警系统 -->
+            <div class="chart-card">
+                <h3 class="chart-title">⚠️ 实时告警系统</h3>
+                <div class="chart-container" id="alertsChart"></div>
+            </div>
+            
+            <!-- 性能监控 -->
+            <div class="chart-card">
+                <h3 class="chart-title">📈 性能监控</h3>
+                <div class="chart-container" id="performanceChart"></div>
+            </div>
+            
+            <!-- 天气影响分析 -->
+            <div class="chart-card">
+                <h3 class="chart-title">🌤️ 天气影响分析</h3>
+                <div class="chart-container" id="weatherChart"></div>
+            </div>
+            
+            <!-- 配送统计 -->
+            <div class="chart-card">
+                <h3 class="chart-title">📦 配送统计</h3>
+                <div class="chart-container" id="deliveryChart"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟实时数据
+        let droneData = [];
+        let performanceData = [];
+        let deliveryData = [];
+        
+        // 初始化数据
+        function initializeData() {
+            // 生成模拟无人机位置数据
+            droneData = [];
+            for (let i = 0; i < 50; i++) {
+                droneData.push([
+                    Math.random() * 100,
+                    Math.random() * 100,
+                    Math.random() * 100 + 50
+                ]);
+            }
+            
+            // 生成性能数据
+            const now = new Date();
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+                performanceData.push([
+                    time.getHours() + ':00',
+                    Math.random() * 30 + 70,
+                    Math.random() * 10 + 5,
+                    Math.random() * 5 + 2
+                ]);
+            }
+            
+            // 生成配送数据
+            const categories = ['医疗急救', '餐饮外卖', '文件快递', '生鲜配送', '其他'];
+            deliveryData = categories.map(cat => Math.floor(Math.random() * 200 + 50));
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 实时飞行跟踪
+            const flightTrackingChart = echarts.init(document.getElementById('flightTrackingChart'));
+            const flightOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: 100,
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: 100,
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [{
+                    type: 'scatter',
+                    data: droneData,
+                    symbolSize: function (data) {
+                        return data[2] / 5;
+                    },
+                    itemStyle: {
+                        color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                            { offset: 0, color: '#00ff88' },
+                            { offset: 1, color: '#00ccff' }
+                        ])
+                    }
+                }]
+            };
+            flightTrackingChart.setOption(flightOption);
+            
+            // 运营指标监控
+            const operationsChart = echarts.init(document.getElementById('operationsChart'));
+            const operationsOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [
+                    {
+                        name: '飞行架次',
+                        type: 'bar',
+                        data: [120, 80, 450, 680, 520, 380],
+                        itemStyle: { color: '#00ff88' }
+                    },
+                    {
+                        name: '配送次数',
+                        type: 'line',
+                        data: [100, 70, 380, 590, 440, 320],
+                        itemStyle: { color: '#00ccff' }
+                    }
+                ]
+            };
+            operationsChart.setOption(operationsOption);
+            
+            // 实时告警系统
+            const alertsChart = echarts.init(document.getElementById('alertsChart'));
+            const alertsOption = {
+                backgroundColor: 'transparent',
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: [
+                        { value: 3, name: '活跃告警', itemStyle: { color: '#ff6b6b' } },
+                        { value: 12, name: '已处理', itemStyle: { color: '#ffd700' } },
+                        { value: 156, name: '正常运行', itemStyle: { color: '#00ff88' } }
+                    ],
+                    label: {
+                        show: true,
+                        color: '#fff'
+                    }
+                }]
+            };
+            alertsChart.setOption(alertsOption);
+            
+            // 性能监控
+            const performanceChart = echarts.init(document.getElementById('performanceChart'));
+            const performanceOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: performanceData.map(item => item[0]),
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [
+                    {
+                        name: '系统负载',
+                        type: 'line',
+                        data: performanceData.map(item => item[1]),
+                        itemStyle: { color: '#00ff88' }
+                    },
+                    {
+                        name: '响应时间',
+                        type: 'line',
+                        data: performanceData.map(item => item[2]),
+                        itemStyle: { color: '#ffd700' }
+                    }
+                ]
+            };
+            performanceChart.setOption(performanceOption);
+            
+            // 天气影响分析
+            const weatherChart = echarts.init(document.getElementById('weatherChart'));
+            const weatherOption = {
+                backgroundColor: 'transparent',
+                radar: {
+                    indicator: [
+                        { name: '风力', max: 10 },
+                        { name: '降雨', max: 10 },
+                        { name: '能见度', max: 10 },
+                        { name: '温度', max: 10 },
+                        { name: '湿度', max: 10 }
+                    ],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    splitLine: { lineStyle: { color: '#666' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [
+                        {
+                            value: [3, 2, 8, 6, 7],
+                            name: '当前天气',
+                            itemStyle: { color: '#00ff88' }
+                        },
+                        {
+                            value: [6, 7, 4, 8, 5],
+                            name: '恶劣天气',
+                            itemStyle: { color: '#ff6b6b' }
+                        }
+                    ]
+                }]
+            };
+            weatherChart.setOption(weatherOption);
+            
+            // 配送统计
+            const deliveryChart = echarts.init(document.getElementById('deliveryChart'));
+            const deliveryOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: ['医疗急救', '餐饮外卖', '文件快递', '生鲜配送', '其他'],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [{
+                    type: 'bar',
+                    data: deliveryData,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#00ff88' },
+                            { offset: 1, color: '#00ccff' }
+                        ])
+                    }
+                }]
+            };
+            deliveryChart.setOption(deliveryOption);
+            
+            // 响应式处理
+            window.addEventListener('resize', function() {
+                flightTrackingChart.resize();
+                operationsChart.resize();
+                alertsChart.resize();
+                performanceChart.resize();
+                weatherChart.resize();
+                deliveryChart.resize();
+            });
+        }
+        
+        // 更新实时数据
+        function updateRealTimeData() {
+            // 更新KPI
+            document.getElementById('activeDrones').textContent = Math.floor(Math.random() * 50 + 130);
+            document.getElementById('totalFlights').textContent = (Math.floor(Math.random() * 1000 + 2000)).toLocaleString();
+            document.getElementById('successRate').textContent = (Math.random() * 2 + 97).toFixed(1) + '%';
+            document.getElementById('activeAlerts').textContent = Math.floor(Math.random() * 5 + 1);
+            document.getElementById('avgDeliveryTime').textContent = (Math.random() * 5 + 10).toFixed(1);
+            
+            // 更新无人机位置
+            droneData = droneData.map(point => [
+                Math.max(0, Math.min(100, point[0] + (Math.random() - 0.5) * 10)),
+                Math.max(0, Math.min(100, point[1] + (Math.random() - 0.5) * 10)),
+                point[2]
+            ]);
+            
+            // 重新初始化飞行跟踪图表
+            const flightTrackingChart = echarts.init(document.getElementById('flightTrackingChart'));
+            flightTrackingChart.setOption({
+                series: [{
+                    data: droneData
+                }]
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initializeData();
+            initCharts();
+            
+            // 每10秒更新一次数据
+            setInterval(updateRealTimeData, 10000);
+        });
+    </script>
+</body>
+</html>

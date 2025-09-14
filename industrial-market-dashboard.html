@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业级无人机市场主力板块数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #d68910 0%, #b9770e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+                      
+        .industrial-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .industrial-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .industrial-item .industrial-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+        
+        .industrial-item .industrial-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .industrial-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+            
+            .industrial-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏭 工业级无人机市场主力板块</h1>
+            <p>金山区无人机制造基地产能与工业应用数据分析</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>2025年工业市场规模</h4>
+                <div class="value">68亿</div>
+                <div class="unit">上海工业无人机</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>物流配送占比</h4>
+                <div class="value">23%</div>
+                <div class="unit">规模15.6亿元</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>2030年市场规模</h4>
+                <div class="value">110亿</div>
+                <div class="unit">工业级应用</div>
+            </div>
+            <div class="kpi-card">
+                <h4>年复合增长率</h4>
+                <div class="value">50%</div>
+                <div class="unit">工业细分市场</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>📊 工业市场规模增长预测</h3>
+                <div class="chart-container">
+                    <canvas id="marketGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🏭 制造基地产能分析</h3>
+                <div class="chart-container">
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🚀 行业应用增长点分析</h3>
+                <div class="chart-container">
+                    <canvas id="industryGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>⚡ 技术发展趋势</h3>
+                <div class="chart-container">
+                    <canvas id="techTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🎯 客户价值分析</h3>
+                <div class="chart-container">
+                    <canvas id="customerValueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 工业级无人机市场核心价值</h3>
+            <div class="insight-item">
+                <strong>市场主力板块地位：</strong>2025年上海工业无人机市场规模约68亿元，其中物流配送占比23%，规模约15.6亿元，构成市场主力板块
+            </div>
+            <div class="insight-item">
+                <strong>制造产能扩张：</strong>金山区无人机制造基地投产后，预计2027年实现年产200架以上工业级无人机的产能，按单架150万元测算，形成3亿元年产值规模
+            </div>
+            <div class="insight-item">
+                <strong>行业应用爆发：</strong>汽车零部件配送网络从3个园区扩展至15个，电子行业无尘运输需求年增45%，氢能无人机渗透率从5%提升至25%
+            </div>
+            <div class="insight-item">
+                <strong>技术驱动升级：</strong>上海市行动方案中"吨级载物eVTOL"的商业化将进一步打开工业物流市场空间，电子制造业"1小时紧急调拨"服务实现单票25元溢价能力，客户留存率达90%
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 工业市场规模增长预测
+        const marketGrowthCtx = document.getElementById('marketGrowthChart').getContext('2d');
+        new Chart(marketGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '工业无人机市场规模',
+                    data: [68, 85, 102, 105, 108, 110],
+                    borderColor: '#f39c12',
+                    backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '其中物流配送规模',
+                    data: [15.6, 19.6, 23.5, 24.2, 24.8, 25.3],
+                    borderColor: '#e67e22',
+                    backgroundColor: 'rgba(230, 126, 34, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#f39c12',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (value, context) => {
+                            if (context.dataIndex === 0) return value + '亿';
+                            return '';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '市场规模 (亿元)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 制造基地产能分析
+        const capacityCtx = document.getElementById('capacityChart').getContext('2d');
+        new Chart(capacityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '年产工业无人机数量',
+                    data: [120, 160, 200, 250, 300, 350],
+                    backgroundColor: '#f39c12',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value) => {
+                            return value + '架';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '年产量 (架)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 行业应用增长点分析
+        const industryGrowthCtx = document.getElementById('industryGrowthChart').getContext('2d');
+        new Chart(industryGrowthCtx, {
+            type: 'radar',
+            data: {
+                labels: ['汽车零部件', '电子无尘运输', '氢能无人机', 'eVTOL应用', '紧急调拨', '精密仪器'],
+                datasets: [{
+                    label: '2025年',
+                    data: [60, 70, 40, 30, 80, 65],
+                    backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                    borderColor: '#f39c12',
+                    borderWidth: 2
+                }, {
+                    label: '2030年',
+                    data: [90, 95, 85, 75, 95, 90],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 技术发展趋势
+        const techTrendCtx = document.getElementById('techTrendChart').getContext('2d');
+        new Chart(techTrendCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['传统无人机', '氢能无人机', 'eVTOL飞行器', '混合动力'],
+                datasets: [{
+                    data: [50, 25, 15, 10],
+                    backgroundColor: ['#f39c12', '#27ae60', '#3498db', '#e74c3c'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 客户价值分析
+        const customerValueCtx = document.getElementById('customerValueChart').getContext('2d');
+        new Chart(customerValueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['单票溢价能力', '客户留存率', '紧急调拨时效', '运输成本降低', '服务质量提升'],
+                datasets: [{
+                    label: '2025年水平',
+                    data: [25, 90, 60, 35, 70],
+                    backgroundColor: '#f39c12',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '单票溢价能力') return value + '元';
+                            if (label === '客户留存率') return value + '%';
+                            if (label === '紧急调拨时效') return value + '分钟';
+                            if (label === '运输成本降低') return value + '%';
+                            if (label === '服务质量提升') return value + '%';
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

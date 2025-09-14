@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长三角特色经济带低空物流数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #16a085;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+        .comparison-chart {
+            grid-column: span 2;
+        }
+        
+        .region-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .region-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .region-item .region-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #16a085;
+            margin-bottom: 5px;
+        }
+        
+        .region-item .region-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .terrain-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-chart {
+                grid-column: span 1;
+            }
+            
+            .region-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 长三角特色经济带低空物流</h1>
+            <p>沪舟甬低空航线网络与特色农产品供应链数据</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>岛际运输时间压缩</h4>
+                <div class="value">82%</div>
+                <div class="unit">从3小时至30-40分钟</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>年市场需求</h4>
+                <div class="value">50亿+</div>
+                <div class="unit">低空物流市场规模</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>香气物质保留率提升</h4>
+                <div class="value">30%</div>
+                <div class="unit">安吉白茶案例</div>
+            </div>
+            <div class="kpi-card">
+                <h4>服务覆盖率提升</h4>
+                <div class="value">33%</div>
+                <div class="unit">从65%提升至98%</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>🚁 沪舟甬低空航线网络</h3>
+                <div class="chart-container">
+                    <canvas id="routeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>⏱️ 岛际运输效率对比</h3>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card comparison-chart">
+                <h3>🌾 特色农产品需求爆发</h3>
+                <div class="chart-container">
+                    <canvas id="agricultureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>⛰️ 地形复杂度与需求关系</h3>
+                <div class="chart-container">
+                    <canvas id="terrainChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🏛️ 政策支持力度</h3>
+                <div class="chart-container">
+                    <canvas id="policyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 长三角低空物流核心价值</h3>
+            <div class="insight-item">
+                <strong>岛际运输革命：</strong>舟山群岛沪舟甬低空航线网络（10条获批航线）将岛际物资运输时间从3小时压缩至30-40分钟，年市场需求超50亿元，低空模式较传统海运降低30%成本
+            </div>
+            <div class="insight-item">
+                <strong>特色农产品赋能：</strong>浙江安吉白茶通过无人机运输使香气物质保留率提升30%，这种模式正被复制到上海松江大米、南汇水蜜桃等区域特色农产品供应链
+            </div>
+            <div class="insight-item">
+                <strong>地形适应性优势：</strong>海拔落差180米的山区场景，无人机较摩托配送平均省时2小时以上；崇明岛等平原农业区，无人机使偏远村寨服务覆盖率从65%提升至98%
+            </div>
+            <div class="insight-item">
+                <strong>可持续运营模式：</strong>上海市金山区、青浦区规划农业物流专用航线，结合江苏省5亿元专项资金，形成"财政补贴+市场化运营"的可持续模式
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 沪舟甬低空航线网络
+        const routeCtx = document.getElementById('routeChart').getContext('2d');
+        new Chart(routeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['已获批航线', '规划中航线', '备用航线'],
+                datasets: [{
+                    data: [10, 15, 8],
+                    backgroundColor: ['#16a085', '#3498db', '#95a5a6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '条';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 岛际运输效率对比
+        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(efficiencyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['传统海运', '低空物流'],
+                datasets: [{
+                    label: '运输时间 (分钟)',
+                    data: [180, 35],
+                    backgroundColor: ['#e74c3c', '#16a085'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '分钟';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '运输时间 (分钟)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 特色农产品需求爆发
+        const agricultureCtx = document.getElementById('agricultureChart').getContext('2d');
+        new Chart(agricultureCtx, {
+            type: 'line',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [{
+                    label: '安吉白茶',
+                    data: [100, 150, 220, 180],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '松江大米',
+                    data: [80, 120, 160, 200],
+                    borderColor: '#f39c12',
+                    backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '南汇水蜜桃',
+                    data: [60, 140, 250, 150],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '需求指数'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 地形复杂度与需求关系
+        const terrainCtx = document.getElementById('terrainChart').getContext('2d');
+        new Chart(terrainCtx, {
+            type: 'radar',
+            data: {
+                labels: ['时间节省', '成本效益', '覆盖范围', '安全性', '适用性'],
+                datasets: [{
+                    label: '山区场景',
+                    data: [95, 85, 90, 70, 95],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    borderWidth: 2
+                }, {
+                    label: '平原农业区',
+                    data: [60, 75, 85, 90, 80],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 政策支持力度
+        const policyCtx = document.getElementById('policyChart').getContext('2d');
+        new Chart(policyCtx, {
+            type: 'pie',
+            data: {
+                labels: ['江苏省专项资金', '上海市配套资金', '市场化运营资金'],
+                datasets: [{
+                    data: [5, 3, 8],
+                    backgroundColor: ['#16a085', '#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '江苏省专项资金') return value + '亿元';
+                            if (label === '上海市配套资金') return value + '亿元';
+                            if (label === '市场化运营资金') return value + '亿元';
+                            return value;
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长三角低空物流数据大屏总览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowGradient 4s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes rainbowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .dashboard-card:hover::before {
+            left: 100%;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dashboard-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+        
+        .dashboard-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .dashboard-description {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .dashboard-features {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        
+        .feature-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .dashboard-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .dashboard-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .medical-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(238, 90, 36, 0.2));
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+        
+        .medical-card .dashboard-icon {
+            color: #ff6b6b;
+        }
+        
+        .medical-card .dashboard-link {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+        
+        .regional-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .regional-card .dashboard-icon {
+            color: #667eea;
+        }
+        
+        .regional-card .dashboard-link {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        
+        .technology-card {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
+            border-color: rgba(0, 210, 255, 0.3);
+        }
+        
+        .technology-card .dashboard-icon {
+            color: #00d2ff;
+        }
+        
+        .technology-card .dashboard-link {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+        }
+        
+        .investment-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 237, 78, 0.2));
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        
+        .investment-card .dashboard-icon {
+            color: #ffd700;
+        }
+        
+        .investment-card .dashboard-link {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+        }
+        
+        .operations-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 204, 255, 0.2));
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+        
+        .operations-card .dashboard-icon {
+            color: #00ff88;
+        }
+        
+        .operations-card .dashboard-link {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+        }
+        
+        .advanced-card {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.2));
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+        
+        .advanced-card .dashboard-icon {
+            color: #9b59b6;
+        }
+        
+        .advanced-card .dashboard-link {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+        
+        .basic-card {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.2));
+            border-color: rgba(52, 152, 219, 0.3);
+        }
+        
+        .basic-card .dashboard-icon {
+            color: #3498db;
+        }
+        
+        .basic-card .dashboard-link {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+        
+        .footer h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 长三角低空物流数据大屏总览</h1>
+            <p>专业的低空物流数据可视化平台，提供全方位的数据分析和决策支持</p>
+        </div>
+        
+        <!-- 统计概览 -->
+        <div class="stats-overview">
+            <div class="stat-item">
+                <div class="stat-number">7</div>
+                <div class="stat-label">专业数据大屏</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">120亿</div>
+                <div class="stat-label">2030年市场规模</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div class="stat-label">覆盖城市</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">760</div>
+                <div class="stat-label">总航线数</div>
+            </div>
+        </div>
+        
+        <!-- 数据大屏网格 -->
+        <div class="dashboard-grid">
+            <!-- 高级版大屏 -->
+            <div class="dashboard-card advanced-card">
+                <span class="dashboard-icon">🚀</span>
+                <h2 class="dashboard-title">高级智能指挥中心</h2>
+                <p class="dashboard-description">集成粒子效果、3D地图、实时数据流的顶级指挥中心系统</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">✨</span>
+                        <span>粒子背景特效</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🗺️</span>
+                        <span>3D地图可视化</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>实时数据流</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🤖</span>
+                        <span>AI智能分析</span>
+                    </div>
+                </div>
+                <a href="/advanced-dashboard.html" class="dashboard-link">进入指挥中心</a>
+            </div>
+            
+            <!-- 基础版大屏 -->
+            <div class="dashboard-card basic-card">
+                <span class="dashboard-icon">📊</span>
+                <h2 class="dashboard-title">基础数据大屏</h2>
+                <p class="dashboard-description">清晰易用的ECharts数据可视化平台，适合日常业务监控</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📈</span>
+                        <span>6大功能模块</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎯</span>
+                        <span>核心KPI监控</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">👥</span>
+                        <span>用户画像分析</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📱</span>
+                        <span>响应式设计</span>
+                    </div>
+                </div>
+                <a href="/echarts-dashboard.html" class="dashboard-link">查看数据大屏</a>
+            </div>
+            
+            <!-- 医疗专项大屏 -->
+            <div class="dashboard-card medical-card">
+                <span class="dashboard-icon">🏥</span>
+                <h2 class="dashboard-title">医疗低空物流监控</h2>
+                <p class="dashboard-description">专注医疗领域的专业监控平台，实时追踪生命救援任务</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🚑</span>
+                        <span>应急响应监控</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🏥</span>
+                        <span>医院网络覆盖</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💊</span>
+                        <span>药品配送追踪</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⚡</span>
+                        <span>生命救援优先</span>
+                    </div>
+                </div>
+                <a href="/medical-logistics-dashboard.html" class="dashboard-link">进入医疗监控</a>
+            </div>
+            
+            <!-- 区域对比大屏 -->
+            <div class="dashboard-card regional-card">
+                <span class="dashboard-icon">🗺️</span>
+                <h2 class="dashboard-title">区域对比分析平台</h2>
+                <p class="dashboard-description">多维度对比分析长三角各城市发展状况和投资机会</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>投资规模对比</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🏆</span>
+                        <span>市场份额分析</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📈</span>
+                        <span>增长趋势预测</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔗</span>
+                        <span>数据关联分析</span>
+                    </div>
+                </div>
+                <a href="/regional-comparison-dashboard.html" class="dashboard-link">查看区域分析</a>
+            </div>
+            
+            <!-- 技术趋势大屏 -->
+            <div class="dashboard-card technology-card">
+                <span class="dashboard-icon">🔬</span>
+                <h2 class="dashboard-title">技术发展趋势分析</h2>
+                <p class="dashboard-description">深入分析低空物流技术发展趋势和创新方向</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>技术成熟度评估</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔥</span>
+                        <span>创新热度趋势</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📈</span>
+                        <span>专利分析</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🗺️</span>
+                        <span>发展路线图</span>
+                    </div>
+                </div>
+                <a href="/technology-trends-dashboard.html" class="dashboard-link">探索技术趋势</a>
+            </div>
+            
+            <!-- 投资效益大屏 -->
+            <div class="dashboard-card investment-card">
+                <span class="dashboard-icon">💰</span>
+                <h2 class="dashboard-title">投资经济效益分析</h2>
+                <p class="dashboard-description">全面分析投资回报率和经济效益，辅助投资决策</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📈</span>
+                        <span>ROI分析</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎯</span>
+                        <span>投资分布</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⚖️</span>
+                        <span>成本效益对比</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔮</span>
+                        <span>市场预测</span>
+                    </div>
+                </div>
+                <a href="/investment-dashboard.html" class="dashboard-link">查看投资分析</a>
+            </div>
+            
+            <!-- 运营监控大屏 -->
+            <div class="dashboard-card operations-card">
+                <span class="dashboard-icon">🚁</span>
+                <h2 class="dashboard-title">实时运营监控中心</h2>
+                <p class="dashboard-description">实时监控无人机运营状态，提供智能调度和告警功能</p>
+                <div class="dashboard-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🛩️</span>
+                        <span>实时飞行跟踪</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>运营指标监控</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⚠️</span>
+                        <span>实时告警系统</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🌤️</span>
+                        <span>天气影响分析</span>
+                    </div>
+                </div>
+                <a href="/operations-monitoring-dashboard.html" class="dashboard-link">进入运营监控</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h3>🌟 长三角低空物流数据可视化平台</h3>
+            <p>基于真实数据构建的专业分析平台，为长三角低空物流发展提供全方位的数据支持和决策参考</p>
+            <p>所有数据大屏均支持实时数据更新和交互式分析，满足不同层次的管理和分析需求</p>
+        </div>
+    </div>
+</body>
+</html>

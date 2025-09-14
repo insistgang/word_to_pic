@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特色产业物流差异化增长数据可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #138d75 0%, #0e6655 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #16a085;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+        .comparison-chart {
+            grid-column: span 2;
+        }
+        
+        .special-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .special-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .special-item .special-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #16a085;
+            margin-bottom: 5px;
+        }
+        
+        .special-item .special-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .special-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-chart {
+                grid-column: span 1;
+            }
+            
+            .special-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 特色产业物流差异化增长</h1>
+            <p>长三角海岛与农业低空物流市场数据分析</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>长三角海岛物流需求</h4>
+                <div class="value">50亿</div>
+                <div class="unit">2025年市场规模</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>农业物流渗透率</h4>
+                <div class="value">10%</div>
+                <div class="unit">低空物流占比</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>2030年区域市场规模</h4>
+                <div class="value">65亿</div>
+                <div class="unit">特色产业物流</div>
+            </div>
+            <div class="kpi-card">
+                <h4>农资配送成本降低</h4>
+                <div class="value">40%</div>
+                <div class="unit">无人机应用效果</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>🏝️ 海岛与农业物流市场规模</h3>
+                <div class="chart-container">
+                    <canvas id="marketSizeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📈 区域特色物流增长预测</h3>
+                <div class="chart-container">
+                    <canvas id="growthForecastChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🥬 农产品冷链运输需求</h3>
+                <div class="chart-container">
+                    <canvas id="coldChainChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card comparison-chart">
+                <h3>🚢 沪舟甬航线网络扩展</h3>
+                <div class="chart-container">
+                    <canvas id="routeExpansionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🌾 农业低空物流渗透率</h3>
+                <div class="chart-container">
+                    <canvas id="agricultureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🏛️ 政策支持与融合模式</h3>
+                <div class="chart-container">
+                    <canvas id="policyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 特色产业物流核心价值</h3>
+            <div class="insight-item">
+                <strong>海岛物流先行优势：</strong>2025年长三角海岛低空物流市场需求已超50亿元，上海临港至舟山的跨区域航线贡献约8%份额（4亿元），形成区域特色物流的先发优势
+            </div>
+            <div class="insight-item">
+                <strong>农业物流效率革命：</strong>无人机使农资配送成本降低40%，按上海郊区农业年产值300亿元推算，物流市场规模约2.1亿元，其中低空物流渗透率约10%，规模2100万元
+            </div>
+            <div class="insight-item">
+                <strong>航线网络快速扩张：</strong>沪舟甬航线网络从10条扩展至30条，年货运量突破10万吨，农产品冷链运输需求年增35%，基础设施建设驱动市场增长
+            </div>
+            <div class="insight-item">
+                <strong>政策与模式双重驱动：</strong>中央一号文件的持续支持将使农业无人机补贴覆盖率保持在70%以上，崇明生态岛等区域的"低空+文旅"融合模式带来增量需求
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 海岛与农业物流市场规模
+        const marketSizeCtx = document.getElementById('marketSizeChart').getContext('2d');
+        new Chart(marketSizeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['海岛低空物流', '农业低空物流', '跨区域航线', '其他特色物流'],
+                datasets: [{
+                    label: '2025年市场规模',
+                    data: [50, 0.21, 4, 2.5],
+                    backgroundColor: ['#16a085', '#27ae60', '#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value) => {
+                            return value + '亿';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '市场规模 (亿元)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 区域特色物流增长预测
+        const growthForecastCtx = document.getElementById('growthForecastChart').getContext('2d');
+        new Chart(growthForecastCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '区域特色物流总规模',
+                    data: [56.71, 58.5, 60.8, 62.9, 64.2, 65],
+                    borderColor: '#16a085',
+                    backgroundColor: 'rgba(22, 160, 133, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '上海占比规模',
+                    data: [6.21, 7.0, 7.9, 8.7, 9.3, 9.8],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#16a085',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (value, context) => {
+                            if (context.dataIndex === 0) return value + '亿';
+                            return '';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '市场规模 (亿元)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 沪舟甬航线网络扩展
+        const routeExpansionCtx = document.getElementById('routeExpansionChart').getContext('2d');
+        new Chart(routeExpansionCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '航线数量',
+                    data: [10, 15, 20, 24, 27, 30],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: '年货运量',
+                    data: [3, 5, 7, 8.5, 9.5, 10],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '航线数量'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '货运量 (万吨)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+
+        // 农业低空物流渗透率
+        const agricultureCtx = document.getElementById('agricultureChart').getContext('2d');
+        new Chart(agricultureCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['低空物流', '传统物流', '其他方式'],
+                datasets: [{
+                    data: [10, 75, 15],
+                    backgroundColor: ['#16a085', '#95a5a6', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 农产品冷链运输需求
+        const coldChainCtx = document.getElementById('coldChainChart').getContext('2d');
+        new Chart(coldChainCtx, {
+            type: 'line',
+            data: {
+                labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: '冷链运输需求增长率',
+                    data: [35, 35, 35, 35, 35, 35],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '冷链市场规模(亿元)',
+                    data: [1.2, 1.6, 2.2, 3.0, 4.0, 5.4],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#27ae60',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (value, context) => {
+                            if (context.dataIndex === 0 && context.datasetIndex === 0) return value + '%';
+                            if (context.dataIndex === 0 && context.datasetIndex === 1) return value + '亿';
+                            return '';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '增长率/市场规模'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 政策支持与融合模式
+        const policyCtx = document.getElementById('policyChart').getContext('2d');
+        new Chart(policyCtx, {
+            type: 'radar',
+            data: {
+                labels: ['政策支持', '技术成熟度', '市场需求', '基础设施', '运营成本', '社会接受度'],
+                datasets: [{
+                    label: '海岛物流',
+                    data: [90, 85, 80, 75, 60, 85],
+                    backgroundColor: 'rgba(22, 160, 133, 0.2)',
+                    borderColor: '#16a085',
+                    borderWidth: 2
+                }, {
+                    label: '农业物流',
+                    data: [95, 70, 65, 60, 80, 90],
+                    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                }, {
+                    label: '文旅融合',
+                    data: [75, 60, 90, 70, 65, 95],
+                    backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                    borderColor: '#f39c12',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

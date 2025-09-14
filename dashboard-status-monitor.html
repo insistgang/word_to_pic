@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据大屏状态监控中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff, #00ff88);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowGradient 3s ease infinite;
+        }
+        
+        @keyframes rainbowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .status-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+        
+        .dashboard-list {
+            list-style: none;
+        }
+        
+        .dashboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .dashboard-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dashboard-name {
+            font-size: 0.9em;
+            color: #fff;
+        }
+        
+        .dashboard-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+        
+        .status-offline {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.4);
+        }
+        
+        .status-warning {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+        }
+        
+        .overview-chart {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .kpi-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .kpi-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .refresh-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 数据大屏状态监控中心</h1>
+            <p>实时监控所有数据大屏的运行状态和性能指标</p>
+        </div>
+        
+        <!-- KPI概览 -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-number" id="totalDashboards">0</div>
+                <div class="kpi-label">总数据大屏数</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="onlineDashboards">0</div>
+                <div class="kpi-label">在线大屏</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="totalCharts">0</div>
+                <div class="kpi-label">总图表数</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="avgCharts">0</div>
+                <div class="kpi-label">平均图表数</div>
+            </div>
+        </div>
+        
+        <!-- 状态概览图表 -->
+        <div class="overview-chart">
+            <h3 style="margin-bottom: 15px; color: #00ff88;">📊 大屏状态分布</h3>
+            <div class="chart-container">
+                <div id="statusChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+        
+        <!-- 数据大屏状态网格 -->
+        <div class="status-grid">
+            <!-- 核心业务大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">🎯 核心业务大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">高级智能指挥中心</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">基础数据大屏</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">实时运营监控中心</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">医疗低空物流监控</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 分析决策大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">📈 分析决策大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">区域对比分析平台</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">投资经济效益分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">技术发展趋势分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">供应链优化大屏</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 专项分析大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">🔍 专项分析大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">用户行为分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">政策支持分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">竞品分析平台</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">环境可持续性分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 行业应用大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">🏭 行业应用大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">工业无人机监控</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">医疗市场分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">工业市场分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">特殊行业应用</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 管理支撑大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">⚙️ 管理支撑大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">商户申请管理</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">医疗标准管理</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">政府支持管理</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">用户画像管理</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 市场分析大屏 -->
+            <div class="status-card">
+                <h3 class="status-title">📊 市场分析大屏</h3>
+                <ul class="dashboard-list">
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">市场增长分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">长三角区域分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">无人机配送分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                    <li class="dashboard-item">
+                        <span class="dashboard-name">医疗无人机分析</span>
+                        <span class="dashboard-status status-online">正常</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <button class="refresh-button" onclick="refreshStatus()">🔄 刷新状态</button>
+    
+    <script>
+        // 数据大屏配置
+        const dashboardConfig = {
+            total: 24,
+            online: 24,
+            charts: {
+                'advanced-dashboard.html': 8,
+                'echarts-dashboard.html': 6,
+                'operations-monitoring-dashboard.html': 6,
+                'medical-logistics-dashboard.html': 5,
+                'regional-comparison-dashboard.html': 6,
+                'investment-dashboard.html': 5,
+                'technology-trends-dashboard.html': 6,
+                'supply-chain-optimization-dashboard.html': 6,
+                'user-behavior-dashboard.html': 6,
+                'policy-support-dashboard.html': 6,
+                'competitor-analysis-dashboard.html': 6,
+                'environmental-sustainability-dashboard.html': 6,
+                'industrial-drone-dashboard.html': 6,
+                'medical-market-dashboard.html': 6,
+                'industrial-market-dashboard.html': 6,
+                'special-industry-dashboard.html': 6,
+                'merchant-application-dashboard.html': 6,
+                'medical-standards-dashboard.html': 6,
+                'government-support-dashboard.html': 6,
+                'user-profile-dashboard.html': 6,
+                'market-growth-dashboard.html': 6,
+                'yangtze-delta-dashboard.html': 6,
+                'drone-delivery-dashboard.html': 6,
+                'medical-drone-dashboard.html': 6
+            }
+        };
+        
+        // 初始化KPI
+        function updateKPIs() {
+            const totalCharts = Object.values(dashboardConfig.charts).reduce((sum, count) => sum + count, 0);
+            const avgCharts = Math.round(totalCharts / dashboardConfig.total);
+            
+            document.getElementById('totalDashboards').textContent = dashboardConfig.total;
+            document.getElementById('onlineDashboards').textContent = dashboardConfig.online;
+            document.getElementById('totalCharts').textContent = totalCharts;
+            document.getElementById('avgCharts').textContent = avgCharts;
+        }
+        
+        // 初始化状态图表
+        function initStatusChart() {
+            const chartDom = document.getElementById('statusChart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                series: [
+                    {
+                        name: '大屏状态',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold',
+                                color: '#fff'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            {
+                                value: dashboardConfig.online,
+                                name: '正常在线',
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {offset: 0, color: '#00ff88'},
+                                        {offset: 1, color: '#00ccff'}
+                                    ])
+                                }
+                            },
+                            {
+                                value: 0,
+                                name: '异常离线',
+                                itemStyle: {
+                                    color: '#ff6b6b'
+                                }
+                            },
+                            {
+                                value: 0,
+                                name: '警告状态',
+                                itemStyle: {
+                                    color: '#ffd700'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            myChart.setOption(option);
+            
+            // 响应式处理
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+        
+        // 刷新状态
+        function refreshStatus() {
+            // 模拟刷新动画
+            const button = document.querySelector('.refresh-button');
+            button.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                button.style.transform = 'rotate(0deg)';
+                updateKPIs();
+            }, 1000);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            updateKPIs();
+            initStatusChart();
+            
+            // 每30秒自动刷新
+            setInterval(refreshStatus, 30000);
+        });
+    </script>
+</body>
+</html>

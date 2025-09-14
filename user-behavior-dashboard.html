@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>低空物流用户行为智能分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(240, 147, 251, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .panel:hover::before {
+            left: 100%;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(240, 147, 251, 0.2);
+            border-color: rgba(240, 147, 251, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #f093fb;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(240, 147, 251, 0.5);
+        }
+        
+        .user-overview {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .user-card {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(240, 147, 251, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .user-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(240, 147, 251, 0.5);
+        }
+        
+        .user-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f093fb;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(240, 147, 251, 0.5);
+        }
+        
+        .user-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .demographics {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .behavior-patterns {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .satisfaction-analysis {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .usage-frequency {
+            grid-column: 1;
+            grid-row: 3;
+        }
+        
+        .preference-analysis {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .retention-analysis {
+            grid-column: 3;
+            grid-row: 3;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+        }
+        
+        .chart-container.medium {
+            min-height: 250px;
+        }
+        
+        .chart-container.small {
+            min-height: 220px;
+        }
+        
+        .insight-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .insight-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9em;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .insight-icon {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        
+        .insight-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .user-segment {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .segment-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(240, 147, 251, 0.3);
+        }
+        
+        .segment-name {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #f093fb;
+        }
+        
+        .segment-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .segment-desc {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+        
+        .behavior-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .behavior-label {
+            font-size: 0.9em;
+        }
+        
+        .behavior-value {
+            font-weight: bold;
+            color: #f093fb;
+        }
+        
+        .behavior-trend {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .trend-up {
+            color: #00ff88;
+        }
+        
+        .trend-down {
+            color: #ff4444;
+        }
+        
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .demographics {
+                grid-column: 1;
+                grid-row: 2;
+            }
+            
+            .behavior-patterns {
+                grid-column: 2;
+                grid-row: 2;
+            }
+            
+            .satisfaction-analysis {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+            
+            .usage-frequency {
+                grid-column: 1;
+                grid-row: 4;
+            }
+            
+            .preference-analysis {
+                grid-column: 2;
+                grid-row: 4;
+            }
+            
+            .retention-analysis {
+                grid-column: 1 / -1;
+                grid-row: 5;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 低空物流用户行为智能分析平台</h1>
+            <p>用户画像 • 行为模式 • 满意度分析</p>
+        </div>
+        
+        <!-- 用户概览 -->
+        <div class="user-overview">
+            <div class="user-card pulse">
+                <div class="user-value">125.6万</div>
+                <div class="user-label">活跃用户数</div>
+            </div>
+            <div class="user-card pulse">
+                <div class="user-value">28-35岁</div>
+                <div class="user-label">核心年龄段</div>
+            </div>
+            <div class="user-card pulse">
+                <div class="user-value">78%</div>
+                <div class="user-label">本科及以上学历</div>
+            </div>
+            <div class="user-card pulse">
+                <div class="user-value">92%</div>
+                <div class="user-label">用户满意度</div>
+            </div>
+            <div class="user-card pulse">
+                <div class="user-value">4.2次/月</div>
+                <div class="user-label">平均使用频次</div>
+            </div>
+            <div class="user-card pulse">
+                <div class="user-value">85%</div>
+                <div class="user-label">复购率</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <!-- 人口统计学分析 -->
+            <div class="panel demographics">
+                <div class="panel-title">📊 人口统计学分析</div>
+                <div class="chart-container medium" id="demographicsChart"></div>
+                <div class="user-segment">
+                    <div class="segment-item">
+                        <div class="segment-name">年轻用户</div>
+                        <div class="segment-value">63%</div>
+                        <div class="segment-desc">25-35岁</div>
+                    </div>
+                    <div class="segment-item">
+                        <div class="segment-name">高学历用户</div>
+                        <div class="segment-value">78%</div>
+                        <div class="segment-desc">本科及以上</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 行为模式分析 -->
+            <div class="panel behavior-patterns">
+                <div class="panel-title">🔄 行为模式分析</div>
+                <div class="chart-container medium" id="behaviorChart"></div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">订单完成率</span>
+                    <span class="behavior-value">94.2% <span class="behavior-trend trend-up">+3.2%</span></span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">平均决策时间</span>
+                    <span class="behavior-value">2.3分钟 <span class="behavior-trend trend-down">-0.5分钟</span></span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">推荐意愿</span>
+                    <span class="behavior-value">87% <span class="behavior-trend trend-up">+5%</span></span>
+                </div>
+            </div>
+            
+            <!-- 满意度分析 -->
+            <div class="panel satisfaction-analysis">
+                <div class="panel-title">😊 用户满意度分析</div>
+                <div class="chart-container small" id="satisfactionChart"></div>
+                <div class="insight-panel">
+                    <div class="insight-item">
+                        <span class="insight-icon">⭐</span>
+                        <span class="insight-text">配送速度满意度最高，达到95%</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-icon">⭐</span>
+                        <span class="insight-text">价格敏感度较低，用户更注重服务质量</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-icon">⭐</span>
+                        <span class="insight-text">移动端使用占比高达82%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 使用频率分析 -->
+            <div class="panel usage-frequency">
+                <div class="panel-title">📅 使用频率分析</div>
+                <div class="chart-container small" id="frequencyChart"></div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">工作日使用率</span>
+                    <span class="behavior-value">68%</span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">周末使用率</span>
+                    <span class="behavior-value">32%</span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">高峰时段</span>
+                    <span class="behavior-value">14:00-16:00</span>
+                </div>
+            </div>
+            
+            <!-- 偏好分析 -->
+            <div class="panel preference-analysis">
+                <div class="panel-title">❤️ 用户偏好分析</div>
+                <div class="chart-container small" id="preferenceChart"></div>
+                <div class="user-segment">
+                    <div class="segment-item">
+                        <div class="segment-name">速度优先</div>
+                        <div class="segment-value">45%</div>
+                        <div class="segment-desc">时效性用户</div>
+                    </div>
+                    <div class="segment-item">
+                        <div class="segment-name">价格敏感</div>
+                        <div class="segment-value">25%</div>
+                        <div class="segment-desc">经济性用户</div>
+                    </div>
+                    <div class="segment-item">
+                        <div class="segment-name">品质追求</div>
+                        <div class="segment-value">30%</div>
+                        <div class="segment-desc">高端用户</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 留存分析 -->
+            <div class="panel retention-analysis">
+                <div class="panel-title">🎯 用户留存分析</div>
+                <div class="chart-container small" id="retentionChart"></div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">次日留存</span>
+                    <span class="behavior-value">78% <span class="behavior-trend trend-up">+2%</span></span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">7日留存</span>
+                    <span class="behavior-value">65% <span class="behavior-trend trend-up">+1%</span></span>
+                </div>
+                <div class="behavior-metric">
+                    <span class="behavior-label">30日留存</span>
+                    <span class="behavior-value">52% <span class="behavior-trend trend-down">-1%</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        function initCharts() {
+            initDemographics();
+            initBehaviorPatterns();
+            initSatisfaction();
+            initUsageFrequency();
+            initPreference();
+            initRetention();
+        }
+        
+        // 人口统计学分析
+        function initDemographics() {
+            const chart = echarts.init(document.getElementById('demographicsChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                legend: {
+                    data: ['年龄分布', '教育水平'],
+                    textStyle: { color: '#fff' },
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '百分比(%)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['25-35岁', '18-25岁', '35-45岁', '45岁以上'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        name: '年龄分布',
+                        type: 'bar',
+                        data: [63, 18, 12, 7],
+                        itemStyle: { color: '#f093fb' }
+                    },
+                    {
+                        name: '教育水平',
+                        type: 'bar',
+                        data: [78, 15, 7],
+                        itemStyle: { color: '#f5576c' }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 行为模式分析
+        function initBehaviorPatterns() {
+            const chart = echarts.init(document.getElementById('behaviorChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item'
+                },
+                radar: {
+                    indicator: [
+                        { name: '使用频率', max: 100 },
+                        { name: '订单价值', max: 100 },
+                        { name: '活跃度', max: 100 },
+                        { name: '社交分享', max: 100 },
+                        { name: '反馈参与', max: 100 }
+                    ],
+                    shape: 'circle',
+                    splitNumber: 5,
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    splitArea: { show: false }
+                },
+                series: [
+                    {
+                        type: 'radar',
+                        data: [
+                            {
+                                value: [85, 72, 90, 68, 78],
+                                name: '当前用户',
+                                itemStyle: { color: '#f093fb' },
+                                areaStyle: {
+                                    color: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
+                                        { offset: 0, color: 'rgba(240, 147, 251, 0.3)' },
+                                        { offset: 1, color: 'rgba(240, 147, 251, 0.1)' }
+                                    ])
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 满意度分析
+        function initSatisfaction() {
+            const chart = echarts.init(document.getElementById('satisfactionChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['配送速度', '服务质量', '价格合理', '操作便捷', '客户支持'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '满意度(分)',
+                    max: 5,
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        data: [4.8, 4.6, 4.2, 4.5, 4.3],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#f093fb' },
+                                { offset: 1, color: '#f5576c' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 使用频率分析
+        function initUsageFrequency() {
+            const chart = echarts.init(document.getElementById('frequencyChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '使用次数',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [1200, 1150, 1300, 1250, 1400, 800, 600],
+                        itemStyle: { color: '#f093fb' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(240, 147, 251, 0.3)' },
+                                { offset: 1, color: 'rgba(240, 147, 251, 0.1)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 偏好分析
+        function initPreference() {
+            const chart = echarts.init(document.getElementById('preferenceChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}%'
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: '60%',
+                        data: [
+                            {value: 45, name: '速度优先', itemStyle: {color: '#f093fb'}},
+                            {value: 25, name: '价格敏感', itemStyle: {color: '#f5576c'}},
+                            {value: 30, name: '品质追求', itemStyle: {color: '#4facfe'}}
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 11
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 留存分析
+        function initRetention() {
+            const chart = echarts.init(document.getElementById('retentionChart'));
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['第1天', '第3天', '第7天', '第14天', '第30天'],
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '留存率(%)',
+                    axisLine: { lineStyle: { color: '#fff' } }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [100, 85, 78, 65, 52],
+                        itemStyle: { color: '#f093fb' },
+                        lineStyle: { width: 3 },
+                        symbolSize: 8
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // 定时更新数据
+            setInterval(function() {
+                const userValues = document.querySelectorAll('.user-value');
+                userValues.forEach(value => {
+                    if (value.textContent.includes('万')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        value.textContent = (base + fluctuation).toFixed(1) + '万';
+                    } else if (value.textContent.includes('%')) {
+                        const base = parseFloat(value.textContent);
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        value.textContent = Math.max(80, Math.min(100, base + fluctuation)).toFixed(0) + '%';
+                    }
+                });
+            }, 6000);
+        });
+    </script>
+</body>
+</html>

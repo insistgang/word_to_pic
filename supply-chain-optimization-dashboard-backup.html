@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应链优化大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/js/china.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .kpi-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .kpi-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 350px;
+        }
+        
+        .large-chart {
+            grid-column: span 2;
+        }
+        
+        .large-chart .chart-container {
+            height: 450px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 供应链优化大屏</h1>
+            <p>全面分析配送路径优化和成本效益，提供智能决策支持</p>
+        </div>
+        
+        <!-- KPI概览 -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-value">92%</div>
+                <div class="kpi-label">路径优化率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">15.3%</div>
+                <div class="kpi-label">成本节约</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">8.5分钟</div>
+                <div class="kpi-label">平均配送时间</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">98.7%</div>
+                <div class="kpi-label">准时率</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">1.2亿</div>
+                <div class="kpi-label">年度节约成本</div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <!-- 供应链网络拓扑 -->
+            <div class="chart-card">
+                <h3 class="chart-title">🌐 供应链网络拓扑</h3>
+                <div class="chart-container" id="supplyChainNetworkChart"></div>
+            </div>
+            
+            <!-- 库存优化分析 -->
+            <div class="chart-card">
+                <h3 class="chart-title">📦 库存优化分析</h3>
+                <div class="chart-container" id="inventoryOptimizationChart"></div>
+            </div>
+            
+            <!-- 配送路径优化 -->
+            <div class="chart-card large-chart">
+                <h3 class="chart-title">🛣️ 配送路径优化</h3>
+                <div class="chart-container" id="routeOptimizationChart"></div>
+            </div>
+            
+            <!-- 成本效益分析 -->
+            <div class="chart-card">
+                <h3 class="chart-title">💰 成本效益分析</h3>
+                <div class="chart-container" id="costBenefitChart"></div>
+            </div>
+            
+            <!-- 供应商管理 -->
+            <div class="chart-card">
+                <h3 class="chart-title">🏭 供应商管理</h3>
+                <div class="chart-container" id="supplierManagementChart"></div>
+            </div>
+            
+            <!-- 需求预测 -->
+            <div class="chart-card">
+                <h3 class="chart-title">📈 需求预测</h3>
+                <div class="chart-container" id="demandForecastChart"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化图表
+        function initCharts() {
+            // 供应链网络拓扑
+            const supplyChainNetworkChart = echarts.init(document.getElementById('supplyChainNetworkChart'));
+            const networkOption = {
+                backgroundColor: 'transparent',
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: [
+                        {name: '配送中心', symbolSize: 80, itemStyle: {color: '#ff6b6b'}},
+                        {name: '仓库A', symbolSize: 60, itemStyle: {color: '#ffa500'}},
+                        {name: '仓库B', symbolSize: 60, itemStyle: {color: '#ffa500'}},
+                        {name: '仓库C', symbolSize: 60, itemStyle: {color: '#ffa500'}},
+                        {name: '客户1', symbolSize: 40, itemStyle: {color: '#00d2ff'}},
+                        {name: '客户2', symbolSize: 40, itemStyle: {color: '#00d2ff'}},
+                        {name: '客户3', symbolSize: 40, itemStyle: {color: '#00d2ff'}},
+                        {name: '客户4', symbolSize: 40, itemStyle: {color: '#00d2ff'}}
+                    ],
+                    links: [
+                        {source: '配送中心', target: '仓库A'},
+                        {source: '配送中心', target: '仓库B'},
+                        {source: '配送中心', target: '仓库C'},
+                        {source: '仓库A', target: '客户1'},
+                        {source: '仓库A', target: '客户2'},
+                        {source: '仓库B', target: '客户3'},
+                        {source: '仓库C', target: '客户4'}
+                    ],
+                    roam: true,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#fff'
+                    },
+                    force: {
+                        repulsion: 1000,
+                        edgeLength: 150
+                    }
+                }]
+            };
+            supplyChainNetworkChart.setOption(networkOption);
+            
+            // 库存优化分析
+            const inventoryOptimizationChart = echarts.init(document.getElementById('inventoryOptimizationChart'));
+            const inventoryOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [
+                    {
+                        name: '优化前库存',
+                        type: 'bar',
+                        data: [1200, 1100, 1300, 1150, 1250, 1180],
+                        itemStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        name: '优化后库存',
+                        type: 'bar',
+                        data: [800, 750, 850, 780, 820, 790],
+                        itemStyle: { color: '#ffa500' }
+                    }
+                ]
+            };
+            inventoryOptimizationChart.setOption(inventoryOption);
+            
+            // 配送路径优化
+            const routeOptimizationChart = echarts.init(document.getElementById('routeOptimizationChart'));
+            const routeOption = {
+                backgroundColor: 'transparent',
+                title: {
+                    text: '实时配送路径优化',
+                    left: 'center',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                geo: {
+                    map: 'china',
+                    roam: true,
+                    itemStyle: {
+                        areaColor: '#1a1a2e',
+                        borderColor: '#666'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#0f3460'
+                        }
+                    }
+                },
+                series: [{
+                    type: 'lines',
+                    data: [
+                        {
+                            coords: [[121.4737, 31.2304], [118.7783, 32.0571]],
+                            lineStyle: { color: '#ff6b6b', width: 3 }
+                        },
+                        {
+                            coords: [[121.4737, 31.2304], [120.2000, 30.2667]],
+                            lineStyle: { color: '#ffa500', width: 3 }
+                        },
+                        {
+                            coords: [[121.4737, 31.2304], [117.2500, 31.8333]],
+                            lineStyle: { color: '#00d2ff', width: 3 }
+                        }
+                    ],
+                    effect: {
+                        show: true,
+                        period: 6,
+                        trailLength: 0.7,
+                        color: '#fff',
+                        symbolSize: 3
+                    }
+                }]
+            };
+            routeOptimizationChart.setOption(routeOption);
+            
+            // 成本效益分析
+            const costBenefitChart = echarts.init(document.getElementById('costBenefitChart'));
+            const costOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '成本(万)',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    },
+                    {
+                        type: 'value',
+                        name: '收益(万)',
+                        axisLine: { lineStyle: { color: '#666' } },
+                        axisLabel: { color: '#ccc' }
+                    }
+                ],
+                series: [
+                    {
+                        name: '运营成本',
+                        type: 'bar',
+                        data: [450, 420, 380, 350],
+                        itemStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        name: '优化收益',
+                        type: 'line',
+                        data: [120, 150, 180, 220],
+                        itemStyle: { color: '#ffa500' },
+                        yAxisIndex: 1
+                    }
+                ]
+            };
+            costBenefitChart.setOption(costOption);
+            
+            // 供应商管理
+            const supplierManagementChart = echarts.init(document.getElementById('supplierManagementChart'));
+            const supplierOption = {
+                backgroundColor: 'transparent',
+                radar: {
+                    indicator: [
+                        { name: '交货准时率', max: 10 },
+                        { name: '质量合格率', max: 10 },
+                        { name: '价格竞争力', max: 10 },
+                        { name: '服务水平', max: 10 },
+                        { name: '创新能力', max: 10 }
+                    ],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    splitLine: { lineStyle: { color: '#666' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [
+                        {
+                            value: [9, 8, 7, 9, 8],
+                            name: '供应商A',
+                            itemStyle: { color: '#ff6b6b' }
+                        },
+                        {
+                            value: [8, 9, 8, 7, 9],
+                            name: '供应商B',
+                            itemStyle: { color: '#ffa500' }
+                        },
+                        {
+                            value: [7, 8, 9, 8, 7],
+                            name: '供应商C',
+                            itemStyle: { color: '#00d2ff' }
+                        }
+                    ]
+                }]
+            };
+            supplierManagementChart.setOption(supplierOption);
+            
+            // 需求预测
+            const demandForecastChart = echarts.init(document.getElementById('demandForecastChart'));
+            const demandOption = {
+                backgroundColor: 'transparent',
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } },
+                    axisLabel: { color: '#ccc' }
+                },
+                series: [
+                    {
+                        name: '实际需求',
+                        type: 'line',
+                        data: [1200, 1350, 1180, 1420, 1280, 1500],
+                        itemStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        name: '预测需求',
+                        type: 'line',
+                        data: [1250, 1300, 1200, 1400, 1300, 1480],
+                        itemStyle: { color: '#ffa500' },
+                        lineStyle: { type: 'dashed' }
+                    }
+                ]
+            };
+            demandForecastChart.setOption(demandOption);
+            
+            // 响应式处理
+            window.addEventListener('resize', function() {
+                supplyChainNetworkChart.resize();
+                inventoryOptimizationChart.resize();
+                routeOptimizationChart.resize();
+                costBenefitChart.resize();
+                supplierManagementChart.resize();
+                demandForecastChart.resize();
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            initCharts();
+        });
+    </script>
+</body>
+</html>

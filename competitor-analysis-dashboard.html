@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>竞争对手分析大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24, #feca57);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .kpi-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .kpi-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .kpi-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .chart-title {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #feca57;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .large-chart {
+            grid-column: span 2;
+        }
+        
+        .large-chart .chart {
+            height: 500px;
+        }
+        
+        .real-time-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .large-chart {
+                grid-column: span 1;
+            }
+            
+            .kpi-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="real-time-indicator">🔴 实时监控中</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🏆 竞争对手分析平台</h1>
+            <p>全方位分析低空物流市场竞争格局，洞察竞争对手动态</p>
+        </div>
+        
+        <!-- KPI概览 -->
+        <div class="kpi-overview">
+            <div class="kpi-card">
+                <div class="kpi-number" id="totalCompetitors">45</div>
+                <div class="kpi-label">主要竞争对手</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="marketLeader">28%</div>
+                <div class="kpi-label">市场领导者份额</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="avgFunding">¥2.8亿</div>
+                <div class="kpi-label">平均融资额</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number" id="techAdvantage">75%</div>
+                <div class="kpi-label">技术领先度</div>
+            </div>
+        </div>
+        
+        <!-- 图表网格 -->
+        <div class="dashboard-grid">
+            <!-- 市场份额分析 -->
+            <div class="chart-container">
+                <h3 class="chart-title">🎯 市场份额分析</h3>
+                <div id="marketShareChart" class="chart"></div>
+            </div>
+            
+            <!-- 竞争对手实力雷达图 -->
+            <div class="chart-container">
+                <h3 class="chart-title">📊 竞争对手实力对比</h3>
+                <div id="competitorRadarChart" class="chart"></div>
+            </div>
+            
+            <!-- 融资情况对比 -->
+            <div class="chart-container large-chart">
+                <h3 class="chart-title">💰 竞争对手融资情况对比</h3>
+                <div id="fundingComparisonChart" class="chart"></div>
+            </div>
+            
+            <!-- 技术专利分析 -->
+            <div class="chart-container">
+                <h3 class="chart-title">🔬 技术专利分布分析</h3>
+                <div id="patentAnalysisChart" class="chart"></div>
+            </div>
+            
+            <!-- 服务网络覆盖对比 -->
+            <div class="chart-container">
+                <h3 class="chart-title">🗺️ 服务网络覆盖对比</h3>
+                <div id="networkCoverageChart" class="chart"></div>
+            </div>
+            
+            <!-- 竞争态势热力图 -->
+            <div class="chart-container large-chart">
+                <h3 class="chart-title">🔥 竞争态势热力图</h3>
+                <div id="competitiveHeatmapChart" class="chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        const marketShareChart = echarts.init(document.getElementById('marketShareChart'));
+        const competitorRadarChart = echarts.init(document.getElementById('competitorRadarChart'));
+        const fundingComparisonChart = echarts.init(document.getElementById('fundingComparisonChart'));
+        const patentAnalysisChart = echarts.init(document.getElementById('patentAnalysisChart'));
+        const networkCoverageChart = echarts.init(document.getElementById('networkCoverageChart'));
+        const competitiveHeatmapChart = echarts.init(document.getElementById('competitiveHeatmapChart'));
+
+        // 市场份额分析
+        const marketShareOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c}% ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                textStyle: { color: '#fff' }
+            },
+            series: [{
+                name: '市场份额',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['60%', '50%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '20',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [
+                    {value: 28, name: '极飞科技', itemStyle: {color: '#ff6b6b'}},
+                    {value: 22, name: '大疆创新', itemStyle: {color: '#4ecdc4'}},
+                    {value: 18, name: '亿航智能', itemStyle: {color: '#45b7d1'}},
+                    {value: 12, name: '零度智控', itemStyle: {color: '#96ceb4'}},
+                    {value: 10, name: '道通智能', itemStyle: {color: '#feca57'}},
+                    {value: 10, name: '其他', itemStyle: {color: '#fd79a8'}}
+                ]
+            }]
+        };
+
+        // 竞争对手实力雷达图
+        const competitorRadarOption = {
+            tooltip: {},
+            legend: {
+                data: ['极飞科技', '大疆创新', '亿航智能'],
+                textStyle: { color: '#fff' }
+            },
+            radar: {
+                indicator: [
+                    { name: '技术实力', max: 100 },
+                    { name: '资金实力', max: 100 },
+                    { name: '市场份额', max: 100 },
+                    { name: '服务网络', max: 100 },
+                    { name: '创新能力', max: 100 },
+                    { name: '品牌影响力', max: 100 }
+                ],
+                splitArea: {
+                    areaStyle: {
+                        color: ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
+                    }
+                },
+                axisLine: {
+                    lineStyle: { color: 'rgba(255,255,255,0.3)' }
+                },
+                splitLine: {
+                    lineStyle: { color: 'rgba(255,255,255,0.3)' }
+                }
+            },
+            series: [{
+                name: '竞争对手实力',
+                type: 'radar',
+                data: [
+                    {
+                        value: [95, 88, 92, 85, 90, 87],
+                        name: '极飞科技',
+                        areaStyle: { color: 'rgba(255, 107, 107, 0.3)' },
+                        lineStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        value: [90, 95, 85, 80, 88, 92],
+                        name: '大疆创新',
+                        areaStyle: { color: 'rgba(78, 205, 196, 0.3)' },
+                        lineStyle: { color: '#4ecdc4' }
+                    },
+                    {
+                        value: [85, 80, 78, 75, 82, 80],
+                        name: '亿航智能',
+                        areaStyle: { color: 'rgba(69, 183, 209, 0.3)' },
+                        lineStyle: { color: '#45b7d1' }
+                    }
+                ]
+            }]
+        };
+
+        // 融资情况对比
+        const fundingComparisonOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['累计融资', '2023年融资', '估值'],
+                textStyle: { color: '#fff' }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['极飞科技', '大疆创新', '亿航智能', '零度智控', '道通智能'],
+                axisLabel: { color: '#fff' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            },
+            yAxis: {
+                type: 'value',
+                name: '金额（亿元）',
+                nameTextStyle: { color: '#fff' },
+                axisLabel: { color: '#fff' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            },
+            series: [
+                {
+                    name: '累计融资',
+                    type: 'bar',
+                    data: [15.2, 12.8, 8.5, 6.2, 4.8],
+                    itemStyle: { color: '#ff6b6b' }
+                },
+                {
+                    name: '2023年融资',
+                    type: 'bar',
+                    data: [3.2, 2.8, 2.1, 1.5, 1.2],
+                    itemStyle: { color: '#4ecdc4' }
+                },
+                {
+                    name: '估值',
+                    type: 'line',
+                    data: [85, 120, 45, 28, 22],
+                    itemStyle: { color: '#feca57' },
+                    lineStyle: { width: 3 }
+                }
+            ]
+        };
+
+        // 技术专利分析
+        const patentAnalysisOption = {
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [{
+                name: '专利技术分布',
+                type: 'treemap',
+                data: [
+                    {
+                        name: '飞行控制系统',
+                        value: 185,
+                        children: [
+                            {name: '极飞科技', value: 65},
+                            {name: '大疆创新', value: 58},
+                            {name: '亿航智能', value: 32},
+                            {name: '其他', value: 30}
+                        ]
+                    },
+                    {
+                        name: '电池技术',
+                        value: 142,
+                        children: [
+                            {name: '大疆创新', value: 45},
+                            {name: '极飞科技', value: 38},
+                            {name: '亿航智能', value: 28},
+                            {name: '其他', value: 31}
+                        ]
+                    },
+                    {
+                        name: 'AI算法',
+                        value: 128,
+                        children: [
+                            {name: '极飞科技', value: 42},
+                            {name: '大疆创新', value: 35},
+                            {name: '零度智控', value: 28},
+                            {name: '其他', value: 23}
+                        ]
+                    },
+                    {
+                        name: '通信技术',
+                        value: 95,
+                        children: [
+                            {name: '亿航智能', value: 32},
+                            {name: '道通智能', value: 28},
+                            {name: '极飞科技', value: 20},
+                            {name: '其他', value: 15}
+                        ]
+                    }
+                ],
+                label: {
+                    show: true,
+                    formatter: '{b}: {c}'
+                },
+                upperLabel: {
+                    show: true,
+                    height: 30
+                },
+                visualMap: {
+                    type: 'continuous',
+                    min: 0,
+                    max: 200,
+                    inRange: {
+                        color: ['#ff6b6b', '#feca57', '#4ecdc4']
+                    },
+                    textStyle: { color: '#fff' }
+                }
+            }]
+        };
+
+        // 服务网络覆盖对比
+        const networkCoverageOption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            radar: {
+                indicator: [
+                    { name: '上海', max: 100 },
+                    { name: '南京', max: 100 },
+                    { name: '杭州', max: 100 },
+                    { name: '苏州', max: 100 },
+                    { name: '合肥', max: 100 },
+                    { name: '无锡', max: 100 }
+                ],
+                splitArea: {
+                    areaStyle: {
+                        color: ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
+                    }
+                },
+                axisLine: {
+                    lineStyle: { color: 'rgba(255,255,255,0.3)' }
+                },
+                splitLine: {
+                    lineStyle: { color: 'rgba(255,255,255,0.3)' }
+                }
+            },
+            series: [{
+                name: '服务覆盖率',
+                type: 'radar',
+                data: [
+                    {
+                        value: [95, 88, 92, 85, 78, 82],
+                        name: '极飞科技',
+                        areaStyle: { color: 'rgba(255, 107, 107, 0.3)' },
+                        lineStyle: { color: '#ff6b6b' }
+                    },
+                    {
+                        value: [90, 85, 88, 80, 75, 78],
+                        name: '大疆创新',
+                        areaStyle: { color: 'rgba(78, 205, 196, 0.3)' },
+                        lineStyle: { color: '#4ecdc4' }
+                    },
+                    {
+                        value: [85, 80, 85, 75, 70, 72],
+                        name: '亿航智能',
+                        areaStyle: { color: 'rgba(69, 183, 209, 0.3)' },
+                        lineStyle: { color: '#45b7d1' }
+                    },
+                    {
+                        value: [75, 70, 75, 65, 60, 65],
+                        name: '零度智控',
+                        areaStyle: { color: 'rgba(150, 206, 180, 0.3)' },
+                        lineStyle: { color: '#96ceb4' }
+                    }
+                ]
+            }]
+        };
+
+        // 竞争态势热力图
+        const competitiveHeatmapOption = {
+            tooltip: {
+                position: 'top'
+            },
+            grid: {
+                height: '50%',
+                top: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: ['极飞科技', '大疆创新', '亿航智能', '零度智控', '道通智能'],
+                splitArea: {
+                    show: true
+                },
+                axisLabel: { color: '#fff' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            },
+            yAxis: {
+                type: 'category',
+                data: ['价格竞争力', '技术先进性', '服务质量', '品牌认知度', '市场份额', '增长速度'],
+                splitArea: {
+                    show: true
+                },
+                axisLabel: { color: '#fff' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            },
+            visualMap: {
+                min: 0,
+                max: 100,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '15%',
+                inRange: {
+                    color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                },
+                textStyle: { color: '#fff' }
+            },
+            series: [{
+                name: '竞争态势',
+                type: 'heatmap',
+                data: [
+                    [0, 0, 85], [1, 0, 78], [2, 0, 82], [3, 0, 88], [4, 0, 90],
+                    [0, 1, 95], [1, 1, 92], [2, 1, 85], [3, 1, 78], [4, 1, 75],
+                    [0, 2, 88], [1, 2, 90], [2, 2, 80], [3, 2, 75], [4, 2, 70],
+                    [0, 3, 87], [1, 3, 95], [2, 3, 78], [3, 3, 72], [4, 3, 68],
+                    [0, 4, 92], [1, 4, 85], [2, 4, 78], [3, 4, 72], [4, 4, 65],
+                    [0, 5, 88], [1, 5, 82], [2, 5, 85], [3, 5, 78], [4, 5, 80]
+                ],
+                label: {
+                    show: true,
+                    formatter: function(params) {
+                        return params.data[2];
+                    }
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        // 设置图表选项
+        marketShareChart.setOption(marketShareOption);
+        competitorRadarChart.setOption(competitorRadarOption);
+        fundingComparisonChart.setOption(fundingComparisonOption);
+        patentAnalysisChart.setOption(patentAnalysisOption);
+        networkCoverageChart.setOption(networkCoverageOption);
+        competitiveHeatmapChart.setOption(competitiveHeatmapOption);
+
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            marketShareChart.resize();
+            competitorRadarChart.resize();
+            fundingComparisonChart.resize();
+            patentAnalysisChart.resize();
+            networkCoverageChart.resize();
+            competitiveHeatmapChart.resize();
+        });
+
+        // 实时数据更新
+        function updateData() {
+            // 更新KPI数据
+            const competitors = document.getElementById('totalCompetitors');
+            const leader = document.getElementById('marketLeader');
+            const funding = document.getElementById('avgFunding');
+            const tech = document.getElementById('techAdvantage');
+            
+            competitors.textContent = Math.floor(Math.random() * 10 + 40);
+            leader.textContent = Math.floor(Math.random() * 5 + 25) + '%';
+            funding.textContent = '¥' + (Math.random() * 2 + 2).toFixed(1) + '亿';
+            tech.textContent = Math.floor(Math.random() * 10 + 70) + '%';
+        }
+
+        // 每30秒更新一次数据
+        setInterval(updateData, 30000);
+    </script>
+</body>
+</html>
