@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成本结构分析 - 上海低空物流三高成本特征</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #E74C3C 0%, #F39C12 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #E74C3C 0%, #F39C12 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .cost-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px;
+        }
+
+        .cost-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 3px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .cost-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cost-card.fixed {
+            border-color: #E74C3C;
+        }
+
+        .cost-card.variable {
+            border-color: #F39C12;
+        }
+
+        .cost-card.compliance {
+            border-color: #8E44AD;
+        }
+
+        .cost-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .cost-card.fixed .icon {
+            color: #E74C3C;
+        }
+
+        .cost-card.variable .icon {
+            color: #F39C12;
+        }
+
+        .cost-card.compliance .icon {
+            color: #8E44AD;
+        }
+
+        .cost-card h3 {
+            color: #2C3E50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .cost-card .percentage {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .cost-card.fixed .percentage {
+            color: #E74C3C;
+        }
+
+        .cost-card.variable .percentage {
+            color: #F39C12;
+        }
+
+        .cost-card.compliance .percentage {
+            color: #8E44AD;
+        }
+
+        .cost-card .description {
+            color: #7F8C8D;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 0 30px 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-card h3 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .efficiency-section {
+            background: #F8F9FA;
+            margin: 0 30px 30px;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .efficiency-section h3 {
+            color: #2C3E50;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .efficiency-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .efficiency-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .efficiency-card h4 {
+            color: #2C3E50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .efficiency-card .chart-container {
+            height: 250px;
+        }
+
+        .key-metrics {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 0 30px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .key-metrics h3 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-item {
+            background: linear-gradient(135deg, #E74C3C 0%, #F39C12 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .metric-item .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .cost-comparison {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 0 30px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .cost-comparison h3 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ECF0F1;
+        }
+
+        .comparison-table th {
+            background: #F8F9FA;
+            color: #2C3E50;
+            font-weight: bold;
+        }
+
+        .comparison-table .highlight {
+            background: #FFF3E0;
+            color: #E67E22;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .efficiency-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💸 成本结构分析</h1>
+            <p>上海低空物流"固定55%、可变35%、合规10%"三高成本特征</p>
+        </div>
+
+        <div class="cost-overview">
+            <div class="cost-card fixed">
+                <div class="icon">🏢</div>
+                <h3>固定成本</h3>
+                <div class="percentage">55%</div>
+                <div class="description">
+                    无人机购置、基础设施<br>
+                    美团消费级7万/架<br>
+                    徐家汇微仓月租1.2万
+                </div>
+            </div>
+
+            <div class="cost-card variable">
+                <div class="icon">⚡</div>
+                <h3>可变成本</h3>
+                <div class="percentage">35%</div>
+                <div class="description">
+                    锂电池2000元/组<br>
+                    氢燃料15元/架次<br>
+                    运维人力年薪12万
+                </div>
+            </div>
+
+            <div class="cost-card compliance">
+                <div class="icon">📋</div>
+                <h3>合规成本</h3>
+                <div class="percentage">10%</div>
+                <div class="description">
+                    工业级适航认证80万<br>
+                    顺丰应急团队300万/年<br>
+                    空域使用费
+                </div>
+            </div>
+        </div>
+
+        <div class="key-metrics">
+            <h3>📊 核心成本指标</h3>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="value">7-25万</div>
+                    <div class="label">无人机购置价区间</div>
+                </div>
+                <div class="metric-item">
+                    <div class="value">30%</div>
+                    <div class="label">规模化降本比例</div>
+                </div>
+                <div class="metric-item">
+                    <div class="value">25%</div>
+                    <div class="label">氢燃料成本降低</div>
+                </div>
+                <div class="metric-item">
+                    <div class="value">50%</div>
+                    <div class="label">共享起降点降投入</div>
+                </div>
+                <div class="metric-item">
+                    <div class="value">30%</div>
+                    <div class="label">AI调度减少人力</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cost-comparison">
+            <h3>🚁 无人机购置成本对比</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>企业</th>
+                        <th>机型等级</th>
+                        <th>购置价格</th>
+                        <th>主要用途</th>
+                        <th>性价比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>美团</td>
+                        <td>消费级</td>
+                        <td class="highlight">7万元/架</td>
+                        <td>即时配送</td>
+                        <td>★★★★★</td>
+                    </tr>
+                    <tr>
+                        <td>京东</td>
+                        <td>工业级</td>
+                        <td class="highlight">25万元/架</td>
+                        <td>工业运输</td>
+                        <td>★★★☆☆</td>
+                    </tr>
+                    <tr>
+                        <td>顺丰</td>
+                        <td>医疗级</td>
+                        <td class="highlight">12万元/架</td>
+                        <td>医疗急救</td>
+                        <td>★★★★☆</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>🏢 基础设施投资成本</h3>
+                <div class="chart-container">
+                    <canvas id="infrastructureChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>⚡ 运营成本构成</h3>
+                <div class="chart-container">
+                    <canvas id="operationalChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>🔋 能源成本对比</h3>
+                <div class="chart-container">
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>📋 合规认证成本</h3>
+                <div class="chart-container">
+                    <canvas id="complianceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="efficiency-section">
+            <h3>🚀 规模效应与技术创新降本分析</h3>
+            <div class="efficiency-grid">
+                <div class="efficiency-card">
+                    <h4>📈 规模化效应</h4>
+                    <div class="chart-container">
+                        <canvas id="scaleChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="efficiency-card">
+                    <h4>🤖 技术创新效益</h4>
+                    <div class="chart-container">
+                        <canvas id="innovationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="efficiency-card">
+                    <h4>⏱️ 投资回收周期</h4>
+                    <div class="chart-container">
+                        <canvas id="paybackChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="efficiency-card">
+                    <h4>🏙️ 区域成本优化</h4>
+                    <div class="chart-container">
+                        <canvas id="regionalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 基础设施投资成本
+        const infrastructureCtx = document.getElementById('infrastructureChart').getContext('2d');
+        new Chart(infrastructureCtx, {
+            type: 'bar',
+            data: {
+                labels: ['美团徐家汇微仓', '顺丰崇明起降点', '京东临港智能仓储'],
+                datasets: [{
+                    label: '投资成本(万元)',
+                    data: [14.4, 30, 800],
+                    backgroundColor: ['#E74C3C', '#F39C12', '#8E44AD'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '投资成本(万元)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 运营成本构成
+        const operationalCtx = document.getElementById('operationalChart').getContext('2d');
+        new Chart(operationalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['锂电池更换', '氢燃料消耗', '运维人力', '空域使用费', '其他运维'],
+                datasets: [{
+                    data: [35, 25, 20, 15, 5],
+                    backgroundColor: ['#E74C3C', '#F39C12', '#8E44AD', '#3498DB', '#95A5A6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // 能源成本对比
+        const energyCtx = document.getElementById('energyChart').getContext('2d');
+        new Chart(energyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['锂电池2000元/组', '氢燃料15元/架次'],
+                datasets: [{
+                    label: '单次使用成本',
+                    data: [10, 15],
+                    backgroundColor: ['#3498DB', '#27AE60'],
+                    borderWidth: 0
+                }, {
+                    label: '循环/使用次数',
+                    data: [200, 1],
+                    backgroundColor: ['#5DADE2', '#58D68D'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '成本/次数'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 合规认证成本
+        const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+        new Chart(complianceCtx, {
+            type: 'pie',
+            data: {
+                labels: ['工业级适航认证', '应急团队成本', '空域使用费', '其他合规'],
+                datasets: [{
+                    data: [80, 300, 120, 50],
+                    backgroundColor: ['#8E44AD', '#9B59B6', '#AF7AC5', '#BB8FCE'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // 规模化效应
+        const scaleCtx = document.getElementById('scaleChart').getContext('2d');
+        new Chart(scaleCtx, {
+            type: 'line',
+            data: {
+                labels: ['10架', '30架', '50架', '100架', '200架'],
+                datasets: [{
+                    label: '单位运维成本降低(%)',
+                    data: [0, 15, 30, 40, 45],
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderColor: '#E74C3C',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 50,
+                        title: {
+                            display: true,
+                            text: '成本降低(%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 技术创新效益
+        const innovationCtx = document.getElementById('innovationChart').getContext('2d');
+        new Chart(innovationCtx, {
+            type: 'radar',
+            data: {
+                labels: ['人力需求减少', '调度效率提升', '故障率降低', '维护成本下降', '运营效率提升'],
+                datasets: [{
+                    label: 'AI调度优化',
+                    data: [30, 45, 25, 20, 35],
+                    backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                    borderColor: '#F39C12',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#F39C12'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 50
+                    }
+                }
+            }
+        });
+
+        // 投资回收周期
+        const paybackCtx = document.getElementById('paybackChart').getContext('2d');
+        new Chart(paybackCtx, {
+            type: 'bar',
+            data: {
+                labels: ['日均5架次', '日均10架次', '日均15架次', '日均20架次'],
+                datasets: [{
+                    label: '投资回收期(年)',
+                    data: [3, 2, 1.5, 1.2],
+                    backgroundColor: ['#27AE60', '#2ECC71', '#58D68D', '#82E0AA'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '回收期(年)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 区域成本优化
+        const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+        new Chart(regionalCtx, {
+            type: 'bar',
+            data: {
+                labels: ['虹桥共享起降点', '核心区空域费', '徐家汇微仓', '崇明岛起降网络'],
+                datasets: [{
+                    label: '成本优化(%)',
+                    data: [50, 20, 15, 35],
+                    backgroundColor: ['#8E44AD', '#9B59B6', '#AF7AC5', '#BB8FCE'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 60,
+                        title: {
+                            display: true,
+                            text: '成本优化(%)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
