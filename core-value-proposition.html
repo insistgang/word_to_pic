@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核心价值主张 - 上海低空物流企业差异化价值分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+        .company-logo {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 核心价值主张</h1>
+            <p>上海低空物流企业围绕场景痛点构建差异化价值分析</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>准时率提升</h4>
+                <div class="value">94%</div>
+                <div class="unit">美团陆家嘴配送</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>停工损失避免</h4>
+                <div class="value">50万</div>
+                <div class="unit">元/天</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>紧急救援任务</h4>
+                <div class="value">127</div>
+                <div class="unit">次/年</div>
+            </div>
+            <div class="kpi-card">
+                <h4>运输时效提升</h4>
+                <div class="value">82%</div>
+                <div class="unit">沪舟甬航线</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>🛵 美团：即时零售生态延伸</h3>
+                <div class="chart-container">
+                    <canvas id="meituanChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📦 京东：供应链协同网络</h3>
+                <div class="chart-container">
+                    <canvas id="jdChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🚁 顺丰：应急物流+普惠民生</h3>
+                <div class="chart-container">
+                    <canvas id="sfChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🌊 区域特色价值体系</h3>
+                <div class="chart-container">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 服务保障网络</h3>
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 差异化价值核心洞察</h3>
+            <div class="insight-item">
+                <strong>美团即时零售生态：</strong>聚焦15分钟配送时效，准时率从72%提升至94%，商圈餐饮坪效提升18%，生鲜损耗率从15%降至8%，草莓等易损品损耗率更从22%压缩至6%
+            </div>
+            <div class="insight-item">
+                <strong>京东供应链协同：</strong>实现电子元件1小时紧急调拨，避免单条生产线日均50万元损失，无尘运输合格率99.8%，帮助电子厂商安全库存降低40%，年省仓储费120万元
+            </div>
+            <div class="insight-item">
+                <strong>顺丰双轮驱动：</strong>"应急物流+普惠民生"策略下，38家三甲医院血液制品30分钟跨院调配，效率提升50%，2024年完成127次紧急救援，崇明岛药品配送从72小时缩至24小时
+            </div>
+            <div class="insight-item">
+                <strong>区域特色赋能：</strong>沪舟甬航线成本降低30%，马迹山至临港时效从6小时压缩至40分钟，空域审批从"数周级"缩短至"小时级"，金山区跨省航线审批仅需7天
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 美团即时零售生态延伸
+        const meituanCtx = document.getElementById('meituanChart').getContext('2d');
+        new Chart(meituanCtx, {
+            type: 'radar',
+            data: {
+                labels: ['配送准时率', '商圈坪效提升', '生鲜损耗降低', '15分钟配送', '易损品保护', '商圈覆盖'],
+                datasets: [{
+                    label: '改善效果',
+                    data: [94, 18, 7, 90, 16, 85],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3498db'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 京东供应链协同网络
+        const jdCtx = document.getElementById('jdChart').getContext('2d');
+        new Chart(jdCtx, {
+            type: 'bar',
+            data: {
+                labels: ['停工损失避免', '库存降低', '年节省费用', '运输合格率', '紧急调拨时效'],
+                datasets: [{
+                    label: '京东供应链指标',
+                    data: [50, 40, 120, 99.8, 60],
+                    backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '停工损失避免') return value + '万';
+                            if (label === '库存降低') return value + '%';
+                            if (label === '年节省费用') return value + '万';
+                            if (label === '运输合格率') return value + '%';
+                            if (label === '紧急调拨时效') return value + '分钟';
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 顺丰应急物流+普惠民生
+        const sfCtx = document.getElementById('sfChart').getContext('2d');
+        new Chart(sfCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['血液制品调配', '紧急救援任务', '药品配送时效提升', '常用药可得性提升'],
+                datasets: [{
+                    data: [38, 127, 67, 27],
+                    backgroundColor: ['#e74c3c', '#c0392b', '#e67e22', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '血液制品调配') return value + '家';
+                            if (label === '紧急救援任务') return value + '次';
+                            if (label === '药品配送时效提升') return value + '%';
+                            if (label === '常用药可得性提升') return value + '%';
+                            return value;
+                        }
+                    }
+                }
+            }
+        });
+
+        // 区域特色价值体系
+        const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+        new Chart(regionalCtx, {
+            type: 'line',
+            data: {
+                labels: ['原时效', '现时效', '成本降低', '审批缩短', '覆盖提升'],
+                datasets: [{
+                    label: '沪舟甬航线',
+                    data: [360, 40, 30, 85, 0],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '金山区航线',
+                    data: [0, 0, 0, 90, 70],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 服务保障网络
+        const networkCtx = document.getElementById('networkChart').getContext('2d');
+        new Chart(networkCtx, {
+            type: 'pie',
+            data: {
+                labels: ['美团微仓覆盖', '顺丰崇明起降点', '陆家嘴智能柜', '肿瘤医院专机', '跨省航线审批'],
+                datasets: [{
+                    data: [5, 5, 60, 95, 7],
+                    backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#27ae60', '#9b59b6'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => ({
+                                        text: label + ' (' + data.datasets[0].data[i] + (i === 0 || i === 1 ? '个' : i === 2 ? '%' : i === 3 ? '%分钟' : '天')) + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].borderColor,
+                                        lineWidth: data.datasets[0].borderWidth,
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                                return [];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
