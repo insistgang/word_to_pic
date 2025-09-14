@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海低空物流企业收入结构分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .dashboard .chart-card:nth-child(4) {
+            grid-column: span 2;
+        }
+        
+        .dashboard .chart-card:nth-child(5) {
+            grid-column: span 1;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .chart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .kpi-card.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .kpi-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-card .unit {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .insights h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .insight-item strong {
+            color: #2c3e50;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard .chart-card:nth-child(4),
+            .dashboard .chart-card:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 上海低空物流企业收入结构分析</h1>
+            <p>"核心收入 + 创新补充"多元化业务模式数据可视化</p>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <h4>基础服务费</h4>
+                <div class="value">70%</div>
+                <div class="unit">核心收入占比</div>
+            </div>
+            <div class="kpi-card info">
+                <h4>会员订阅收入</h4>
+                <div class="value">20%</div>
+                <div class="unit">稳定现金流</div>
+            </div>
+            <div class="kpi-card warning">
+                <h4>增值服务</h4>
+                <div class="value">10%</div>
+                <div class="unit">利润增长点</div>
+            </div>
+            <div class="kpi-card">
+                <h4>美团会员活跃度</h4>
+                <div class="value">2.6倍</div>
+                <div class="unit">vs非会员</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="chart-card">
+                <h3>📊 核心收入构成</h3>
+                <div class="chart-container">
+                    <canvas id="revenueStructureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>💳 会员订阅效果</h3>
+                <div class="chart-container">
+                    <canvas id="membershipChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🎯 增值服务渗透率</h3>
+                <div class="chart-container">
+                    <canvas id="valueAddedChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>💡 创新收入来源</h3>
+                <div class="chart-container">
+                    <canvas id="innovationChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📈 订单单价分布</h3>
+                <div class="chart-container">
+                    <canvas id="pricingChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights">
+            <h3>💡 收入结构核心洞察</h3>
+            <div class="insight-item">
+                <strong>多元化收入结构：</strong>形成"核心收入+创新补充"模式，核心收入中基础服务费占70%，会员订阅占20%，增值服务占10%，确保收入稳定性和增长性
+            </div>
+            <div class="insight-item">
+                <strong>差异化定价策略：</strong>C端美团陆家嘴普通订单8元/单，跨区加价1.2元/公里；B端京东芯片运输25元/单，顺丰血液运输500-800元/架次，体现不同场景价值
+            </div>
+            <div class="insight-item">
+                <strong>会员经济效应：</strong>美团会员月均下单12.3次，是非会员2.6倍，年留存率68%；企业会员"500单/月"套餐4800元/月，展现高粘性特征
+            </div>
+            <div class="insight-item">
+                <strong>创新收入拓展：</strong>B端定制服务（顺丰医疗应急30-50万/年）、政策补贴（最高500万）、碳积分收益（氢能无人机减排1.2kg/架次）、数据服务（热力图2万/次）多元化收入来源
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 核心收入构成
+        const revenueStructureCtx = document.getElementById('revenueStructureChart').getContext('2d');
+        new Chart(revenueStructureCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['基础服务费', '会员订阅收入', '增值服务'],
+                datasets: [{
+                    data: [70, 20, 10],
+                    backgroundColor: ['#667eea', '#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 16
+                        },
+                        formatter: (value) => {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        });
+
+        // 会员订阅效果
+        const membershipCtx = document.getElementById('membershipChart').getContext('2d');
+        new Chart(membershipCtx, {
+            type: 'bar',
+            data: {
+                labels: ['月均下单次数', '年留存率', '会员vs非会员'],
+                datasets: [{
+                    label: '会员表现',
+                    data: [12.3, 68, 260],
+                    backgroundColor: '#3498db',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            if (label === '会员vs非会员') return value + '%';
+                            if (label === '年留存率') return value + '%';
+                            return value + '次';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 增值服务渗透率
+        const valueAddedCtx = document.getElementById('valueAddedChart').getContext('2d');
+        new Chart(valueAddedCtx, {
+            type: 'radar',
+            data: {
+                labels: ['生鲜恒温配送', '3C产品保价', '夜间配送', '技术模块授权', '数据服务'],
+                datasets: [{
+                    label: '渗透率(%)',
+                    data: [40, 25, 18, 15, 10],
+                    backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                    borderColor: '#f39c12',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 50
+                    }
+                }
+            }
+        });
+
+        // 创新收入来源
+        const innovationCtx = document.getElementById('innovationChart').getContext('2d');
+        new Chart(innovationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['B端定制服务', '政策补贴', '碳积分收益', '数据服务'],
+                datasets: [{
+                    label: '年收入规模(万元)',
+                    data: [80, 550, 25.8, 120],
+                    backgroundColor: ['#27ae60', '#e74c3c', '#9b59b6', '#3498db'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value) => {
+                            return value + '万';
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 订单单价分布
+        const pricingCtx = document.getElementById('pricingChart').getContext('2d');
+        new Chart(pricingCtx, {
+            type: 'pie',
+            data: {
+                labels: ['C端普通订单', 'C端加急订单', 'B端芯片运输', 'B端血液运输', '跨区加价'],
+                datasets: [{
+                    data: [8, 15, 25, 650, 1.2],
+                    backgroundColor: ['#667eea', '#764ba2', '#3498db', '#e74c3c', '#f39c12'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => ({
+                                        text: label + ' (' + data.datasets[0].data[i] + '元)',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].borderColor,
+                                        lineWidth: data.datasets[0].borderWidth,
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                                return [];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
