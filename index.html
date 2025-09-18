@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据可视化仪表板集合</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -357,6 +358,7 @@
         .cost-structure .explore-btn {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
+  
         
         .footer {
             background: #f8f9fa;
@@ -756,6 +758,36 @@
             </div>
             </div>
   
+        <!-- 收入模式分析卡片 -->
+        <div class="dashboard-card industrial">
+            <div class="card-icon">💰</div>
+            <h2>收入模式分析</h2>
+            <p class="card-description">
+                上海低空物流企业"核心收入为主、创新收入补充"的多元收入结构
+            </p>
+
+            <div class="key-metrics">
+                <div class="metric-item">
+                    <div class="metric-value">70%</div>
+                    <div class="metric-label">基础服务费</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">20%</div>
+                    <div class="metric-label">会员订阅</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">10%</div>
+                    <div class="metric-label">增值服务</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">320</div>
+                    <div class="metric-label">徐家汇微仓日均单量</div>
+                </div>
+            </div>
+
+            <a href="revenue-model-analysis.html" class="explore-btn">💰 查看详细数据</a>
+        </div>
+
         <!-- 成本结构分析卡片 -->
         <div class="dashboard-card cost-structure">
             <div class="card-icon">💸</div>
@@ -813,7 +845,7 @@
                 </div>
             </div>
 
-            <a href="上海低空物流核心价值主张.html" class="explore-btn">🎯 查看详细数据</a>
+            <a href="core-value-proposition.html" class="explore-btn">🎯 查看详细数据</a>
         </div>
 
         <!-- 系统状态监控卡片 -->
@@ -851,5 +883,6 @@
             <p>📊 数据来源：美团配送、瑞金医院等三甲机构 | 📅 更新时间：2025年</p>
         </div>
     </div>
-</body>
+
+  </body>
 </html>
