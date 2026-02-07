@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碳智融实时风险监控仪表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard-container {
+            width: 1400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 标题栏 */
+        .dashboard-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 25px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .header-text {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .header-time {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .live-indicator {
+            width: 10px;
+            height: 10px;
+            background: #2ecc71;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        /* 主体内容 */
+        .dashboard-body {
+            padding: 40px;
+        }
+
+        /* 风险指数卡片 */
+        .risk-index-card {
+            background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .main-risk-score {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+        }
+        .score-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .score-total {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .score-label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .risk-status {
+            background: #2ecc71;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 20px;
+        }
+
+        /* 风险子项 */
+        .risk-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .risk-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .risk-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .policy-icon { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+        .asset-icon { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+        .tech-icon { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+
+        .risk-details {
+            flex: 1;
+        }
+        .risk-name {
+            font-size: 16px;
+            color: #34495e;
+            margin-bottom: 5px;
+        }
+        .risk-score-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .risk-score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .risk-bar {
+            flex: 1;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .risk-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        .green-fill { background: #2ecc71; width: 11%; }
+        .yellow-fill { background: #f1c40f; width: 38%; }
+        .tech-fill { background: #2ecc71; width: 5%; }
+
+        /* 实时预警 */
+        .alert-section {
+            margin-bottom: 30px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .alert-count {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .alert-item {
+            background: #fef5e7;
+            border-left: 4px solid #f1c40f;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+        .alert-item:hover {
+            transform: translateX(10px);
+        }
+        .alert-icon {
+            font-size: 24px;
+            margin-top: 2px;
+        }
+        .alert-content {
+            flex: 1;
+        }
+        .alert-title {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .alert-location {
+            color: #e67e22;
+            font-weight: 500;
+        }
+        .alert-suggestion {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .confirm-btn {
+            background: #3498db;
+            color: white;
+        }
+        .detail-btn {
+            background: #ecf0f1;
+            color: #34495e;
+        }
+        .process-btn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        /* 项目风险分布 */
+        .risk-distribution {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .distribution-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .dist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .dist-label {
+            width: 120px;
+            font-size: 14px;
+            color: #34495e;
+            font-weight: 500;
+        }
+        .dist-bar-container {
+            flex: 1;
+            height: 30px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dist-bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 15px;
+            transition: width 1s ease;
+        }
+        .green-bar { background: linear-gradient(90deg, #27ae60, #2ecc71); width: 83%; }
+        .yellow-bar { background: linear-gradient(90deg, #f39c12, #f1c40f); width: 13%; }
+        .orange-bar { background: linear-gradient(90deg, #e67e22, #f39c12); width: 4%; }
+        .red-bar { background: linear-gradient(90deg, #c0392b, #e74c3c); width: 0.5%; }
+
+        /* 处理进展 */
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .pending-stat { color: #e74c3c; }
+        .processing-stat { color: #f39c12; }
+        .completed-stat { color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 标题栏 -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <div class="header-icon">🛡️</div>
+                <div class="header-text">碳智融实时风险监控仪表板</div>
+            </div>
+            <div class="header-time">
+                <div class="live-indicator"></div>
+                <span>实时更新</span>
+                <span id="current-time">2024-11-15 14:35:20</span>
+            </div>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="dashboard-body">
+            <!-- 风险指数 -->
+            <div class="risk-index-card">
+                <div class="main-risk-score">
+                    <div class="score-circle">
+                        <div class="score-value">3.2</div>
+                        <div class="score-total">/10</div>
+                    </div>
+                    <div>
+                        <div class="score-label">整体风险指数</div>
+                        <div class="risk-status">绿色 - 低风险</div>
+                    </div>
+                </div>
+
+                <div class="risk-breakdown">
+                    <div class="risk-item">
+                        <div class="risk-icon policy-icon">📋</div>
+                        <div class="risk-details">
+                            <div class="risk-name">政策风险</div>
+                            <div class="risk-score-bar">
+                                <span class="risk-score">1.1/10</span>
+                                <div class="risk-bar">
+                                    <div class="risk-fill green-fill"></div>
+                                </div>
+                                <span style="color: #2ecc71; font-weight: bold;">绿色</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="risk-item">
+                        <div class="risk-icon asset-icon">🌳</div>
+                        <div class="risk-details">
+                            <div class="risk-name">资产风险</div>
+                            <div class="risk-score-bar">
+                                <span class="risk-score">3.8/10</span>
+                                <div class="risk-bar">
+                                    <div class="risk-fill yellow-fill"></div>
+                                </div>
+                                <span style="color: #f1c40f; font-weight: bold;">黄色 - 中风险</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="risk-item">
+                        <div class="risk-icon tech-icon">💻</div>
+                        <div class="risk-details">
+                            <div class="risk-name">技术风险</div>
+                            <div class="risk-score-bar">
+                                <span class="risk-score">0.5/10</span>
+                                <div class="risk-bar">
+                                    <div class="risk-fill tech-fill"></div>
+                                </div>
+                                <span style="color: #2ecc71; font-weight: bold;">绿色</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实时预警信息 -->
+            <div class="alert-section">
+                <div class="section-header">
+                    <h2 class="section-title">实时预警信息（过去24小时）</h2>
+                    <span class="alert-count">3 条预警</span>
+                </div>
+
+                <div class="alert-list">
+                    <div class="alert-item">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">
+                                <span class="alert-location">浙江省苍南地区</span>：新增农村生物质补贴政策
+                            </div>
+                            <div class="alert-suggestion">建议：更新浙江地区项目参数</div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="action-btn confirm-btn">确认</button>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">
+                                <span class="alert-location">江西项目E001</span>：卫星图显示植被指数下降20%
+                            </div>
+                            <div class="alert-suggestion">建议：现场调查、评估灾害风险</div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="action-btn detail-btn">详情</button>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">
+                                <span class="alert-location">浙江项目F023</span>：G维度评分下降至7.5
+                            </div>
+                            <div class="alert-suggestion">原因：信息披露中断3周</div>
+                            <div class="alert-suggestion">建议：联系项目方要求恢复披露</div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="action-btn process-btn">处理</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目风险分布 -->
+            <div class="risk-distribution">
+                <div class="section-header">
+                    <h2 class="section-title">项目风险分布</h2>
+                </div>
+
+                <div class="distribution-grid">
+                    <div class="dist-item">
+                        <div class="dist-label">🟢 绿色[低风险]</div>
+                        <div class="dist-bar-container">
+                            <div class="dist-bar green-bar">154个项目</div>
+                        </div>
+                    </div>
+
+                    <div class="dist-item">
+                        <div class="dist-label">🟡 黄色[中风险]</div>
+                        <div class="dist-bar-container">
+                            <div class="dist-bar yellow-bar">24个项目</div>
+                        </div>
+                    </div>
+
+                    <div class="dist-item">
+                        <div class="dist-label">🟠 橙色[较高风险]</div>
+                        <div class="dist-bar-container">
+                            <div class="dist-bar orange-bar">8个项目</div>
+                        </div>
+                    </div>
+
+                    <div class="dist-item">
+                        <div class="dist-label">🔴 红色[高风险]</div>
+                        <div class="dist-bar-container">
+                            <div class="dist-bar red-bar">1个项目</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险事件处理进展 -->
+            <div class="progress-section">
+                <div class="section-header">
+                    <h2 class="section-title">风险事件处理进展</h2>
+                </div>
+
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <div class="stat-value pending-stat">3</div>
+                        <div class="stat-label">待处理</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value processing-stat">8</div>
+                        <div class="stat-label">进行中</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value completed-stat">156</div>
+                        <div class="stat-label">已完成</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeStr;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

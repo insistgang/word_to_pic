@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多视角融合道路违停智能检测平台技术架构</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* 七层架构容器 */
+        .architecture-container {
+            position: relative;
+        }
+
+        /* 通用层级样式 */
+        .layer {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 2px solid;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .layer:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .layer-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 20px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .layer-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .layer-content {
+            padding: 20px 25px;
+        }
+
+        /* 展现层 */
+        .presentation-layer {
+            border-color: #3498db;
+        }
+
+        .presentation-layer .layer-icon {
+            color: #3498db;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .tech-item {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .tech-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #3498db;
+            flex-shrink: 0;
+        }
+
+        .tech-content h4 {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .tech-content p {
+            font-size: 18px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        /* 业务层 */
+        .business-layer {
+            border-color: #e74c3c;
+        }
+
+        .business-layer .layer-icon {
+            color: #e74c3c;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .module-item {
+            background: #fef4f4;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .module-icon {
+            font-size: 32px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .module-name {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* 数据存储层 */
+        .data-layer {
+            border-color: #27ae60;
+        }
+
+        .data-layer .layer-icon {
+            color: #27ae60;
+        }
+
+        .storage-combo {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .storage-box {
+            flex: 1;
+            background: #f6fef6;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .storage-icon {
+            font-size: 40px;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+
+        .storage-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .storage-features {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .plus-sign {
+            font-size: 36px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        /* 消息队列层 */
+        .message-layer {
+            border-color: #9b59b6;
+        }
+
+        .message-layer .layer-icon {
+            color: #9b59b6;
+        }
+
+        .message-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .message-step {
+            background: #f4ecf7;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 150px;
+        }
+
+        .step-icon {
+            font-size: 36px;
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+
+        .step-name {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #9b59b6;
+            font-weight: bold;
+        }
+
+        /* 采控中心层 */
+        .control-layer {
+            border-color: #f39c12;
+        }
+
+        .control-layer .layer-icon {
+            color: #f39c12;
+        }
+
+        .control-functions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .function-box {
+            background: #fffbf0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .function-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .function-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f39c12;
+            font-size: 16px;
+        }
+
+        .function-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        /* 资源层 */
+        .resource-layer {
+            border-color: #34495e;
+        }
+
+        .resource-layer .layer-icon {
+            color: #34495e;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .resource-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .resource-icon {
+            font-size: 32px;
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        .resource-name {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .resource-protocol {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* 接口层 */
+        .interface-layer {
+            border-color: #16a085;
+        }
+
+        .interface-layer .layer-icon {
+            color: #16a085;
+        }
+
+        .interface-systems {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .system-item {
+            background: #e8f6f3;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 160px;
+        }
+
+        .system-icon {
+            font-size: 36px;
+            color: #16a085;
+            margin-bottom: 10px;
+        }
+
+        .system-name {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* 连接箭头 */
+        .layer-arrow {
+            text-align: center;
+            color: #95a5a6;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .layer-arrow::before {
+            content: '↓';
+            font-size: 28px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .protocol-label {
+            background: #ecf0f1;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #7f8c8d;
+            display: inline-block;
+        }
+
+        /* 业务闭环标注 */
+        .business-cycle {
+            position: absolute;
+            right: 30px;
+            top: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1600px) {
+            .container {
+                width: 95%;
+            }
+            .tech-grid,
+            .control-functions {
+                grid-template-columns: 1fr;
+            }
+            .module-grid,
+            .resource-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .storage-combo {
+                flex-direction: column;
+            }
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="business-cycle">业务闭环：发现→研判→处置→评估</div>
+
+        <h1 class="title">多视角融合违停检测平台架构</h1>
+        <p class="subtitle">端云一体化七层架构</p>
+
+        <div class="architecture-container">
+            <!-- 展现层 -->
+            <div class="layer presentation-layer">
+                <div class="layer-header">
+                    <div class="layer-icon">🖥️</div>
+                    <h2 class="layer-title">展现层</h2>
+                </div>
+                <div class="layer-content">
+                    <div class="tech-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div class="tech-item" style="padding: 12px;">
+                            <div class="tech-icon">🌐</div>
+                            <div class="tech-content">
+                                <h4>Vue前端</h4>
+                                <p>浏览器/大屏</p>
+                            </div>
+                        </div>
+                        <div class="tech-item" style="padding: 12px;">
+                            <div class="tech-icon">👥</div>
+                            <div class="tech-content">
+                                <h4>服务对象</h4>
+                                <p>交警、城管</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 业务层 -->
+            <div class="layer business-layer">
+                <div class="layer-header">
+                    <div class="layer-icon">⚙️</div>
+                    <h2 class="layer-title">业务层</h2>
+                </div>
+                <div class="layer-content">
+                    <div class="module-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="module-item" style="padding: 12px;">
+                            <div class="module-icon">📋</div>
+                            <div class="module-name">违停事件</div>
+                        </div>
+                        <div class="module-item" style="padding: 12px;">
+                            <div class="module-icon">⚡</div>
+                            <div class="module-name">规则引擎</div>
+                        </div>
+                        <div class="module-item" style="padding: 12px;">
+                            <div class="module-icon">📝</div>
+                            <div class="module-name">工单流转</div>
+                        </div>
+                        <div class="module-item" style="padding: 12px;">
+                            <div class="module-icon">🔐</div>
+                            <div class="module-name">权限审计</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px; font-size: 16px; color: #7f8c8d;">
+                        Python/Django
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据与消息层 -->
+            <div class="layer data-layer">
+                <div class="layer-header">
+                    <div class="layer-icon">🗄️</div>
+                    <h2 class="layer-title">数据与消息层</h2>
+                </div>
+                <div class="layer-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; text-align: center;">数据存储</div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="background: #f6fef6; padding: 12px; border-radius: 8px; flex: 1; text-align: center;">
+                                    <div style="font-size: 18px; color: #27ae60; font-weight: bold;">MySQL</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">违停事件、车牌信息</div>
+                                </div>
+                                <div style="font-size: 20px; color: #27ae60;">+</div>
+                                <div style="background: #f6fef6; padding: 12px; border-radius: 8px; flex: 1; text-align: center;">
+                                    <div style="font-size: 18px; color: #27ae60; font-weight: bold;">Redis</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">缓存、任务队列</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; text-align: center;">消息队列</div>
+                            <div style="background: #f4ecf7; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="display: flex; justify-content: space-around; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 16px; color: #2c3e50;">事件通知</div>
+                                    </div>
+                                    <div style="font-size: 18px; color: #9b59b6;">→</div>
+                                    <div>
+                                        <div style="font-size: 16px; color: #2c3e50;">异步处理</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; color: #7f8c8d; margin-top: 8px;">Kafka/RabbitMQ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 采控中心层 -->
+            <div class="layer control-layer">
+                <div class="layer-header">
+                    <div class="layer-icon">🎮</div>
+                    <h2 class="layer-title">采控中心</h2>
+                </div>
+                <div class="layer-content">
+                    <div class="control-functions" style="grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div class="function-box" style="padding: 15px;">
+                            <div class="function-title">
+                                <div class="function-icon">📹</div>
+                                视频流管理
+                            </div>
+                            <div class="function-desc">
+                                • 摄像头接入<br>
+                                • 视频流转发
+                            </div>
+                        </div>
+                        <div class="function-box" style="padding: 15px;">
+                            <div class="function-title">
+                                <div class="function-icon">🤖</div>
+                                模型调度
+                            </div>
+                            <div class="function-desc">
+                                • 违停检测<br>
+                                • 车牌识别
+                            </div>
+                        </div>
+                        <div class="function-box" style="padding: 15px;">
+                            <div class="function-title">
+                                <div class="function-icon">🗺️</div>
+                                BEV投影
+                            </div>
+                            <div class="function-desc">
+                                • 多视角融合<br>
+                                • 空间标定
+                            </div>
+                        </div>
+                        <div class="function-box" style="padding: 15px;">
+                            <div class="function-title">
+                                <div class="function-icon">📊</div>
+                                策略下发
+                            </div>
+                            <div class="function-desc">
+                                • 帧率控制<br>
+                                • 路线规划
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer-arrow">
+                <span class="protocol-label">RTSP/HTTP</span>
+            </div>
+
+            <!-- 资源与接口层 -->
+            <div class="layer resource-layer">
+                <div class="layer-header">
+                    <div class="layer-icon">🎥</div>
+                    <h2 class="layer-title">资源与接口层</h2>
+                </div>
+                <div class="layer-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; text-align: center;">前端资源</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 18px;">🚁</div>
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">无人机</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">移动采集</div>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 18px;">📹</div>
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">摄像头</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">定点监控</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; text-align: center;">对外接口</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                <div style="background: #e8f6f3; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">👮 交警</div>
+                                </div>
+                                <div style="background: #e8f6f3; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">🏛️ 城管</div>
+                                </div>
+                                <div style="background: #e8f6f3; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">🏢 园区</div>
+                                </div>
+                                <div style="background: #e8f6f3; padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 16px; color: #2c3e50; font-weight: 500;">🚦 交通</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

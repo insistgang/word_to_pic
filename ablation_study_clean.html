@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消融实验对比分析</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
+            background: #ffffff;
+            color: #2c3e50;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .main-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        /* 对比卡片网格 */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* 方案卡片 */
+        .method-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid transparent;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        /* YOLO方案 - 红色主题 */
+        .method-card:nth-child(1) {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            border-color: #ff6b6b;
+        }
+
+        /* VLM方案 - 蓝色主题 */
+        .method-card:nth-child(2) {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f7ff 100%);
+            border-color: #4fc3f7;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        /* 最佳方案特殊样式 */
+        .method-card.best {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .method-card.best::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        /* 方案标题 */
+        .method-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .method-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .method-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-fail {
+            background: #fee;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .badge-best {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            color: #667eea;
+            border: 2px solid #667eea;
+            font-weight: 700;
+        }
+
+        /* 指标条形图 */
+        .metrics-chart {
+            margin-bottom: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .metric-label {
+            width: 100px;
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .metric-bar-container {
+            flex: 1;
+            height: 35px;
+            background: #f1f3f5;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .metric-bar {
+            height: 100%;
+            border-radius: 18px;
+            position: relative;
+            transition: width 0.8s ease-out;
+        }
+
+        .metric-value {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* 不同方案的颜色 */
+        .yolo-bar {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        }
+
+        .vlm-bar {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .ours-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 综合得分 */
+        .score-display {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* YOLO方案的得分显示 */
+        .method-card:nth-child(1) .score-display {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        /* VLM方案的得分显示 */
+        .method-card:nth-child(2) .score-display {
+            background: rgba(79, 195, 247, 0.1);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .yolo-score { color: #ff6b6b; }
+        .vlm-score { color: #4fc3f7; }
+        .ours-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 评价 */
+        .evaluation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* YOLO方案的评价 */
+        .method-card:nth-child(1) .evaluation {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        /* VLM方案的评价 */
+        .method-card:nth-child(2) .evaluation {
+            border-left-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.05);
+        }
+
+        .eval-icon {
+            font-size: 20px;
+        }
+
+        .eval-text {
+            font-size: 14px;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        /* 对比总结 */
+        .summary-section {
+            margin-top: 60px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid #e9ecef;
+        }
+
+        .summary-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .insight-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .insight-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        .insight-card:nth-child(1) .insight-icon {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        }
+
+        .insight-card:nth-child(2) .insight-icon {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .insight-card:nth-child(3) .insight-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .insight-content h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .insight-content p {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 32px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Ours方案禁用动画 */
+        .method-card.best {
+            animation: none !important;
+        }
+
+        .method-card.best .metric-bar {
+            width: 95% !important;
+            transition: none !important;
+        }
+
+        .method-card.best .metric-bar:nth-child(2) {
+            width: 66% !important;
+        }
+
+        .method-card.best .metric-bar:nth-child(3) {
+            width: 84.89% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">消融实验对比分析</h1>
+            <p class="subtitle">Ablation Study Comparison</p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- YOLO方案 -->
+            <div class="method-card">
+                <div class="method-header">
+                    <h2 class="method-name">纯YOLO方案</h2>
+                    <div class="method-badge badge-fail">
+                        <span>❌</span>
+                        <span>失败</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">定位精度</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 95%;">
+                                <span class="metric-value">95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">逻辑推理</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 0%;">
+                                <span class="metric-value">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">综合得分</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 30%;">
+                                <span class="metric-value">30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">综合评分</div>
+                    <div class="score-value yolo-score">30%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">💭</span>
+                    <span class="eval-text">无法理解电路逻辑关系，仅能完成目标检测任务</span>
+                </div>
+            </div>
+
+            <!-- VLM方案 -->
+            <div class="method-card">
+                <div class="method-header">
+                    <h2 class="method-name">纯VLM方案</h2>
+                    <div class="method-badge badge-fail">
+                        <span>❌</span>
+                        <span>失败</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">定位精度</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 65%;">
+                                <span class="metric-value">65%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">逻辑推理</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 75%;">
+                                <span class="metric-value">75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">综合得分</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 55%;">
+                                <span class="metric-value">55%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">综合评分</div>
+                    <div class="score-value vlm-score">55%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">🎯</span>
+                    <span class="eval-text">坐标定位不准确，虽然能理解逻辑但精度不足</span>
+                </div>
+            </div>
+
+            <!-- 融合方案 - 无动画 -->
+            <div class="method-card best">
+                <div class="method-header">
+                    <h2 class="method-name">Ours（融合方案）</h2>
+                    <div class="method-badge badge-best">
+                        <span>✨</span>
+                        <span>最佳</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">定位精度</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">逻辑推理</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">66%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">综合得分</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">84.89%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">综合评分</div>
+                    <div class="score-value ours-score">84.89%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">🏆</span>
+                    <span class="eval-text">完美结合YOLO定位精度与VLM推理能力，实现最佳性能</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 总结部分 -->
+        <div class="summary-section">
+            <h3 class="summary-title">关键洞察</h3>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-icon">📊</div>
+                    <div class="insight-content">
+                        <h4>定位优势保留</h4>
+                        <p>融合方案完全继承了YOLO的高精度定位能力（95%），确保组件检测的准确性</p>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-icon">🧠</div>
+                    <div class="insight-content">
+                        <h4>推理能力提升</h4>
+                        <p>引入VLM后获得66%的逻辑推理能力，远超纯YOLO方案的0%</p>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-icon">⚡</div>
+                    <div class="insight-content">
+                        <h4>综合性能最优</h4>
+                        <p>84.89%的综合得分证明了融合策略的有效性，远超其他单一方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>违停检测系统功能架构图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        /* 架构容器 */
+        .architecture {
+            position: relative;
+        }
+
+        /* 通用层级样式 */
+        .layer {
+            background: white;
+            border-radius: 15px;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            position: relative;
+            border: 2px solid;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .layer:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .layer-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .layer-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 24px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 前端感知层 */
+        .perception-layer {
+            border-color: #3498db;
+        }
+
+        .perception-layer .layer-icon {
+            color: #3498db;
+        }
+
+        .perception-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .perception-item {
+            flex: 1;
+            min-width: 200px;
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .device-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: #3498db;
+        }
+
+        .device-name {
+            font-size: 22px;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .device-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        /* 采集接入层 */
+        .collection-layer {
+            border-color: #9b59b6;
+        }
+
+        .collection-layer .layer-icon {
+            color: #9b59b6;
+        }
+
+        .protocol-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .protocol-item {
+            background: #f4ecf7;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .protocol-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 8px;
+        }
+
+        .protocol-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #9b59b6;
+        }
+
+        /* 违停识别层 */
+        .recognition-layer {
+            border-color: #e74c3c;
+        }
+
+        .recognition-layer .layer-icon {
+            color: #e74c3c;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .algorithm-item {
+            background: #fef4f4;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .algo-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #e74c3c;
+        }
+
+        .algo-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        /* 业务应用层 */
+        .business-layer {
+            border-color: #27ae60;
+        }
+
+        .business-layer .layer-icon {
+            color: #27ae60;
+        }
+
+        .business-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .business-item {
+            background: #f6fef6;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .business-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #27ae60;
+        }
+
+        .business-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* 展示与交互层 */
+        .display-layer {
+            border-color: #f39c12;
+        }
+
+        .display-layer .layer-icon {
+            color: #f39c12;
+        }
+
+        .display-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .display-item {
+            background: #fffbf0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .display-icon {
+            font-size: 34px;
+            margin-bottom: 8px;
+            color: #f39c12;
+        }
+
+        .display-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* 数据存储与支撑层 */
+        .storage-layer {
+            border-color: #34495e;
+        }
+
+        .storage-layer .layer-icon {
+            color: #34495e;
+        }
+
+        .storage-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .storage-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #34495e;
+        }
+
+        .storage-list {
+            list-style: none;
+        }
+
+        .storage-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+
+        .storage-item::before {
+            content: '▸';
+            color: #34495e;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* 连接线和流程 */
+        .connection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #95a5a6;
+        }
+
+        .flow-line {
+            height: 3px;
+            background: linear-gradient(90deg, #95a5a6, #bdc3c7);
+            flex: 1;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .flow-line::after {
+            content: '↓';
+            position: absolute;
+            right: -15px;
+            top: -12px;
+            font-size: 20px;
+            color: #95a5a6;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1600px) {
+            .container {
+                width: 95%;
+            }
+            .algorithm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .business-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .perception-grid,
+            .protocol-grid,
+            .display-grid {
+                flex-direction: column;
+            }
+            .algorithm-grid,
+            .business-grid,
+            .storage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🚗 违停检测系统功能架构图</h1>
+
+        <div class="architecture">
+            <!-- 前端感知层 -->
+            <div class="layer perception-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">📷</div>
+                        前端感知层
+                    </div>
+                </div>
+                <div class="perception-grid">
+                    <div class="perception-item">
+                        <div class="device-icon">🚁</div>
+                        <div class="device-name">无人机相机</div>
+                        <div class="device-desc">机动巡航</div>
+                    </div>
+                    <div class="perception-item">
+                        <div class="device-icon">📹</div>
+                        <div class="device-name">固定摄像头</div>
+                        <div class="device-desc">24小时监控</div>
+                    </div>
+                    <div class="perception-item">
+                        <div class="device-icon">📍</div>
+                        <div class="device-name">监控区域</div>
+                        <div class="device-desc">主干道、支路、站点</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">
+                <span>视频流/图片</span>
+                <div class="flow-line"></div>
+            </div>
+
+            <!-- 采集接入层 -->
+            <div class="layer collection-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔗</div>
+                        采集接入层
+                    </div>
+                </div>
+                <div class="protocol-grid">
+                    <div class="protocol-item">
+                        <div class="protocol-name">RTSP</div>
+                        <div class="protocol-desc">实时流协议</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">HTTP-FLV</div>
+                        <div class="protocol-desc">流媒体传输</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">MP4</div>
+                        <div class="protocol-desc">视频格式</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; font-size: 16px; color: #7f8c8d;">
+                    拉流 → 解码 → 抽帧 → 预处理 → 标准帧序列
+                </div>
+            </div>
+
+            <div class="connection">
+                <span>标准帧序列</span>
+                <div class="flow-line"></div>
+            </div>
+
+            <!-- 违停识别与多视角融合层 -->
+            <div class="layer recognition-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🤖</div>
+                        违停识别与多视角融合层
+                    </div>
+                </div>
+                <div class="algorithm-grid">
+                    <div class="algorithm-item">
+                        <div class="algo-icon">🎯</div>
+                        <div class="algo-name">目标检测</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">🚫</div>
+                        <div class="algo-name">禁停区域识别</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">⏱️</div>
+                        <div class="algo-name">时间阈值判定</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">🗺️</div>
+                        <div class="algo-name">BEV投影</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">👁️</div>
+                        <div class="algo-name">多视角匹配</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">🔤</div>
+                        <div class="algo-name">车牌识别</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">📝</div>
+                        <div class="algo-name">事件生成</div>
+                    </div>
+                    <div class="algorithm-item">
+                        <div class="algo-icon">📍</div>
+                        <div class="algo-name">空间定位</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; padding: 12px; background: #fef4f4; border-radius: 8px; font-size: 16px;">
+                    <strong>输出：</strong>车牌号、停车时间、位置信息
+                </div>
+            </div>
+
+            <div class="connection">
+                <span>违停事件</span>
+                <div class="flow-line"></div>
+            </div>
+
+            <!-- 业务应用层 -->
+            <div class="layer business-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚙️</div>
+                        业务应用层
+                    </div>
+                </div>
+                <div class="business-grid">
+                    <div class="business-item">
+                        <div class="business-icon">📋</div>
+                        <div class="business-name">事件管理</div>
+                    </div>
+                    <div class="business-item">
+                        <div class="business-icon">🔔</div>
+                        <div class="business-name">告警推送</div>
+                    </div>
+                    <div class="business-item">
+                        <div class="business-icon">📊</div>
+                        <div class="business-name">报表生成</div>
+                    </div>
+                    <div class="business-item">
+                        <div class="business-icon">🔍</div>
+                        <div class="business-name">事件查询</div>
+                    </div>
+                    <div class="business-item">
+                        <div class="business-icon">✅</div>
+                        <div class="business-name">事件复核</div>
+                    </div>
+                    <div class="business-item">
+                        <div class="business-icon">📈</div>
+                        <div class="business-name">统计分析</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; font-size: 16px; color: #7f8c8d;">
+                    按道路、路段、时间维度统计分析
+                </div>
+            </div>
+
+            <div class="connection">
+                <span>业务数据</span>
+                <div class="flow-line"></div>
+            </div>
+
+            <!-- 展示与交互层 -->
+            <div class="layer display-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🖥️</div>
+                        展示与交互层
+                    </div>
+                </div>
+                <div class="display-grid">
+                    <div class="display-item">
+                        <div class="display-icon">🌐</div>
+                        <div class="display-name">Web门户</div>
+                    </div>
+                    <div class="display-item">
+                        <div class="display-icon">📺</div>
+                        <div class="display-name">大屏界面</div>
+                    </div>
+                    <div class="display-item">
+                        <div class="display-icon">🗺️</div>
+                        <div class="display-name">电子地图展示</div>
+                    </div>
+                    <div class="display-item">
+                        <div class="display-icon">📋</div>
+                        <div class="display-name">列表视图</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; font-size: 16px; color: #7f8c8d;">
+                    违停轨迹回放、证据查看、条件筛选
+                </div>
+            </div>
+
+            <!-- 数据存储与支撑层 -->
+            <div class="layer storage-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🗄️</div>
+                        数据存储与支撑层
+                    </div>
+                </div>
+                <div class="storage-grid">
+                    <div class="storage-section">
+                        <div class="section-title">
+                            <div class="section-icon">💾</div>
+                            数据存储
+                        </div>
+                        <ul class="storage-list">
+                            <li class="storage-item">关系型数据库</li>
+                            <li class="storage-item">文件存储</li>
+                            <li class="storage-item">日志信息</li>
+                        </ul>
+                    </div>
+                    <div class="storage-section">
+                        <div class="section-title">
+                            <div class="section-icon">🛡️</div>
+                            通用支撑能力
+                        </div>
+                        <ul class="storage-list">
+                            <li class="storage-item">权限控制</li>
+                            <li class="storage-item">审计日志</li>
+                            <li class="storage-item">配置管理</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

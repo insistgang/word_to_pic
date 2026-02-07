@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能数据采集模块</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .method {
+            flex: 1;
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+        }
+        .traditional {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            margin-right: 20px;
+        }
+        .smart {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .method-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .features {
+            list-style: none;
+            padding: 20px 0;
+        }
+        .features li {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 18px;
+        }
+        .features li:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            font-size: 24px;
+        }
+        .cost-badge {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .cost-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .cost-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .vs-divider {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #3498db;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .flow-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .flow-title {
+            text-align: center;
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flow-step {
+            text-align: center;
+            flex: 1;
+        }
+        .flow-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            margin: 0 auto 15px;
+        }
+        .flow-arrow {
+            font-size: 30px;
+            color: #3498db;
+            margin: 0 10px;
+        }
+        .flow-label {
+            font-size: 16px;
+            color: #34495e;
+            font-weight: 500;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .highlight-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌱 碳资产出生阶段：智能数据采集模块</h1>
+
+        <div class="comparison">
+            <div class="method traditional">
+                <h2 class="method-title">传统人工采集</h2>
+                <div class="icon">👥</div>
+                <ul class="features">
+                    <li>人工实地走访</li>
+                    <li>纸质记录</li>
+                    <li>手动数据录入</li>
+                    <li>更新周期：7-10天</li>
+                </ul>
+                <div class="cost-badge">
+                    <div class="cost-label">采集成本</div>
+                    <div class="cost-value">800-1200元/次</div>
+                </div>
+            </div>
+
+            <div class="vs-divider">VS</div>
+
+            <div class="method smart">
+                <h2 class="method-title">智能IoT采集</h2>
+                <div class="icon">📡</div>
+                <ul class="features">
+                    <li>IoT传感器自动采集</li>
+                    <li>云端实时存储</li>
+                    <li>数据自动更新</li>
+                    <li>更新周期：实时/小时级</li>
+                </ul>
+                <div class="cost-badge">
+                    <div class="cost-label">采集成本</div>
+                    <div class="cost-value">大幅压缩</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-diagram">
+            <h3 class="flow-title">IoT智能采集流程</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-icon">🌍</div>
+                    <div class="flow-label">传感器部署</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">📊</div>
+                    <div class="flow-label">实时数据采集</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">☁️</div>
+                    <div class="flow-label">云端传输</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">⚙️</div>
+                    <div class="flow-label">自动处理</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">📈</div>
+                    <div class="flow-label">分析报告</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <div class="highlight-title">基于《中国数字乡村发展报告(2024)》数据</div>
+            <div class="highlight-value">智能化升级，降本增效</div>
+        </div>
+    </div>
+</body>
+</html>

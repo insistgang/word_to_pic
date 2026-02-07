@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究进度甘特图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1400px;
+            height: 800px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .gantt-container {
+            padding: 40px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-header {
+            display: flex;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 200px;
+        }
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            left: 200px;
+            top: 0;
+            right: 0;
+            height: 2px;
+            background: #bdc3c7;
+        }
+
+        .year-marker {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            position: relative;
+            padding-top: 10px;
+        }
+
+        .year-marker::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            width: 2px;
+            height: 20px;
+            background: #bdc3c7;
+        }
+
+        .quarter-markers {
+            display: flex;
+            position: absolute;
+            left: 200px;
+            right: 0;
+            top: 35px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .quarter {
+            flex: 1;
+            text-align: center;
+        }
+
+        .tasks-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .task-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            height: 60px;
+        }
+
+        .task-label {
+            width: 200px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #f8f9fa;
+            border-radius: 8px 0 0 8px;
+            border: 1px solid #e9ecef;
+            border-right: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .task1-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .task2-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .task3-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .task4-icon { background: linear-gradient(135deg, #27ae60, #229954); }
+        .task5-icon { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+        .timeline {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: #ecf0f1;
+            transform: translateY(-50%);
+        }
+
+        .task-bar {
+            position: absolute;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .task-bar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .task1 {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            left: 0%;
+            width: 16%;
+        }
+
+        .task2 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            left: 16%;
+            width: 33%;
+        }
+
+        .task3 {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            left: 49%;
+            width: 25%;
+        }
+
+        .task4 {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            left: 74%;
+            width: 25%;
+        }
+
+        .task5 {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            left: 82%;
+            width: 18%;
+        }
+
+        .milestone {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #e74c3c;
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 3;
+        }
+
+        .milestone1 { left: 16%; top: 50%; }
+        .milestone2 { left: 49%; top: 50%; }
+        .milestone3 { left: 74%; top: 50%; }
+        .milestone4 { left: 99%; top: 50%; }
+
+        .milestone-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        .legend-text {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .current-date {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #e74c3c;
+            z-index: 1;
+        }
+
+        .current-date::before {
+            content: '当前';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .current-date::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #e74c3c;
+        }
+
+        .progress-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 40px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 2px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            📅 研究进度甘特图 (2025.10 - 2027.03)
+        </div>
+
+        <div class="gantt-container">
+            <!-- 时间轴标题 -->
+            <div class="timeline-header">
+                <div class="year-marker">2025年</div>
+                <div class="year-marker">2026年</div>
+                <div class="year-marker">2027年</div>
+            </div>
+
+            <div class="quarter-markers">
+                <div class="quarter">Q4</div>
+                <div class="quarter">Q1</div>
+                <div class="quarter">Q2</div>
+                <div class="quarter">Q3</div>
+                <div class="quarter">Q4</div>
+                <div class="quarter">Q1</div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="tasks-container">
+                <!-- 任务1 -->
+                <div class="task-row">
+                    <div class="task-label">
+                        <div class="task-icon task1-icon">🚀</div>
+                        开题与环境搭建
+                    </div>
+                    <div class="timeline">
+                        <div class="task-bar task1">
+                            2025.10-11
+                            <div class="progress-indicator" style="width: 90%;"></div>
+                        </div>
+                        <div class="milestone milestone1">
+                            <div class="milestone-label">开题完成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务2 -->
+                <div class="task-row">
+                    <div class="task-label">
+                        <div class="task-icon task2-icon">📊</div>
+                        数据采集与实验
+                    </div>
+                    <div class="timeline">
+                        <div class="task-bar task2">
+                            2025.12-2026.03
+                            <div class="progress-indicator" style="width: 0%;"></div>
+                        </div>
+                        <div class="milestone milestone2">
+                            <div class="milestone-label">数据集完成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务3 -->
+                <div class="task-row">
+                    <div class="task-label">
+                        <div class="task-icon task3-icon">🧠</div>
+                        算法设计开发
+                    </div>
+                    <div class="timeline">
+                        <div class="task-bar task3">
+                            2026.03-06
+                            <div class="progress-indicator" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务4 -->
+                <div class="task-row">
+                    <div class="task-label">
+                        <div class="task-icon task4-icon">💻</div>
+                        系统实现优化
+                    </div>
+                    <div class="timeline">
+                        <div class="task-bar task4">
+                            2026.06-09
+                            <div class="progress-indicator" style="width: 0%;"></div>
+                        </div>
+                        <div class="milestone milestone3">
+                            <div class="milestone-label">系统完成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务5 -->
+                <div class="task-row">
+                    <div class="task-label">
+                        <div class="task-icon task5-icon">📝</div>
+                        验证与论文撰写
+                    </div>
+                    <div class="timeline">
+                        <div class="task-bar task5">
+                            2026.09-2027.03
+                            <div class="progress-indicator" style="width: 0%;"></div>
+                        </div>
+                        <div class="milestone milestone4">
+                            <div class="milestone-label">结题</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 当前日期指示线 -->
+                <div class="current-date" style="left: 2%;"></div>
+            </div>
+
+            <!-- 图例 -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #3498db, #2980b9);"></div>
+                    <div class="legend-text">准备阶段</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"></div>
+                    <div class="legend-text">数据阶段</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #f39c12, #e67e22);"></div>
+                    <div class="legend-text">算法阶段</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #27ae60, #229954);"></div>
+                    <div class="legend-text">系统阶段</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);"></div>
+                    <div class="legend-text">总结阶段</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <div class="legend-text">里程碑</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

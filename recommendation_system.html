@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推荐生成环节 - 系统价值核心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        /* 推荐流程概览 */
+        .process-overview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .process-left {
+            flex: 1;
+        }
+
+        .process-title {
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .process-title::before {
+            content: '⚡';
+            margin-right: 15px;
+            font-size: 30px;
+        }
+
+        .process-desc {
+            font-size: 16px;
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .process-speed {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .speed-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .speed-text {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* 推荐报告展示 */
+        .report-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: #2E8B57;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .report-container {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .customer-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            margin-right: 20px;
+        }
+
+        .customer-details {
+            flex: 1;
+        }
+
+        .customer-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .customer-meta {
+            display: flex;
+            gap: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 产品推荐列表 */
+        .product-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(180deg, #2E8B57, #27ae60);
+        }
+
+        .product-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-rank {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .match-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2E8B57;
+        }
+
+        .score-bar {
+            width: 100px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2E8B57, #27ae60);
+            border-radius: 4px;
+        }
+
+        .product-tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-category {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .tag-feature {
+            background: #f3e5f5;
+            color: #9b59b6;
+        }
+
+        .product-reason {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        /* 反馈按钮 */
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+            flex-shrink: 0;
+        }
+
+        .feedback-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-interested {
+            background: #e8f5e9;
+            color: #27ae60;
+        }
+
+        .btn-interested:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-not-interested {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
+        .btn-not-interested:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-owned {
+            background: #fff3e0;
+            color: #f39c12;
+        }
+
+        .btn-owned:hover {
+            background: #f39c12;
+            color: white;
+        }
+
+        /* 反馈机制说明 */
+        .feedback-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .feedback-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .feedback-left {
+            position: relative;
+        }
+
+        .feedback-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .feedback-desc {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .benefit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .benefit-text {
+            font-size: 15px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .feedback-visual {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .cycle-diagram {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .cycle-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #764ba2;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .cycle-arrow {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .arrow-1 { top: 10px; left: 50%; transform: translateX(-50%); }
+        .arrow-2 { top: 50%; right: 10px; transform: translateY(-50%); }
+        .arrow-3 { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .arrow-4 { top: 50%; left: 10px; transform: translateY(-50%); }
+
+        .cycle-text {
+            position: absolute;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .text-1 { top: 60px; left: 50%; transform: translateX(-50%); }
+        .text-2 { top: 50%; right: 60px; transform: translateY(-50%); }
+        .text-3 { bottom: 60px; left: 50%; transform: translateX(-50%); }
+        .text-4 { top: 50%; left: 60px; transform: translateY(-50%); }
+
+        .key-message {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .key-message-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .key-message-text {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🎯 推荐生成环节 - 系统价值核心</h1>
+
+        <!-- 流程概览 -->
+        <div class="process-overview">
+            <div class="process-left">
+                <h2 class="process-title">智能推荐算法</h2>
+                <p class="process-desc">
+                    客户经理选定目标客户后，系统自动调用推荐算法，
+                    深度分析客户画像和历史行为数据，
+                    生成个性化推荐报告。
+                </p>
+                <div class="highlight-box">
+                    <h3 class="highlight-title">核心优势</h3>
+                    <ul style="list-style: none; font-size: 16px;">
+                        <li>✓ 响应速度：1-2秒生成报告</li>
+                        <li>✓ 推荐数量：5-10款高匹配产品</li>
+                        <li>✓ 精准度：基于AI算法分析</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="process-speed">
+                <div class="speed-value">1-2</div>
+                <div class="speed-text">秒内生成<br>推荐报告</div>
+            </div>
+        </div>
+
+        <!-- 推荐报告展示 -->
+        <div class="report-section">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <h2 class="section-title">推荐报告示例</h2>
+            </div>
+
+            <div class="report-container">
+                <!-- 客户信息 -->
+                <div class="customer-info">
+                    <div class="customer-avatar">张</div>
+                    <div class="customer-details">
+                        <h3 class="customer-name">张先生 - 目标客户</h3>
+                        <div class="customer-meta">
+                            <div class="meta-item">
+                                <span>⭐</span>
+                                <span>钻石客户</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>💰</span>
+                                <span>资产管理: 500万+</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🏢</span>
+                                <span>某科技公司CEO</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🎯</span>
+                                <span>风险偏好: 积极型</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 产品推荐列表 -->
+                <div class="product-list">
+                    <!-- 产品1 -->
+                    <div class="product-card">
+                        <div class="product-rank">1</div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h4 class="product-name">"科创先锋"理财产品</h4>
+                                <div class="match-score">
+                                    <span class="score-value">95%</span>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width: 95%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="product-tags">
+                                <span class="tag tag-category">理财产品</span>
+                                <span class="tag tag-feature">高收益</span>
+                                <span class="tag tag-feature">科技创新主题</span>
+                            </div>
+                            <p class="product-reason">
+                                <strong>适配理由：</strong>客户为科技企业CEO，该产品聚焦科技创新领域，符合客户专业背景和投资偏好。历史投资记录显示客户偏好成长型产品。
+                            </p>
+                        </div>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn btn-interested">感兴趣</button>
+                            <button class="feedback-btn btn-not-interested">不感兴趣</button>
+                            <button class="feedback-btn btn-owned">已拥有</button>
+                        </div>
+                    </div>
+
+                    <!-- 产品2 -->
+                    <div class="product-card">
+                        <div class="product-rank">2</div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h4 class="product-name">企业信用贷款</h4>
+                                <div class="match-score">
+                                    <span class="score-value">88%</span>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width: 88%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="product-tags">
+                                <span class="tag tag-category">信贷产品</span>
+                                <span class="tag tag-feature">额度高</span>
+                                <span class="tag tag-feature">利率优惠</span>
+                            </div>
+                            <p class="product-reason">
+                                <strong>适配理由：</strong>企业近期有扩张计划，流水稳定。根据企业经营数据分析，符合信用贷款条件，可提供充足资金支持。
+                            </p>
+                        </div>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn btn-interested">感兴趣</button>
+                            <button class="feedback-btn btn-not-interested">不感兴趣</button>
+                            <button class="feedback-btn btn-owned">已拥有</button>
+                        </div>
+                    </div>
+
+                    <!-- 产品3 -->
+                    <div class="product-card">
+                        <div class="product-rank">3</div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h4 class="product-name">私人银行卡</h4>
+                                <div class="match-score">
+                                    <span class="score-value">85%</span>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width: 85%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="product-tags">
+                                <span class="tag tag-category">银行卡</span>
+                                <span class="tag tag-feature">尊贵服务</span>
+                                <span class="tag tag-feature">全球通用</span>
+                            </div>
+                            <p class="product-reason">
+                                <strong>适配理由：</strong>客户资产达标，出行频繁。该卡提供机场贵宾厅、全球商户折扣等权益，匹配客户高端商务需求。
+                            </p>
+                        </div>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn btn-interested">感兴趣</button>
+                            <button class="feedback-btn btn-not-interested">不感兴趣</button>
+                            <button class="feedback-btn btn-owned">已拥有</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 反馈机制 -->
+        <div class="feedback-section">
+            <div class="feedback-content">
+                <div class="feedback-left">
+                    <h2 class="feedback-title">强制反馈机制</h2>
+                    <p class="feedback-desc">
+                        系统要求客户经理必须根据客户的真实反应选择反馈选项，
+                        这个强制性的反馈机制是保证系统持续优化的关键。
+                    </p>
+
+                    <div class="benefit-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🎯</div>
+                            <div class="benefit-text">
+                                <strong>真实数据收集</strong><br>
+                                获取客户真实反馈，避免猜测和偏差
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🔧</div>
+                            <div class="benefit-text">
+                                <strong>算法持续优化</strong><br>
+                                基于反馈数据训练模型，提升推荐精准度
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">📈</div>
+                            <div class="benefit-text">
+                                <strong>学习客户偏好</strong><br>
+                                深度理解客户需求，个性化服务升级
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feedback-visual">
+                    <div class="cycle-diagram">
+                        <div class="cycle-center">反馈<br>闭环</div>
+                        <div class="cycle-arrow arrow-1">↻</div>
+                        <div class="cycle-arrow arrow-2">↻</div>
+                        <div class="cycle-arrow arrow-3">↻</div>
+                        <div class="cycle-arrow arrow-4">↻</div>
+                        <div class="cycle-text text-1">推荐产品</div>
+                        <div class="cycle-text text-2">收集反馈</div>
+                        <div class="cycle-text text-3">优化算法</div>
+                        <div class="cycle-text text-4">提升精准度</div>
+                    </div>
+
+                    <div class="key-message">
+                        <h3 class="key-message-title">关键价值</h3>
+                        <p class="key-message-text">
+                            只有收集到足够多的真实反馈数据，<br>
+                            第二阶段推荐才能发挥真正作用
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

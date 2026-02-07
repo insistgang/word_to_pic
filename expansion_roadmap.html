@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目推广路径规划</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        /* 简化的路径流程 */
+        .simple-roadmap {
+            margin: 60px 0;
+        }
+
+        .roadmap-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 80px;
+            position: relative;
+        }
+
+        .roadmap-flow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2E8B57, #f39c12);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .stage-simple {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .stage-simple:hover {
+            transform: translateY(-10px);
+        }
+
+        .stage-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stage-1 .stage-circle {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .stage-2 .stage-circle {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+        }
+
+        .stage-3 .stage-circle {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .stage-emoji {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .stage-step {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .stage-1 .stage-step { color: #3498db; }
+        .stage-2 .stage-step { color: #2E8B57; }
+        .stage-3 .stage-step { color: #f39c12; }
+
+        .stage-title-simple {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .stage-desc-simple {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .arrow-flow {
+            font-size: 50px;
+            color: #95a5a6;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            animation: arrowMove 2s ease-in-out infinite;
+        }
+
+        @keyframes arrowMove {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        /* 时间轴 */
+        .timeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .timeline-item {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #95a5a6;
+        }
+
+        .time-period {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .time-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* 底部统计 */
+        .stats-section {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .stat-1 .stat-icon {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .stat-2 .stat-icon {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .stat-3 .stat-icon {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        /* 箭头动画 */
+        @keyframes arrowMove {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .arrow-animation {
+            animation: arrowMove 2s ease-in-out infinite;
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 30px;
+            color: #3498db;
+        }
+
+        /* 进度指示器 */
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .progress-step {
+            width: 120px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .fill-1 {
+            width: 100%;
+            background: #3498db;
+        }
+
+        .fill-2 {
+            width: 60%;
+            background: #2E8B57;
+        }
+
+        .fill-3 {
+            width: 20%;
+            background: #f39c12;
+        }
+
+        .progress-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #7f8c8d;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🚀 项目推广路径规划</h1>
+        <p class="subtitle">三阶段推进策略 · 从试点到全国</p>
+
+        <!-- 简化的路径流程 -->
+        <div class="simple-roadmap">
+            <div class="roadmap-flow">
+                <!-- 阶段1 -->
+                <div class="stage-simple stage-1">
+                    <div class="stage-circle">
+                        <span class="stage-emoji">🎯</span>
+                        <span class="stage-step">1</span>
+                    </div>
+                    <h3 class="stage-title-simple">核心试点</h3>
+                    <p class="stage-desc-simple">无锡农商行</p>
+                </div>
+
+                <div class="arrow-flow">→</div>
+
+                <!-- 阶段2 -->
+                <div class="stage-simple stage-2">
+                    <div class="stage-circle">
+                        <span class="stage-emoji">🔄</span>
+                        <span class="stage-step">2</span>
+                    </div>
+                    <h3 class="stage-title-simple">区域复制</h3>
+                    <p class="stage-desc-simple">江苏省内农商行/城商行</p>
+                </div>
+
+                <div class="arrow-flow">→</div>
+
+                <!-- 阶段3 -->
+                <div class="stage-simple stage-3">
+                    <div class="stage-circle">
+                        <span class="stage-emoji">🌟</span>
+                        <span class="stage-step">3</span>
+                    </div>
+                    <h3 class="stage-title-simple">平台合作与全国拓展</h3>
+                    <p class="stage-desc-simple">全国金融机构</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间轴 -->
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time-period">6个月</div>
+                <div class="time-desc">试点验证期</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time-period">12个月</div>
+                <div class="time-desc">区域复制期</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time-period">24个月</div>
+                <div class="time-desc">全国拓展期</div>
+            </div>
+        </div>
+
+        <!-- 进度指示器 -->
+        <div class="progress-indicator">
+            <div class="progress-step">
+                <div class="progress-fill fill-1"></div>
+                <div class="progress-label">核心试点 100%</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-fill fill-2"></div>
+                <div class="progress-label">区域复制 60%</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-fill fill-3"></div>
+                <div class="progress-label">全国拓展 20%</div>
+            </div>
+        </div>
+
+        <!-- 底部统计 -->
+        <div class="stats-section">
+            <div class="stat-card stat-1">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">1家</div>
+                <div class="stat-label">
+                    核心试点<br>
+                    无锡农商行
+                </div>
+            </div>
+
+            <div class="stat-card stat-2">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">60+家</div>
+                <div class="stat-label">
+                    区域复制目标<br>
+                    江苏省金融机构
+                </div>
+            </div>
+
+            <div class="stat-card stat-3">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">500+家</div>
+                <div class="stat-label">
+                    全国拓展目标<br>
+                    全国金融机构
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

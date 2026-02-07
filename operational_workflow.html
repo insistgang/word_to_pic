@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统日常营运流程</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            padding: 50px;
+            position: relative;
+        }
+
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .principle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .principle-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        /* 主流程 */
+        .workflow-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+            padding: 0 30px;
+        }
+
+        .workflow-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2E8B57, #f39c12, #e74c3c, #9b59b6);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        .workflow-step {
+            position: relative;
+            z-index: 2;
+            background: white;
+            width: 280px;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .workflow-step:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .step-1 .step-number { background: #3498db; }
+        .step-2 .step-number { background: #2E8B57; }
+        .step-3 .step-number { background: #f39c12; }
+        .step-4 .step-number { background: #e74c3c; }
+        .step-5 .step-number { background: #9b59b6; }
+
+        .step-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            line-height: 1;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        /* 数据同步详情 */
+        .sync-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .sync-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .sync-icon {
+            width: 60px;
+            height: 60px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-right: 20px;
+        }
+
+        .sync-title {
+            flex: 1;
+        }
+
+        .sync-title h3 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .sync-title p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .sync-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .sync-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .sync-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .sync-card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .sync-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .sync-card-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* 数据整合示意 */
+        .integration-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .integration-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .integration-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .data-sources {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .source-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .source-icon {
+            font-size: 24px;
+        }
+
+        .source-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .arrow {
+            font-size: 40px;
+            margin: 0 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .unified-view {
+            background: white;
+            color: #2c3e50;
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .unified-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .unified-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .unified-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* 问题解决 */
+        .solution-box {
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #27ae60;
+        }
+
+        .solution-title {
+            font-size: 20px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .solution-title::before {
+            content: '✓';
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .solution-text {
+            font-size: 16px;
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        /* 时间轴 */
+        .timeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .time-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 20px;
+        }
+
+        .time-icon {
+            font-size: 24px;
+        }
+
+        .time-text {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">⚙️ 系统日常营运流程</h1>
+        <p class="subtitle">构建高效智能的客户推荐体系</p>
+
+        <div class="principle">
+            <span class="principle-icon">⚡</span>
+            简单 · 高效 · 闭环
+        </div>
+
+        <!-- 五个关键环节 -->
+        <div class="workflow-container">
+            <div class="workflow-step step-1">
+                <div class="step-number">1</div>
+                <div class="step-icon">🔄</div>
+                <h3 class="step-title">数据同步</h3>
+                <p class="step-desc">每日凌晨2点<br>自动抓取最新数据</p>
+            </div>
+
+            <div class="workflow-step step-2">
+                <div class="step-number">2</div>
+                <div class="step-icon">🔍</div>
+                <h3 class="step-title">客户查询</h3>
+                <p class="step-desc">实时查询<br>客户画像分析</p>
+            </div>
+
+            <div class="workflow-step step-3">
+                <div class="step-number">3</div>
+                <div class="step-icon">💡</div>
+                <h3 class="step-title">推荐生成</h3>
+                <p class="step-desc">AI算法<br>智能推荐产品</p>
+            </div>
+
+            <div class="workflow-step step-4">
+                <div class="step-number">4</div>
+                <div class="step-icon">📊</div>
+                <h3 class="step-title">反馈收集</h3>
+                <p class="step-desc">收集反馈<br>持续优化模型</p>
+            </div>
+
+            <div class="workflow-step step-5">
+                <div class="step-number">5</div>
+                <div class="step-icon">📈</div>
+                <h3 class="step-title">效果分析</h3>
+                <p class="step-desc">数据分析<br>效果评估报告</p>
+            </div>
+        </div>
+
+        <!-- 数据同步详情 -->
+        <div class="sync-section">
+            <div class="sync-header">
+                <div class="sync-icon">🔄</div>
+                <div class="sync-title">
+                    <h3>数据同步机制</h3>
+                    <p>流程起点 · 数据质量保障</p>
+                </div>
+            </div>
+
+            <div class="sync-details">
+                <div class="sync-card">
+                    <div class="sync-card-icon">⏰</div>
+                    <h4 class="sync-card-title">定时执行</h4>
+                    <p class="sync-card-desc">
+                        每日<span class="highlight">凌晨2点</span>自动启动<br>
+                        避免业务高峰期影响<br>
+                        确保系统稳定运行
+                    </p>
+                </div>
+
+                <div class="sync-card">
+                    <div class="sync-card-icon">📥</div>
+                    <h4 class="sync-card-title">数据抓取</h4>
+                    <p class="sync-card-desc">
+                        无锡农商行核心系统<br>
+                        客户数据 + 业务事件数据<br>
+                        全量增量结合更新
+                    </p>
+                </div>
+
+                <div class="sync-card">
+                    <div class="sync-card-icon">📧</div>
+                    <h4 class="sync-card-title">质量通知</h4>
+                    <p class="sync-card-desc">
+                        同步完成后自动发送邮件<br>
+                        技术团队实时监控<br>
+                        确保数据时效性
+                    </p>
+                </div>
+            </div>
+
+            <div class="solution-box">
+                <h4 class="solution-title">解决问题</h4>
+                <p class="solution-text">
+                    系统数据分散，未形成客户层面的有效观测 → 通过数据整合，建立统一的360度客户视图
+                </p>
+            </div>
+        </div>
+
+        <!-- 数据整合示意 -->
+        <div class="integration-section">
+            <h3 class="integration-title">多源数据整合架构</h3>
+
+            <div class="integration-diagram">
+                <div class="data-sources">
+                    <div class="source-item">
+                        <span class="source-icon">💳</span>
+                        <span class="source-name">储蓄系统</span>
+                    </div>
+                    <div class="source-item">
+                        <span class="source-icon">💰</span>
+                        <span class="source-name">信贷系统</span>
+                    </div>
+                    <div class="source-item">
+                        <span class="source-icon">💎</span>
+                        <span class="source-name">财富系统</span>
+                    </div>
+                    <div class="source-item">
+                        <span class="source-icon">💸</span>
+                        <span class="source-name">支付系统</span>
+                    </div>
+                    <div class="source-item">
+                        <span class="source-icon">📱</span>
+                        <span class="source-name">渠道系统</span>
+                    </div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="unified-view">
+                    <div class="unified-icon">🎯</div>
+                    <h4 class="unified-title">统一客户视图</h4>
+                    <p class="unified-desc">全面的数据基础<br>支持精准推荐决策</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="time-item">
+                    <span class="time-icon">🕐</span>
+                    <span class="time-text">01:30 准备阶段</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-icon">🕑</span>
+                    <span class="time-text">02:00 开始同步</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-icon">🕓</span>
+                    <span class="time-text">03:30 完成处理</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-icon">🕔</span>
+                    <span class="time-text">04:00 发送通知</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

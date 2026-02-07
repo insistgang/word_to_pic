@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编码混淆攻击识别能力对比</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            margin: 20px 0;
+            height: 400px;
+        }
+        .large-chart {
+            height: 450px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .highlight-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .comparison-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .metric-comparison {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .our-system {
+            background: rgba(255,255,255,0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .cnn-model {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .improvement {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .tradeoff-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .tradeoff-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .tradeoff-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-row {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-col {
+            flex: 1;
+        }
+        .attack-types {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .attack-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .attack-list {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .attack-type {
+            background: rgba(255,255,255,0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>编码混淆攻击识别能力对比分析</h1>
+
+        <div class="highlight-box">
+            <div>本系统 vs 基于CNN的单一模型</div>
+            <div class="highlight-value">识别率提升24.1%</div>
+            <div>多智能体协同+大模型+RAG架构在编码混淆攻击识别上的显著优势</div>
+        </div>
+
+        <div class="attack-types">
+            <div class="attack-title">测试攻击类型：500条编码混淆样本</div>
+            <div class="attack-list">
+                <div class="attack-type">SQL注入编码变体</div>
+                <div class="attack-type">XSS编码变体</div>
+                <div class="attack-type">命令注入编码变体</div>
+                <div class="attack-type">未见过的编码变体</div>
+            </div>
+        </div>
+
+        <div class="comparison-cards">
+            <div class="metric-card">
+                <div class="metric-title">整体识别率</div>
+                <div class="metric-comparison">
+                    <div class="our-system">92.3%</div>
+                    <div class="improvement">+24.1%</div>
+                    <div class="cnn-model">68.2%</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">泛化能力(未见变体)</div>
+                <div class="metric-comparison">
+                    <div class="our-system">85%</div>
+                    <div class="improvement">+43%</div>
+                    <div class="cnn-model">42%</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">响应时间</div>
+                <div class="metric-comparison">
+                    <div class="our-system">67ms</div>
+                    <div class="improvement">+22ms</div>
+                    <div class="cnn-model">45ms</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tradeoff-box">
+            <div class="tradeoff-title">⚖️ 性能与准确性的权衡</div>
+            <div class="tradeoff-content">
+                <div>
+                    <strong>额外22ms用于：</strong><br>
+                    • RAG情报检索<br>
+                    • 多智能体协同分析<br>
+                    • 编码解码与语义理解
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8em; font-weight: bold;">换取</div>
+                    <div style="font-size: 1.5em; margin: 10px 0;">24.1%识别率提升</div>
+                    <div>更高的实战价值</div>
+                </div>
+                <div style="text-align: right;">
+                    <strong>技术优势：</strong><br>
+                    • 大模型解码能力<br>
+                    • 不受编码混淆影响<br>
+                    • 语义理解特征提取
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container large-chart">
+            <canvas id="recognitionChart"></canvas>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-col">
+                <div class="chart-container">
+                    <canvas id="generalizationChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-col">
+                <div class="chart-container">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 主要识别率对比图表
+        const ctx1 = document.getElementById('recognitionChart').getContext('2d');
+        const recognitionChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['编码混淆攻击识别率'],
+                datasets: [
+                    {
+                        label: '本系统 (多智能体+大模型+RAG)',
+                        data: [92.3],
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.5
+                    },
+                    {
+                        label: '单一CNN模型',
+                        data: [68.2],
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '编码混淆攻击识别率对比',
+                        font: {
+                            size: 20,
+                            weight: 'bold'
+                        },
+                        padding: 20
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '识别率 (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 泛化能力对比图
+        const ctx2 = document.getElementById('generalizationChart').getContext('2d');
+        const generalizationChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['未见过的编码变体'],
+                datasets: [
+                    {
+                        label: '本系统',
+                        data: [85],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '单一CNN模型',
+                        data: [42],
+                        backgroundColor: 'rgba(155, 89, 182, 0.8)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '泛化能力对比',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '识别率 (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 响应时间对比图
+        const ctx3 = document.getElementById('responseTimeChart').getContext('2d');
+        const responseTimeChart = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['本系统', '单一CNN模型'],
+                datasets: [{
+                    label: '响应时间 (ms)',
+                    data: [67, 45],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(241, 196, 15, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(241, 196, 15, 1)'
+                    ],
+                    borderWidth: 2,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '响应时间对比',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '响应时间: ' + context.parsed.y + 'ms';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '响应时间 (ms)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 添加数据标签到主图表
+        setTimeout(() => {
+            const originalDraw = recognitionChart.draw;
+            recognitionChart.draw = function() {
+                originalDraw.apply(this, arguments);
+
+                const ctx = this.ctx;
+                ctx.font = 'bold 14px Microsoft YaHei';
+                ctx.fillStyle = '#2c3e50';
+                ctx.textAlign = 'center';
+
+                const meta = this.getDatasetMeta(0);
+                meta.data.forEach((bar, index) => {
+                    const data = this.data.datasets[0].data[index];
+                    ctx.fillText(data + '%', bar.x, bar.y - 15);
+
+                    // 添加提升标签
+                    const improvement = this.data.datasets[1].data[index];
+                    const diff = (data - improvement).toFixed(1);
+                    ctx.font = 'bold 16px Microsoft YaHei';
+                    ctx.fillStyle = '#27ae60';
+                    ctx.fillText('+' + diff + '%', bar.x, bar.y - 35);
+                });
+            };
+            recognitionChart.update();
+        }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统部署指南</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            animation: gradient 3s ease-in-out infinite;
+        }
+        @keyframes gradient {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        .header-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .deployment-overview {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .overview-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .overview-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        .hardware-section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .section-icon {
+            margin-right: 15px;
+            font-size: 1.3em;
+        }
+        .environments-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .environment-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-top: 5px solid;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .environment-card:hover {
+            transform: translateY(-5px);
+        }
+        .test-env {
+            border-top-color: #f39c12;
+        }
+        .production-env {
+            border-top-color: #e74c3c;
+        }
+        .env-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .env-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .env-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .env-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-left: auto;
+        }
+        .hardware-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .spec-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        .spec-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            color: white;
+            margin-right: 20px;
+        }
+        .test-spec .spec-icon {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        .production-spec .spec-icon {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .spec-info {
+            flex: 1;
+        }
+        .spec-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .spec-value {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .software-section {
+            margin-bottom: 40px;
+        }
+        .software-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .software-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .software-card:hover {
+            transform: translateX(5px);
+        }
+        .software-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .software-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .software-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        .software-version {
+            margin-left: auto;
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        .software-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .comparison-chart {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .dependencies-section {
+            margin-bottom: 40px;
+        }
+        .dependencies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .dependency-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dependency-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+        .dependency-version {
+            background: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        .deployment-steps {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .steps-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .steps-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .step-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            position: relative;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 auto 10px;
+        }
+        .step-text {
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .requirements-note {
+            background: #e74c3c;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .note-icon {
+            font-size: 2em;
+        }
+        .note-content {
+            flex: 1;
+        }
+        .note-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .note-text {
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">系统部署指南</div>
+            <div class="header-subtitle">
+                硬件环境准备、软件环境配置与依赖库安装的完整部署方案
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Deployment Overview -->
+            <div class="deployment-overview">
+                <div class="overview-title">🚀 部署环境概览</div>
+                <div class="overview-text">
+                    系统部署前需完成硬件与软件环境准备，区分测试环境与生产环境配置，
+                    确保GPU驱动、Python版本、CUDA环境等关键组件的正确安装与配置。
+                </div>
+            </div>
+
+            <!-- Hardware Requirements -->
+            <div class="hardware-section">
+                <div class="section-title">
+                    <span class="section-icon">🖥️</span>
+                    硬件环境配置
+                </div>
+                <div class="environments-grid">
+                    <!-- Test Environment -->
+                    <div class="environment-card test-env">
+                        <div class="env-header">
+                            <div class="env-icon">🧪</div>
+                            <div class="env-title">测试环境</div>
+                            <div class="env-subtitle">功能验证</div>
+                        </div>
+                        <div class="hardware-specs">
+                            <div class="spec-item test-spec">
+                                <div class="spec-icon">💻</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">处理器</div>
+                                    <div class="spec-value">Intel i5-10400</div>
+                                </div>
+                            </div>
+                            <div class="spec-item test-spec">
+                                <div class="spec-icon">🎮</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">显卡</div>
+                                    <div class="spec-value">NVIDIA GTX 1660 SUPER (6GB VRAM)</div>
+                                </div>
+                            </div>
+                            <div class="spec-item test-spec">
+                                <div class="spec-icon">🧠</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">内存</div>
+                                    <div class="spec-value">16GB</div>
+                                </div>
+                            </div>
+                            <div class="spec-item test-spec">
+                                <div class="spec-icon">💾</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">存储</div>
+                                    <div class="spec-value">512GB SATA SSD</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Production Environment -->
+                    <div class="environment-card production-env">
+                        <div class="env-header">
+                            <div class="env-icon">🏭</div>
+                            <div class="env-title">生产环境</div>
+                            <div class="env-subtitle">1200告警/秒高并发</div>
+                        </div>
+                        <div class="hardware-specs">
+                            <div class="spec-item production-spec">
+                                <div class="spec-icon">💻</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">处理器</div>
+                                    <div class="spec-value">Intel i7-12700K</div>
+                                </div>
+                            </div>
+                            <div class="spec-item production-spec">
+                                <div class="spec-icon">🎮</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">显卡</div>
+                                    <div class="spec-value">NVIDIA RTX 4070 SUPER (12GB VRAM)</div>
+                                </div>
+                            </div>
+                            <div class="spec-item production-spec">
+                                <div class="spec-icon">🧠</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">内存</div>
+                                    <div class="spec-value">32GB</div>
+                                </div>
+                            </div>
+                            <div class="spec-item production-spec">
+                                <div class="spec-icon">💾</div>
+                                <div class="spec-info">
+                                    <div class="spec-name">存储</div>
+                                    <div class="spec-value">1TB NVMe SSD</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Comparison Chart -->
+            <div class="comparison-chart">
+                <div class="chart-title">📊 硬件配置对比</div>
+                <div class="chart-container">
+                    <canvas id="hardwareComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Software Requirements -->
+            <div class="software-section">
+                <div class="section-title">
+                    <span class="section-icon">⚙️</span>
+                    软件环境配置
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">🖥️</div>
+                            <div class="software-name">操作系统</div>
+                        </div>
+                        <div class="software-desc">
+                            Windows 11、Windows Server 2022 或 Ubuntu 22.04，
+                            确保兼容GPU驱动与容器化部署
+                        </div>
+                    </div>
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">🐍</div>
+                            <div class="software-name">Python</div>
+                            <div class="software-version">3.9 (64位)</div>
+                        </div>
+                        <div class="software-desc">
+                            严格控制为3.9版本，不支持3.8及以下版本，
+                            避免依赖库兼容性问题
+                        </div>
+                    </div>
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">🚀</div>
+                            <div class="software-name">CUDA</div>
+                            <div class="software-version">12.1</div>
+                        </div>
+                        <div class="software-desc">
+                            推荐安装12.1版本，需匹配GPU型号，
+                            支持PyTorch GPU加速
+                        </div>
+                    </div>
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">🐳</div>
+                            <div class="software-name">Docker</div>
+                            <div class="software-version">20.10+</div>
+                        </div>
+                        <div class="software-desc">
+                            用于容器化部署，简化环境配置流程，
+                            确保运行环境一致性
+                        </div>
+                    </div>
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">📦</div>
+                            <div class="software-name">Git</div>
+                        </div>
+                        <div class="software-desc">
+                            用于代码拉取与版本控制，
+                            支持项目部署与更新
+                        </div>
+                    </div>
+                    <div class="software-card">
+                        <div class="software-header">
+                            <div class="software-icon">🔧</div>
+                            <div class="software-name">GPU驱动</div>
+                        </div>
+                        <div class="software-desc">
+                            根据GPU型号安装对应驱动，
+                            确保CUDA与PyTorch正常工作
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dependencies Section -->
+            <div class="dependencies-section">
+                <div class="section-title">
+                    <span class="section-icon">📦</span>
+                    核心依赖库配置
+                </div>
+                <div class="dependencies-grid">
+                    <div class="dependency-item">
+                        <div class="dependency-name">FastAPI</div>
+                        <div class="dependency-version">0.103.2</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">Streamlit</div>
+                        <div class="dependency-version">1.28.2</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">PyTorch</div>
+                        <div class="dependency-version">2.5.1+cu121</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">Chroma DB</div>
+                        <div class="dependency-version">0.4.15</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">sentence-transformers</div>
+                        <div class="dependency-version">2.2.2</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">Transformers</div>
+                        <div class="dependency-version">4.36.0</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">LangChain</div>
+                        <div class="dependency-version">0.1.0</div>
+                    </div>
+                    <div class="dependency-item">
+                        <div class="dependency-name">Numpy</div>
+                        <div class="dependency-version">1.24.3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Requirements Note -->
+            <div class="requirements-note">
+                <div class="note-icon">⚠️</div>
+                <div class="note-content">
+                    <div class="note-title">重要注意事项</div>
+                    <div class="note-text">
+                        • Python版本必须严格控制为3.9（64位），不支持3.8及以下版本<br>
+                        • PyTorch需单独安装以确保GPU版本适配，通过requirements.txt执行安装<br>
+                        • CUDA版本需匹配GPU型号，推荐安装12.1版本以支持最佳性能<br>
+                        • GPU驱动必须正确安装，确保CUDA与PyTorch能够正常调用GPU资源
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deployment Steps -->
+            <div class="deployment-steps">
+                <div class="steps-title">🔄 部署流程指导</div>
+                <div class="steps-flow">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">
+                            硬件环境准备<br>
+                            根据环境选择配置
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">
+                            操作系统安装<br>
+                            GPU驱动配置
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">
+                            Python 3.9安装<br>
+                            CUDA 12.1环境配置
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-text">
+                            PyTorch GPU版本<br>
+                            手动单独安装
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-text">
+                            requirements.txt<br>
+                            安装其他依赖库
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">6</div>
+                        <div class="step-text">
+                            系统配置验证<br>
+                            功能测试与部署
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            🔧 正确的环境配置 + 📦 完整的依赖安装 = 🚀 成功的系统部署
+        </div>
+    </div>
+
+    <script>
+        // 硬件配置对比图表
+        const ctx = document.getElementById('hardwareComparisonChart').getContext('2d');
+
+        const hardwareComparisonChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'CPU性能',
+                    'GPU显存',
+                    '内存容量',
+                    '存储速度',
+                    '成本效益',
+                    '扩展能力'
+                ],
+                datasets: [
+                    {
+                        label: '测试环境',
+                        data: [60, 50, 50, 40, 80, 60],
+                        borderColor: 'rgba(243, 156, 18, 1)',
+                        backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgba(243, 156, 18, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: '生产环境',
+                        data: [90, 85, 80, 90, 60, 85],
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgba(231, 76, 60, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.r + '分';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        min: 0,
+                        ticks: {
+                            stepSize: 20,
+                            font: {
+                                size: 12
+                            },
+                            backdropColor: 'transparent'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            color: '#2c3e50'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.environment-card, .software-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+
+            // 依赖库项目动画
+            const dependencies = document.querySelectorAll('.dependency-item');
+            dependencies.forEach((dep, index) => {
+                dep.style.opacity = '0';
+                dep.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    dep.style.transition = 'all 0.5s ease';
+                    dep.style.opacity = '1';
+                    dep.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // 部署步骤动画
+            const steps = document.querySelectorAll('.step-item');
+            steps.forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    step.style.transition = 'all 0.6s ease';
+                    step.style.opacity = '1';
+                    step.style.transform = 'scale(1)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

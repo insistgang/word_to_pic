@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统硬件与软件配置架构</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .config-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .config-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-top: 5px solid;
+        }
+        .hardware-section {
+            border-top-color: #e74c3c;
+        }
+        .software-section {
+            border-top-color: #3498db;
+        }
+        .section-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+        .section-icon {
+            margin-right: 15px;
+            font-size: 1.3em;
+        }
+        .hardware-title {
+            color: #e74c3c;
+        }
+        .software-title {
+            color: #3498db;
+        }
+        .component-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .hardware-component {
+            display: grid;
+            grid-template-columns: 60px 1fr auto;
+            gap: 20px;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .hardware-component:hover {
+            transform: translateY(-3px);
+        }
+        .component-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+        .component-info {
+            flex: 1;
+        }
+        .component-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .component-specs {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .component-usage {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .software-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .software-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        .software-item:hover {
+            transform: translateX(5px);
+        }
+        .software-info {
+            flex: 1;
+        }
+        .software-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .software-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .software-version {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .performance-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .performance-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        .deployment-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .deployment-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .docker-info {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .docker-icon {
+            font-size: 2em;
+        }
+        .docker-content {
+            flex: 1;
+        }
+        .docker-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .docker-desc {
+            opacity: 0.9;
+        }
+        .requirements-note {
+            background: #f39c12;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .note-icon {
+            font-size: 1.2em;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="config-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">系统硬件与软件配置架构</div>
+            <div class="header-subtitle">
+                为网络安全威胁智能分析系统优化的硬件环境与软件栈配置
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Hardware & Software Sections -->
+            <div class="config-sections">
+                <!-- Hardware Configuration -->
+                <div class="config-section hardware-section">
+                    <div class="section-title hardware-title">
+                        <span class="section-icon">🖥️</span>
+                        硬件环境配置
+                    </div>
+                    <div class="component-list">
+                        <div class="hardware-component">
+                            <div class="component-icon">🐳</div>
+                            <div class="component-info">
+                                <div class="component-name">镜像</div>
+                                <div class="component-specs">Ubuntu 22.04 基础镜像</div>
+                            </div>
+                            <div class="component-usage">系统环境</div>
+                        </div>
+
+                        <div class="hardware-component">
+                            <div class="component-icon">🎮</div>
+                            <div class="component-info">
+                                <div class="component-name">RTX 5090</div>
+                                <div class="component-specs">32GB VRAM，Blackwell架构</div>
+                            </div>
+                            <div class="component-usage">GPU × 1</div>
+                        </div>
+
+                        <div class="hardware-component">
+                            <div class="component-icon">💻</div>
+                            <div class="component-info">
+                                <div class="component-name">Intel Xeon Platinum 8470Q</div>
+                                <div class="component-specs">25 vCPU虚拟处理器</div>
+                            </div>
+                            <div class="component-usage">CPU处理</div>
+                        </div>
+
+                        <div class="hardware-component">
+                            <div class="component-icon">🔥</div>
+                            <div class="component-info">
+                                <div class="component-name">PyTorch 2.3.0</div>
+                                <div class="component-specs">深度学习框架</div>
+                            </div>
+                            <div class="component-usage">模型运行</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Software Configuration -->
+                <div class="config-section software-section">
+                    <div class="section-title software-title">
+                        <span class="section-icon">⚙️</span>
+                        软件环境配置
+                    </div>
+                    <div class="software-stack">
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">PyTorch</div>
+                                <div class="software-desc">深度学习框架</div>
+                            </div>
+                            <div class="software-version">2.3.0</div>
+                        </div>
+
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">Python</div>
+                                <div class="software-desc">核心编程语言</div>
+                            </div>
+                            <div class="software-version">3.12</div>
+                        </div>
+
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">CUDA</div>
+                                <div class="software-desc">GPU计算平台</div>
+                            </div>
+                            <div class="software-version">12.1</div>
+                        </div>
+
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">Docker</div>
+                                <div class="software-desc">容器化部署，简化环境配置</div>
+                            </div>
+                            <div class="software-version">20.10+</div>
+                        </div>
+
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">Transformers</div>
+                                <div class="software-desc">Hugging Face模型库，支持大模型加载</div>
+                            </div>
+                            <div class="software-version">4.36+</div>
+                        </div>
+
+                        <div class="software-item">
+                            <div class="software-info">
+                                <div class="software-name">LangChain</div>
+                                <div class="software-desc">RAG框架，支持情报检索增强</div>
+                            </div>
+                            <div class="software-version">0.1+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="performance-section">
+                <div class="performance-title">📊 硬件性能实测数据</div>
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">32GB</div>
+                        <div class="metric-label">RTX 5090显存</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">25核</div>
+                        <div class="metric-label">Xeon处理器</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">22.04</div>
+                        <div class="metric-label">Ubuntu LTS</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture Visualization -->
+            <div class="deployment-section">
+                <div class="deployment-title">🏗️ 系统架构可视化</div>
+                <div class="chart-container">
+                    <canvas id="architectureChart"></canvas>
+                </div>
+
+                <div class="docker-info">
+                    <div class="docker-icon">🐳</div>
+                    <div class="docker-content">
+                        <div class="docker-title">Docker容器化部署</div>
+                        <div class="docker-desc">
+                            支持一键部署，环境隔离，简化配置流程，确保系统稳定运行
+                        </div>
+                    </div>
+                </div>
+
+                <div class="requirements-note">
+                    <span class="note-icon">📝</span>
+                    <div>
+                        <strong>配置说明：</strong>RTX 5090 32GB显存支持大模型高效推理，25核Xeon Platinum提供强大CPU处理能力，
+                        Ubuntu 22.04 + Python 3.12 + PyTorch 2.3.0 + CUDA 12.1 构成完整AI开发环境
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            🔧 优化的硬件配置 + 完整的软件栈 = 高效的威胁智能分析系统
+        </div>
+    </div>
+
+    <script>
+        // 系统架构可视化图表
+        const ctx = document.getElementById('architectureChart').getContext('2d');
+
+        const architectureChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'CPU性能',
+                    'GPU显存',
+                    '内存容量',
+                    '存储速度',
+                    '软件兼容性',
+                    '部署便利性',
+                    '扩展能力'
+                ],
+                datasets: [{
+                    label: '当前配置',
+                    data: [90, 85, 80, 90, 95, 90, 85],
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }, {
+                    label: '推荐标准',
+                    data: [75, 70, 60, 70, 80, 75, 70],
+                    borderColor: 'rgba(149, 165, 166, 0.8)',
+                    backgroundColor: 'rgba(149, 165, 166, 0.1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.r + '分';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            font: {
+                                size: 12
+                            },
+                            backdropColor: 'transparent'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            color: '#2c3e50'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 添加页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const components = document.querySelectorAll('.hardware-component, .software-item');
+            components.forEach((component, index) => {
+                component.style.opacity = '0';
+                component.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    component.style.transition = 'all 0.6s ease';
+                    component.style.opacity = '1';
+                    component.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // 数值动画
+            const animateValue = (element, start, end, duration, suffix = '') => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+
+                    if (suffix.includes('%')) {
+                        element.textContent = value + suffix;
+                    } else {
+                        element.textContent = value + suffix;
+                    }
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            // 监听性能指标进入视口
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const valueElement = entry.target.querySelector('.metric-value');
+                        const text = valueElement.textContent;
+
+                        // 禁用有版本号或小数的卡片动画
+                        if (text.includes('.') || text.includes('GB') || text.includes('核')) {
+                            // 不对这些卡片应用动画
+                            observer.unobserve(entry.target);
+                        } else {
+                            const value = parseInt(text);
+                            animateValue(valueElement, 0, value, 2000, text.replace(/[0-9]/g, ''));
+                            observer.unobserve(entry.target);
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.metric-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>

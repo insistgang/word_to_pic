@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多尺度特征融合算法框架</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1600px;
+            height: 900px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .framework-container {
+            padding: 30px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 输入层 */
+        .input-layer {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+
+        .input-box {
+            width: 280px;
+            height: 120px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%);
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .input-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .satellite-icon { color: #3498db; }
+        .drone-icon { color: #e74c3c; }
+
+        .input-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .input-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* 特征提取层 */
+        .feature-extraction {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .feature-box {
+            width: 300px;
+            background: white;
+            border: 2px solid #9b59b6;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(155, 89, 182, 0.2);
+            position: relative;
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .feature-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .layer {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #9b59b6;
+            font-size: 14px;
+            color: #34495e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .layer-name {
+            font-weight: bold;
+        }
+
+        .layer-size {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        /* 连接箭头 */
+        .arrows {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .arrow-down {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Cross-Attention 融合层 */
+        .fusion-layer {
+            background: linear-gradient(135deg, #ffe8e8 0%, #fff8f8 100%);
+            border: 3px solid #e74c3c;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.2);
+        }
+
+        .fusion-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .fusion-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin-right: 20px;
+        }
+
+        .fusion-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .attention-mechanism {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .attention-step {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e74c3c;
+        }
+
+        .step-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .flow-arrows {
+            display: flex;
+            align-items: center;
+            font-size: 30px;
+            color: #95a5a6;
+        }
+
+        /* 输出层 */
+        .output-layer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mmd-box {
+            width: 280px;
+            background: linear-gradient(135deg, #e8ffe8 0%, #f8fff8 100%);
+            border: 3px solid #27ae60;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.2);
+        }
+
+        .mmd-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin: 0 auto 15px;
+        }
+
+        .mmd-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .output-box {
+            width: 350px;
+            background: linear-gradient(135deg, #fff9e6 0%, #fffdf7 100%);
+            border: 3px solid #f39c12;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(243, 156, 18, 0.2);
+        }
+
+        .output-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin: 0 auto 15px;
+        }
+
+        .output-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .output-metrics {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .arrow-connector {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #27ae60, #f39c12);
+            position: relative;
+            margin: 0 20px;
+        }
+
+        .arrow-connector::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -8px;
+            width: 0;
+            height: 0;
+            border-left: 20px solid #f39c12;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            多尺度特征融合算法框架
+        </div>
+
+        <div class="framework-container">
+            <!-- 输入层 -->
+            <div class="input-layer">
+                <div class="input-box">
+                    <div class="input-icon satellite-icon">🛰️</div>
+                    <div class="input-title">卫星影像</div>
+                    <div class="input-desc">LEVIR-CD 数据集<br>0.5m 分辨率</div>
+                </div>
+                <div class="input-box">
+                    <div class="input-icon drone-icon">🚁</div>
+                    <div class="input-title">无人机影像</div>
+                    <div class="input-desc">自建数据集<br>5-10cm 分辨率</div>
+                </div>
+            </div>
+
+            <div class="arrows">
+                <div class="arrow-down">↓</div>
+            </div>
+
+            <!-- 特征提取层 -->
+            <div class="feature-extraction">
+                <div class="feature-box">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">Swin Transformer 特征提取</div>
+                    </div>
+                    <div class="feature-layers">
+                        <div class="layer">
+                            <span class="layer-name">Patch Embedding</span>
+                            <span class="layer-size">4×4×96</span>
+                        </div>
+                        <div class="layer">
+                            <span class="layer-name">Stage 1</span>
+                            <span class="layer-size">H/4×W/4×96</span>
+                        </div>
+                        <div class="layer">
+                            <span class="layer-name">Stage 2</span>
+                            <span class="layer-size">H/8×W/8×192</span>
+                        </div>
+                        <div class="layer">
+                            <span class="layer-name">Stage 3</span>
+                            <span class="layer-size">H/16×W/16×384</span>
+                        </div>
+                        <div class="layer">
+                            <span class="layer-name">Stage 4</span>
+                            <span class="layer-size">H/32×W/32×768</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrows">
+                <div class="arrow-down">↓</div>
+            </div>
+
+            <!-- Cross-Attention 融合层 -->
+            <div class="fusion-layer">
+                <div class="fusion-header">
+                    <div class="fusion-icon">🤝</div>
+                    <div class="fusion-title">多尺度 Cross-Attention 融合机制</div>
+                </div>
+                <div class="attention-mechanism">
+                    <div class="attention-step">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-title">Query 生成</div>
+                        <div class="step-desc">卫星特征作为查询向量</div>
+                    </div>
+                    <div class="flow-arrows">→</div>
+                    <div class="attention-step">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-title">Key-Value 匹配</div>
+                        <div class="step-desc">无人机特征作为键值对</div>
+                    </div>
+                    <div class="flow-arrows">→</div>
+                    <div class="attention-step">
+                        <div class="step-icon">⚖️</div>
+                        <div class="step-title">自适应加权</div>
+                        <div class="step-desc">跨尺度特征权重分配</div>
+                    </div>
+                    <div class="flow-arrows">→</div>
+                    <div class="attention-step">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-title">特征融合</div>
+                        <div class="step-desc">生成统一特征表示</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输出层 -->
+            <div class="output-layer">
+                <div class="mmd-box">
+                    <div class="mmd-icon">🚀</div>
+                    <div class="mmd-title">MMD 域适应</div>
+                    <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 10px;">最大均值差异</div>
+                    <div style="font-size: 14px; color: #34495e; line-height: 1.5;">
+                        • 减小卫星-无人机域差异<br>
+                        • 提升小样本泛化能力<br>
+                        • 自监督预训练优化
+                    </div>
+                </div>
+
+                <div class="arrow-connector"></div>
+
+                <div class="output-box">
+                    <div class="output-icon">🎯</div>
+                    <div class="output-title">违建检测结果</div>
+                    <div class="output-metrics">
+                        <div class="metric">
+                            <div class="metric-value">F1 ≥ 0.88</div>
+                            <div class="metric-label">检测精度</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">&lt; 2s</div>
+                            <div class="metric-label">检测时间</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">95%+</div>
+                            <div class="metric-label">召回率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人工巡查 vs 智能检测对比图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1200px;
+            height: 700px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a90e2 0%, #7b68ee 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .comparison {
+            display: flex;
+            height: calc(100% - 80px);
+        }
+
+        .side {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .left {
+            background: #fff8f8;
+            border-right: 3px dashed #e74c3c;
+        }
+
+        .right {
+            background: #f8fff8;
+        }
+
+        .method-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+        }
+
+        .traditional {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .intelligent {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+        }
+
+        .traditional-icon {
+            background: linear-gradient(135deg, #ff8787, #ff6348);
+        }
+
+        .intelligent-icon {
+            background: linear-gradient(135deg, #6dd5d0, #4fb3b9);
+        }
+
+        .features {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .feature {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .traditional-feature {
+            background: #ffe0e0;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .intelligent-feature {
+            background: #e0f7f0;
+            border-left: 5px solid #27ae60;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .feature-text {
+            font-size: 16px;
+            flex: 1;
+        }
+
+        .metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: auto;
+            justify-content: center;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 12px 20px;
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+        .traditional-metric {
+            background: #ffe5e5;
+            border: 2px solid #ff6b6b;
+        }
+
+        .intelligent-metric {
+            background: #e5f5f5;
+            border: 2px solid #4ecdc4;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .traditional-value {
+            color: #e74c3c;
+        }
+
+        .intelligent-value {
+            color: #27ae60;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .vs-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            z-index: 10;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            违章建筑识别：传统人工巡查 vs 智能检测技术对比
+        </div>
+
+        <div class="comparison">
+            <div class="side left">
+                <div class="method-title traditional">传统人工巡查</div>
+
+                <div class="icon traditional-icon">👷</div>
+
+                <div class="features">
+                    <div class="feature traditional-feature">
+                        <div class="feature-icon">🚶</div>
+                        <div class="feature-text">现场实地巡查，覆盖率有限</div>
+                    </div>
+                    <div class="feature traditional-feature">
+                        <div class="feature-icon">⏰</div>
+                        <div class="feature-text">周期长，发现滞后问题</div>
+                    </div>
+                    <div class="feature traditional-feature">
+                        <div class="feature-icon">💰</div>
+                        <div class="feature-text">人力成本高，效率低下</div>
+                    </div>
+                    <div class="feature traditional-feature">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-text">数据记录主观，统计困难</div>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric traditional-metric">
+                        <div class="metric-value traditional-value">2-3周</div>
+                        <div class="metric-label">巡查周期</div>
+                    </div>
+                    <div class="metric traditional-metric">
+                        <div class="metric-value traditional-value">60-70%</div>
+                        <div class="metric-label">覆盖率</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vs-badge">VS</div>
+
+            <div class="side right">
+                <div class="method-title intelligent">智能遥感检测</div>
+
+                <div class="icon intelligent-icon">🛰️</div>
+
+                <div class="features">
+                    <div class="feature intelligent-feature">
+                        <div class="feature-icon">📡</div>
+                        <div class="feature-text">卫星+无人机全方位覆盖</div>
+                    </div>
+                    <div class="feature intelligent-feature">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-text">实时监控，快速识别变化</div>
+                    </div>
+                    <div class="feature intelligent-feature">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-text">AI算法自动分析识别</div>
+                    </div>
+                    <div class="feature intelligent-feature">
+                        <div class="feature-icon">📈</div>
+                        <div class="feature-text">精准数据，可视化展示</div>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric intelligent-metric">
+                        <div class="metric-value intelligent-value">1-2天</div>
+                        <div class="metric-label">检测周期</div>
+                    </div>
+                    <div class="metric intelligent-metric">
+                        <div class="metric-value intelligent-value">95%+</div>
+                        <div class="metric-label">准确率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

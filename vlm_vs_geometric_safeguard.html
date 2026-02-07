@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLM Limitations vs Geometric Safeguard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid;
+            position: relative;
+        }
+        .challenge-section {
+            border-color: #e74c3c;
+        }
+        .solution-section {
+            border-color: #27ae60;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .challenge-title {
+            color: #e74c3c;
+        }
+        .solution-title {
+            color: #27ae60;
+        }
+        .circuit-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Challenge Circuit Styles */
+        .challenge-circuit {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .component {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #34495e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .c1 { top: 50px; left: 80px; }
+        .c2 { top: 50px; right: 80px; }
+        .c3 { bottom: 50px; left: 80px; }
+        .c4 { bottom: 50px; right: 80px; }
+        .c5 { top: 160px; left: 200px; }
+        .c6 { top: 160px; right: 200px; }
+
+        /* Real connections (black solid lines) */
+        .real-connection {
+            position: absolute;
+            background: #2c3e50;
+            z-index: 1;
+        }
+        .conn1 {
+            width: 4px;
+            height: 110px;
+            top: 90px;
+            left: 118px;
+        }
+        .conn2 {
+            width: 4px;
+            height: 110px;
+            bottom: 90px;
+            left: 118px;
+        }
+        .conn3 {
+            width: 4px;
+            height: 110px;
+            top: 90px;
+            right: 118px;
+        }
+        .conn4 {
+            width: 4px;
+            height: 110px;
+            bottom: 90px;
+            right: 118px;
+        }
+        .conn5 {
+            width: 160px;
+            height: 4px;
+            top: 198px;
+            left: 160px;
+        }
+        .conn6 {
+            width: 160px;
+            height: 4px;
+            top: 198px;
+            right: 160px;
+        }
+
+        /* VLM hallucination (red dashed line) */
+        .hallucination {
+            position: absolute;
+            top: 60px;
+            left: 160px;
+            width: 400px;
+            height: 240px;
+            border: 3px dashed #e74c3c;
+            border-radius: 50%;
+            z-index: 3;
+            opacity: 0.8;
+        }
+
+        /* Missed connections */
+        .missed-warning {
+            position: absolute;
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 4;
+        }
+        .missed1 {
+            top: 130px;
+            left: 120px;
+        }
+        .missed2 {
+            top: 220px;
+            right: 120px;
+        }
+
+        /* Solution Circuit Styles */
+        .solution-circuit {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* YOLO bounding boxes (blue) */
+        .yolo-box {
+            position: absolute;
+            border: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
+            z-index: 2;
+            border-radius: 5px;
+        }
+        .yolo1 {
+            top: 45px;
+            left: 75px;
+            width: 90px;
+            height: 90px;
+        }
+        .yolo2 {
+            top: 45px;
+            right: 75px;
+            width: 90px;
+            height: 90px;
+        }
+        .yolo3 {
+            bottom: 45px;
+            left: 75px;
+            width: 90px;
+            height: 90px;
+        }
+        .yolo4 {
+            bottom: 45px;
+            right: 75px;
+            width: 90px;
+            height: 90px;
+        }
+        .yolo5 {
+            top: 155px;
+            left: 195px;
+            width: 90px;
+            height: 90px;
+        }
+        .yolo6 {
+            top: 155px;
+            right: 195px;
+            width: 90px;
+            height: 90px;
+        }
+
+        /* Pixel tracking path (green) */
+        .pixel-path {
+            position: absolute;
+            background: #27ae60;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+        }
+        .path1 {
+            width: 6px;
+            height: 110px;
+            top: 90px;
+            left: 117px;
+        }
+        .path2 {
+            width: 6px;
+            height: 110px;
+            bottom: 90px;
+            left: 117px;
+        }
+        .path3 {
+            width: 6px;
+            height: 110px;
+            top: 90px;
+            right: 117px;
+        }
+        .path4 {
+            width: 6px;
+            height: 110px;
+            bottom: 90px;
+            right: 117px;
+        }
+        .path5 {
+            width: 160px;
+            height: 6px;
+            top: 197px;
+            left: 157px;
+        }
+        .path6 {
+            width: 160px;
+            height: 6px;
+            top: 197px;
+            right: 157px;
+        }
+        .path7 {
+            width: 200px;
+            height: 6px;
+            top: 197px;
+            left: 317px;
+            transform: rotate(45deg);
+            transform-origin: left center;
+        }
+
+        
+        /* Coordinate labels */
+        .coord-label {
+            position: absolute;
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 3;
+        }
+        .coord1 { top: 40px; left: 75px; }
+        .coord2 { top: 40px; right: 75px; }
+        .coord3 { bottom: 40px; left: 75px; }
+        .coord4 { bottom: 40px; right: 75px; }
+
+        /* Annotations */
+        .annotation {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        .challenge-annotation {
+            border-color: #e74c3c;
+        }
+        .solution-annotation {
+            border-color: #27ae60;
+        }
+        .annotation-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .annotation-list {
+            list-style: none;
+        }
+        .annotation-list li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .annotation-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-size: 20px;
+        }
+        .challenge-list li::before {
+            color: #e74c3c;
+        }
+        .solution-list li::before {
+            color: #27ae60;
+        }
+
+        
+        /* Icon styling */
+        .icon {
+            font-size: 20px;
+        }
+        .error-icon { color: #e74c3c; }
+        .success-icon { color: #27ae60; }
+        .warning-icon { color: #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">VLM Limitations vs Geometric Safeguard Solution</h1>
+
+        <div class="comparison">
+            <!-- Left: The Challenge -->
+            <div class="section challenge-section">
+                <div class="section-header">
+                    <div class="section-title challenge-title">
+                        <span class="icon error-icon">⚠️</span>
+                        The Challenge: VLM Limitations
+                    </div>
+                </div>
+
+                <div class="circuit-container">
+                    <div class="challenge-circuit">
+                        <!-- Components -->
+                        <div class="component c1">CPU</div>
+                        <div class="component c2">RAM</div>
+                        <div class="component c3">GPU</div>
+                        <div class="component c4">PSU</div>
+                        <div class="component c5">MB</div>
+                        <div class="component c6">SSD</div>
+
+                        <!-- Real connections -->
+                        <div class="real-connection conn1"></div>
+                        <div class="real-connection conn2"></div>
+                        <div class="real-connection conn3"></div>
+                        <div class="real-connection conn4"></div>
+                        <div class="real-connection conn5"></div>
+                        <div class="real-connection conn6"></div>
+
+                        <!-- VLM Hallucination -->
+                        <div class="hallucination"></div>
+
+                        <!-- Missed connection warnings -->
+                        <div class="missed-warning missed1">Missed!</div>
+                        <div class="missed-warning missed2">Missed!</div>
+                    </div>
+                </div>
+
+                <div class="annotation challenge-annotation">
+                    <div class="annotation-title">
+                        <span class="icon error-icon">❌</span>
+                        VLM Problems
+                    </div>
+                    <ul class="annotation-list challenge-list">
+                        <li><strong>幻觉 (Hallucination)</strong>: VLM 错误地认为没有连接的组件相连（红色虚线圆圈）</li>
+                        <li><strong>漏检 (Missed)</strong>: 真实存在的复杂走线，VLM 却视而不见</li>
+                        <li><strong>缺乏精确性</strong>: 无法准确识别像素级别的连接关系</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Our Solution -->
+            <div class="section solution-section">
+                <div class="section-header">
+                    <div class="section-title solution-title">
+                        <span class="icon success-icon">✅</span>
+                        Our Solution: Geometric Safeguard
+                    </div>
+                </div>
+
+                <div class="circuit-container">
+                    <div class="solution-circuit">
+                        <!-- Components -->
+                        <div class="component c1">CPU</div>
+                        <div class="component c2">RAM</div>
+                        <div class="component c3">GPU</div>
+                        <div class="component c4">PSU</div>
+                        <div class="component c5">MB</div>
+                        <div class="component c6">SSD</div>
+
+                        <!-- Coordinate Anchoring: YOLO Bounding Boxes -->
+                        <div class="yolo-box yolo1"></div>
+                        <div class="yolo-box yolo2"></div>
+                        <div class="yolo-box yolo3"></div>
+                        <div class="yolo-box yolo4"></div>
+                        <div class="yolo-box yolo5"></div>
+                        <div class="yolo-box yolo6"></div>
+
+                        <!-- Coordinate Labels -->
+                        <div class="coord-label coord1">(120, 50)</div>
+                        <div class="coord-label coord2">(520, 50)</div>
+                        <div class="coord-label coord3">(120, 300)</div>
+                        <div class="coord-label coord4">(520, 300)</div>
+
+                        <!-- Pixel Tracking: Green Paths -->
+                        <div class="pixel-path path1"></div>
+                        <div class="pixel-path path2"></div>
+                        <div class="pixel-path path3"></div>
+                        <div class="pixel-path path4"></div>
+                        <div class="pixel-path path5"></div>
+                        <div class="pixel-path path6"></div>
+                        <div class="pixel-path path7"></div>
+
+                                            </div>
+                </div>
+
+                <div class="annotation solution-annotation">
+                    <div class="annotation-title">
+                        <span class="icon success-icon">🔧</span>
+                        Geometric Safeguard Features
+                    </div>
+                    <ul class="annotation-list solution-list">
+                        <li><strong>坐标锚定</strong>: YOLO精确定位组件坐标（蓝色框），提供准确的组件位置</li>
+                        <li><strong>像素追踪</strong>: 沿着真实物理像素"走迷宫"，找回丢失的连接（绿色高亮路径）</li>
+                        <li><strong>几何验证</strong>: 基于像素级别的连接验证，消除幻觉错误</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

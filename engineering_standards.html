@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统工程规范</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            animation: gradient 3s ease-in-out infinite;
+        }
+        @keyframes gradient {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        .header-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .standards-overview {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .overview-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .overview-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        .standards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .standard-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-top: 5px solid;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .standard-card:hover {
+            transform: translateY(-5px);
+        }
+        .naming-card {
+            border-top-color: #3498db;
+        }
+        .comment-card {
+            border-top-color: #e74c3c;
+        }
+        .exception-card {
+            border-top-color: #f39c12;
+        }
+        .version-card {
+            border-top-color: #9b59b6;
+        }
+        .standard-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .standard-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .standard-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .naming-examples {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .naming-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .naming-type {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .naming-format {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .naming-example {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .comment-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .comment-keyword {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .comment-string {
+            color: #2ecc71;
+        }
+        .comment-type {
+            color: #3498db;
+        }
+        .comment-annotation {
+            color: #f39c12;
+        }
+        .exception-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .exception-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 3px solid #f39c12;
+        }
+        .exception-name {
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .exception-scenario {
+            color: #7f8c8d;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        .log-system {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #e67e22;
+        }
+        .log-title {
+            font-weight: bold;
+            color: #e67e22;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .log-format {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .log-features {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .log-feature {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin: 5px;
+            border: 1px solid #e67e22;
+            color: #e67e22;
+        }
+        .git-flow {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .flow-title {
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .branches {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .branch {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            position: relative;
+        }
+        .branch-main {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border-radius: 10px;
+            margin: 0 10px;
+        }
+        .branch-develop {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border-radius: 10px;
+            margin: 0 10px;
+        }
+        .branch-feature {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        .branch-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .branch-desc {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        .commit-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #9b59b6;
+        }
+        .commit-title {
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+        .commit-requirements {
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        .chart-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .best-practices {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+        .practices-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .practices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .practice-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .practice-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .practice-desc {
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">系统工程规范</div>
+            <div class="header-subtitle">
+                确保系统可维护性与扩展性的严格工程规范体系
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Standards Overview -->
+            <div class="standards-overview">
+                <div class="overview-title">📋 工程规范体系概览</div>
+                <div class="overview-text">
+                    建立统一的命名规范、注释规范、异常处理、版本控制等工程标准，
+                    确保代码质量、可读性与可维护性，支持团队协作与长期迭代开发。
+                </div>
+            </div>
+
+            <!-- Standards Grid -->
+            <div class="standards-grid">
+                <!-- Naming Standards -->
+                <div class="standard-card naming-card">
+                    <div class="standard-header">
+                        <div class="standard-icon">📝</div>
+                        <div class="standard-title">命名规范</div>
+                    </div>
+                    <div class="naming-examples">
+                        <div class="naming-item">
+                            <div class="naming-type">类名</div>
+                            <div class="naming-format">PascalCase</div>
+                            <div class="naming-example">MultiAgentSystem</div>
+                        </div>
+                        <div class="naming-item">
+                            <div class="naming-type">函数变量</div>
+                            <div class="naming-format">snake_case</div>
+                            <div class="naming-example">fuse_expert_results</div>
+                        </div>
+                        <div class="naming-item">
+                            <div class="naming-type">常量</div>
+                            <div class="naming-format">UPPER_CASE</div>
+                            <div class="naming-example">MAX_SEQ_LENGTH=2048</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment Standards -->
+                <div class="standard-card comment-card">
+                    <div class="standard-header">
+                        <div class="standard-icon">💬</div>
+                        <div class="standard-title">注释规范</div>
+                    </div>
+                    <div class="comment-example">
+<span class="comment-keyword">def</span> <span style="color: #3498db;">fuse_expert_results</span>(<span style="color: #3498db;">expert_results</span>: <span class="comment-type">List[Dict]</span>) -> <span class="comment-type">Dict</span>:
+    <span class="comment-annotation">"""融合多个专家智能体的分析结果。
+
+    Args:
+        expert_results: 专家智能体分析结果列表
+
+    Returns:
+        Dict: 融合后的分析结果
+
+    Raises:
+        DataParseError: 当结果解析失败时
+
+    Example:
+        >>> results = [{'expert': 'web', 'confidence': 0.9}]
+        >>> fuse_expert_results(results)
+        {'fused_result': 'web_attack', 'confidence': 0.9}
+    """</span>
+    <span class="comment-keyword">pass</span>
+                    </div>
+                </div>
+
+                <!-- Exception Handling -->
+                <div class="standard-card exception-card">
+                    <div class="standard-header">
+                        <div class="standard-icon">⚠️</div>
+                        <div class="standard-title">异常处理体系</div>
+                    </div>
+                    <div class="exception-grid">
+                        <div class="exception-item">
+                            <div class="exception-name">ModelLoadError</div>
+                            <div class="exception-scenario">模型加载失败</div>
+                        </div>
+                        <div class="exception-item">
+                            <div class="exception-name">IntelRetrieveError</div>
+                            <div class="exception-scenario">情报检索错误</div>
+                        </div>
+                        <div class="exception-item">
+                            <div class="exception-name">DataParseError</div>
+                            <div class="exception-scenario">数据解析失败</div>
+                        </div>
+                        <div class="exception-item">
+                            <div class="exception-name">ApiRequestError</div>
+                            <div class="exception-scenario">API请求异常</div>
+                        </div>
+                        <div class="exception-item">
+                            <div class="exception-name">ResourceLimitError</div>
+                            <div class="exception-scenario">资源限制超限</div>
+                        </div>
+                    </div>
+                    <div class="log-system">
+                        <div class="log-title">📝 日志记录系统</div>
+                        <div class="log-format">
+                            [2024-01-15 10:30:45] [ModelLoad] [ERROR] Failed to load model: GPU memory insufficient<br>
+                            [2024-01-15 10:30:46] [RouteAgent] [INFO] Successfully routed 150 alerts
+                        </div>
+                        <div class="log-features">
+                            <div class="log-feature">时间戳</div>
+                            <div class="log-feature">模块名称</div>
+                            <div class="log-feature">错误堆栈</div>
+                            <div class="log-feature">30天存储</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Version Control -->
+                <div class="standard-card version-card">
+                    <div class="standard-header">
+                        <div class="standard-icon">🔀</div>
+                        <div class="standard-title">版本控制</div>
+                    </div>
+                    <div class="git-flow">
+                        <div class="flow-title">Git Flow 工作流</div>
+                        <div class="branches">
+                            <div class="branch branch-main">
+                                <div class="branch-name">main</div>
+                                <div class="branch-desc">生产环境分支</div>
+                            </div>
+                            <div class="branch branch-develop">
+                                <div class="branch-name">develop</div>
+                                <div class="branch-desc">开发环境分支</div>
+                            </div>
+                        </div>
+                        <div class="branches">
+                            <div class="branch branch-feature">
+                                <div class="branch-name">feature</div>
+                                <div class="branch-desc">功能开发分支</div>
+                            </div>
+                            <div class="branch branch-feature">
+                                <div class="branch-name">hotfix</div>
+                                <div class="branch-desc">紧急修复分支</div>
+                            </div>
+                            <div class="branch branch-feature">
+                                <div class="branch-name">release</div>
+                                <div class="branch-desc">发布准备分支</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="commit-info">
+                        <div class="commit-title">📝 提交规范</div>
+                        <div class="commit-requirements">
+                            • 每版提交需附带详细更新日志<br>
+                            • 记录功能新增、bug修复与性能优化<br>
+                            • 遵循Conventional Commits规范<br>
+                            • 代码审查通过后方可合并
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standards Comparison Chart -->
+            <div class="chart-section">
+                <div class="chart-title">📊 工程规范覆盖率分析</div>
+                <div class="chart-container">
+                    <canvas id="standardsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="best-practices">
+                <div class="practices-title">🌟 最佳实践</div>
+                <div class="practices-grid">
+                    <div class="practice-item">
+                        <div class="practice-title">代码可读性</div>
+                        <div class="practice-desc">
+                            统一的命名规范确保代码一致性与可读性，
+                            降低团队协作成本
+                        </div>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-title">文档完整性</div>
+                        <div class="practice-desc">
+                            Google风格Docstring提供完整API文档，
+                            包含使用示例与异常说明
+                        </div>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-title">错误可追踪</div>
+                        <div class="practice-desc">
+                            自定义异常与详细日志记录，
+                            便于问题定位与故障排查
+                        </div>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-title">版本管理</div>
+                        <div class="practice-desc">
+                            Git Flow工作流确保代码质量，
+                            支持并行开发与快速迭代
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            📋 严格规范 + 🔍 详细文档 + 🚀 持续改进 = 💎 高质量代码
+        </div>
+    </div>
+
+    <script>
+        // 工程规范覆盖率图表
+        const ctx = document.getElementById('standardsChart').getContext('2d');
+
+        const standardsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['命名规范', '注释规范', '异常处理', '日志系统', '版本控制', '代码审查', '测试覆盖'],
+                datasets: [
+                    {
+                        label: '规范覆盖率',
+                        data: [95, 90, 85, 88, 92, 80, 75],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    },
+                    {
+                        label: '执行程度',
+                        data: [90, 85, 80, 85, 88, 75, 70],
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '覆盖率 / 执行程度 (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.standard-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // 命名规范项动画
+            const namingItems = document.querySelectorAll('.naming-item');
+            namingItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'scale(1)';
+                }, index * 150);
+            });
+
+            // 异常类型动画
+            const exceptionItems = document.querySelectorAll('.exception-item');
+            exceptionItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // Git分支动画
+            const branches = document.querySelectorAll('.branch');
+            branches.forEach((branch, index) => {
+                branch.style.opacity = '0';
+                branch.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    branch.style.transition = 'all 0.6s ease';
+                    branch.style.opacity = '1';
+                    branch.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // 最佳实践动画
+            const practiceItems = document.querySelectorAll('.practice-item');
+            practiceItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.6s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国内外研究现状对比分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1600px;
+            height: 900px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .content-container {
+            padding: 40px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 国外研究部分 */
+        .section {
+            margin-bottom: 30px;
+            flex: 1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            margin-right: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .foreign-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .domestic-icon {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .drone-icon {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* 研究方法对比 */
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .method-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border-top: 4px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .method-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .method-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .method-features {
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #34495e;
+        }
+
+        .feature-icon {
+            color: #3498db;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* 国内研究局限性 */
+        .limitations-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .limitation-box {
+            flex: 1;
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+            border: 2px solid #e74c3c;
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .limitation-box::before {
+            content: '⚠️';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            opacity: 0.3;
+        }
+
+        .limitation-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .limitation-title .number {
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .limitation-desc {
+            font-size: 15px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .limitation-example {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #c0392b;
+            border-left: 3px solid #e74c3c;
+        }
+
+        /* 无人机影像挑战 */
+        .challenges-container {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4efdf 100%);
+            border: 3px solid #27ae60;
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .challenges-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .drone-large-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 35px;
+            margin-right: 20px;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .challenges-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .challenges-desc {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .challenge-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-top: 3px solid #27ae60;
+        }
+
+        .challenge-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .challenge-icon {
+            font-size: 28px;
+            color: #27ae60;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .challenge-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .challenge-detail {
+            font-size: 14px;
+            color: #34495e;
+            line-height: 1.4;
+        }
+
+        /* 对比总结 */
+        .summary-comparison {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: auto;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .table-cell {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #34495e;
+            border: 1px solid #e9ecef;
+        }
+
+        .highlight-cell {
+            background: linear-gradient(135deg, #fff8f8, #ffe8e8);
+            border: 1px solid #e74c3c;
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .solution-cell {
+            background: linear-gradient(135deg, #f8fff8, #e8ffe8);
+            border: 1px solid #27ae60;
+            color: #229954;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            🌍 国内外研究现状分析与技术挑战
+        </div>
+
+        <div class="content-container">
+            <!-- 国外研究现状 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon foreign-icon">🌐</div>
+                    <div>
+                        <div class="section-title">国外研究现状</div>
+                        <div class="section-subtitle">聚焦建筑提取与变化检测的主流方法</div>
+                    </div>
+                </div>
+
+                <div class="methods-grid">
+                    <div class="method-card">
+                        <div class="method-logo">ST</div>
+                        <div class="method-name">STANet</div>
+                        <div class="method-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Spatial-Temporal Attention Network</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>时空注意力机制</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>多尺度特征融合</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-logo">CI</div>
+                        <div class="method-name">CINet</div>
+                        <div class="method-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Change Interaction Network</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>跨时相特征交互</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>细节增强模块</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-logo">Ch</div>
+                        <div class="method-name">Changer</div>
+                        <div class="method-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>端到端变化检测</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>深度特征差分</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>多层次特征聚合</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 国内研究局限性 -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon domestic-icon">🏠</div>
+                    <div>
+                        <div class="section-title">国内研究局限性</div>
+                        <div class="section-subtitle">现有方法的技术瓶颈与改进空间</div>
+                    </div>
+                </div>
+
+                <div class="limitations-container">
+                    <div class="limitation-box">
+                        <div class="limitation-title">
+                            <div class="number">1</div>
+                            单尺度数据限制
+                        </div>
+                        <div class="limitation-desc">
+                            多数研究仅使用单一分辨率的遥感影像，难以同时捕捉宏观结构和微观细节信息。
+                        </div>
+                        <div class="limitation-example">
+                            📊 仅使用0.5m卫星影像 → 难以识别小范围违建
+                        </div>
+                    </div>
+
+                    <div class="limitation-box">
+                        <div class="limitation-title">
+                            <div class="number">2</div>
+                            单源数据局限
+                        </div>
+                        <div class="limitation-desc">
+                            主要依赖单一数据源（如卫星或无人机），缺乏多模态信息的互补优势。
+                        </div>
+                        <div class="limitation-example">
+                            🛰️ 仅卫星数据 → 灵活性和时效性不足
+                        </div>
+                    </div>
+
+                    <div class="limitation-box">
+                        <div class="limitation-title">
+                            <div class="number">3</div>
+                            泛化能力不足
+                        </div>
+                        <div class="limitation-desc">
+                            模型在不同地区、不同条件下的适应性较差，迁移学习能力有限。
+                        </div>
+                        <div class="limitation-example">
+                            🎯 城市A训练 → 城市B效果下降30%+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 无人机影像挑战 -->
+            <div class="section">
+                <div class="challenges-container">
+                    <div class="challenges-header">
+                        <div class="drone-large-icon">🚁</div>
+                        <div>
+                            <div class="challenges-title">无人机影像技术挑战</div>
+                            <div class="challenges-desc">高分辨率数据获取与算法泛化的主要难题</div>
+                        </div>
+                    </div>
+
+                    <div class="challenges-grid">
+                        <div class="challenge-item">
+                            <div class="challenge-icon">📏</div>
+                            <div class="challenge-name">尺度差异巨大</div>
+                            <div class="challenge-detail">
+                                无人机影像(5-10cm)与卫星影像(0.5m)分辨率相差50-100倍，特征对齐困难
+                            </div>
+                        </div>
+
+                        <div class="challenge-item">
+                            <div class="challenge-icon">🔄</div>
+                            <div class="challenge-name">视角变化复杂</div>
+                            <div class="challenge-detail">
+                                无人机多角度拍摄与卫星垂直视角存在显著差异，影响检测一致性
+                            </div>
+                        </div>
+
+                        <div class="challenge-item">
+                            <div class="challenge-icon">🎯</div>
+                            <div class="challenge-name">泛化性差</div>
+                            <div class="challenge-detail">
+                                训练数据的时空分布差异导致模型在新区域检测精度显著下降
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对比总结 -->
+            <div class="summary-comparison">
+                <div class="summary-title">📋 研究现状对比总结</div>
+                <div class="comparison-table">
+                    <div class="table-header">研究方向</div>
+                    <div class="table-header">国外优势</div>
+                    <div class="table-header">国内挑战</div>
+
+                    <div class="table-cell">数据多样性</div>
+                    <div class="table-cell">多时相、多源数据融合</div>
+                    <div class="table-cell highlight-cell">单尺度、单源数据限制</div>
+
+                    <div class="table-cell">算法创新</div>
+                    <div class="table-cell">注意力机制、交互网络</div>
+                    <div class="table-cell highlight-cell">算法泛化能力不足</div>
+
+                    <div class="table-cell">应用场景</div>
+                    <div class="table-cell">建筑提取、变化检测</div>
+                    <div class="table-cell highlight-cell">违建识别专门化不足</div>
+
+                    <div class="table-cell">解决方案</div>
+                    <div class="table-cell">基础算法框架成熟</div>
+                    <div class="table-cell solution-cell">多尺度融合 + 域适应</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

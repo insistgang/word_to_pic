@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统总体框架图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1000px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        /* 框架容器 */
+        .framework-container {
+            position: relative;
+        }
+
+        /* 通用层级样式 */
+        .layer {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .layer:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .layer-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .layer-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 24px;
+        }
+
+        /* 应用展示层 */
+        .presentation-layer {
+            border: 2px solid #3498db;
+        }
+
+        .presentation-layer .layer-icon {
+            background: #e8f4fd;
+            color: #3498db;
+        }
+
+        .app-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .app-item {
+            flex: 1;
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 500;
+            color: #3498db;
+        }
+
+        /* 业务服务层 */
+        .business-layer {
+            border: 2px solid #e74c3c;
+        }
+
+        .business-layer .layer-icon {
+            background: #fef4f4;
+            color: #e74c3c;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .service-item {
+            background: #fef4f4;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-icon {
+            font-size: 36px;
+            color: #e74c3c;
+        }
+
+        .service-name {
+            font-size: 24px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* AI分析层 */
+        .ai-layer {
+            border: 2px solid #3498db;
+        }
+
+        .ai-layer .layer-icon {
+            background: #e8f4fd;
+            color: #3498db;
+        }
+
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .ai-engine {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .engine-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .engine-tech {
+            font-size: 18px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* 数据采集层 */
+        .data-layer {
+            border: 2px solid #27ae60;
+        }
+
+        .data-layer .layer-icon {
+            background: #f6fef6;
+            color: #27ae60;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .data-source {
+            background: #f6fef6;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .source-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .source-desc {
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+
+        /* 基础设施层 */
+        .infra-layer {
+            border: 2px solid #f39c12;
+        }
+
+        .infra-layer .layer-icon {
+            background: #fffbf0;
+            color: #f39c12;
+        }
+
+        .infra-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .infra-item {
+            background: #fffbf0;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .infra-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f39c12;
+            font-size: 18px;
+        }
+
+        .infra-name {
+            font-size: 24px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .infra-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* 连接箭头和协议 */
+        .connection {
+            text-align: center;
+            font-size: 18px;
+            color: #95a5a6;
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .connection::before {
+            content: '↓';
+            font-size: 32px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .protocol {
+            background: #ecf0f1;
+            padding: 6px 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #7f8c8d;
+            display: inline-block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1600px) {
+            .container {
+                width: 95%;
+            }
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .ai-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-grid,
+            .service-grid,
+            .ai-grid,
+            .data-grid,
+            .infra-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🏗️ 系统总体框架图</h1>
+
+        <div class="framework-container">
+            <!-- 应用展示层 -->
+            <div class="layer presentation-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🖥️</div>
+                        应用展示层
+                    </div>
+                </div>
+                <div class="app-grid">
+                    <div class="app-item">
+                        <span>🌐</span>
+                        <span>Web管理端</span>
+                    </div>
+                    <div class="app-item">
+                        <span>📱</span>
+                        <span>移动APP</span>
+                    </div>
+                    <div class="app-item">
+                        <span>📊</span>
+                        <span>大屏展示</span>
+                    </div>
+                    <div class="app-item">
+                        <span>🔗</span>
+                        <span>开放API</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">
+                <span class="protocol">HTTPS/WebSocket</span>
+            </div>
+
+            <!-- 业务服务层（微服务） -->
+            <div class="layer business-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚙️</div>
+                        业务服务层（微服务）
+                    </div>
+                </div>
+                <div class="service-grid">
+                    <div class="service-item">
+                        <div class="service-icon">🖼️</div>
+                        <div class="service-name">影像管理</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">🚨</div>
+                        <div class="service-name">预警派单</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">📋</div>
+                        <div class="service-name">工单处置</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">📈</div>
+                        <div class="service-name">统计分析</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">🗺️</div>
+                        <div class="service-name">地籍比对</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">👤</div>
+                        <div class="service-name">用户权限</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">📢</div>
+                        <div class="service-name">消息通知</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon">⚙️</div>
+                        <div class="service-name">系统配置</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">
+                <span class="protocol">RPC/REST API</span>
+            </div>
+
+            <!-- AI分析层 -->
+            <div class="layer ai-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🤖</div>
+                        AI分析层
+                    </div>
+                </div>
+                <div class="ai-grid">
+                    <div class="ai-engine">
+                        <div class="engine-name">目标检测引擎</div>
+                        <div class="engine-tech">YOLOv8</div>
+                    </div>
+                    <div class="ai-engine">
+                        <div class="engine-name">类型分类引擎</div>
+                        <div class="engine-tech">EfficientNet</div>
+                    </div>
+                    <div class="ai-engine">
+                        <div class="engine-name">变化检测引擎</div>
+                        <div class="engine-tech">多期对比</div>
+                    </div>
+                    <div class="ai-engine">
+                        <div class="engine-name">影像预处理</div>
+                        <div class="engine-tech">数据清洗</div>
+                    </div>
+                    <div class="ai-engine">
+                        <div class="engine-name">坐标转换</div>
+                        <div class="engine-tech">空间配准</div>
+                    </div>
+                    <div class="ai-engine">
+                        <div class="engine-name">模型管理</div>
+                        <div class="engine-tech">版本控制</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">
+                <span class="protocol">gRPC/消息队列</span>
+            </div>
+
+            <!-- 数据采集层 -->
+            <div class="layer data-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">📡</div>
+                        数据采集层
+                    </div>
+                </div>
+                <div class="data-grid">
+                    <div class="data-source">
+                        <div class="source-name">无人机影像</div>
+                        <div class="source-desc">实时接入</div>
+                    </div>
+                    <div class="data-source">
+                        <div class="source-name">历史影像库</div>
+                        <div class="source-desc">批量导入</div>
+                    </div>
+                    <div class="data-source">
+                        <div class="source-name">地籍数据</div>
+                        <div class="source-desc">标准接入</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">
+                <span class="protocol">数据存储</span>
+            </div>
+
+            <!-- 基础设施层 -->
+            <div class="layer infra-layer">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔧</div>
+                        基础设施层
+                    </div>
+                </div>
+                <div class="infra-grid">
+                    <div class="infra-item">
+                        <div class="infra-icon">🗄️</div>
+                        <div>
+                            <div class="infra-name">PostgreSQL</div>
+                            <div class="infra-desc">+PostGIS</div>
+                        </div>
+                    </div>
+                    <div class="infra-item">
+                        <div class="infra-icon">⚡</div>
+                        <div>
+                            <div class="infra-name">Redis</div>
+                            <div class="infra-desc">缓存</div>
+                        </div>
+                    </div>
+                    <div class="infra-item">
+                        <div class="infra-icon">📦</div>
+                        <div>
+                            <div class="infra-name">MinIO</div>
+                            <div class="infra-desc">对象存储</div>
+                        </div>
+                    </div>
+                    <div class="infra-item">
+                        <div class="infra-icon">📨</div>
+                        <div>
+                            <div class="infra-name">Kafka</div>
+                            <div class="infra-desc">消息队列</div>
+                        </div>
+                    </div>
+                    <div class="infra-item">
+                        <div class="infra-icon">📊</div>
+                        <div>
+                            <div class="infra-name">监控告警</div>
+                            <div class="infra-desc">日志</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

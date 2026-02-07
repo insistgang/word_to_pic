@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI推理模块架构 - 大语言模型与RAG威胁情报</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            animation: gradient 3s ease-in-out infinite;
+        }
+        @keyframes gradient {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        .header-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .modules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .module-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-top: 5px solid;
+        }
+        .llm-module {
+            border-top-color: #e74c3c;
+        }
+        .rag-module {
+            border-top-color: #3498db;
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .module-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .module-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .optimization-tech {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        .tech-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .tech-icon {
+            margin-right: 10px;
+        }
+        .tech-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .tech-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #e74c3c;
+        }
+        .tech-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .tech-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .performance-metrics {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .metrics-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .metric-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .rag-workflow {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        .workflow-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .workflow-step {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            position: relative;
+        }
+        .step-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .step-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .step-desc {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .database-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .db-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        .db-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .db-component {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin: 0 5px;
+        }
+        .component-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .component-desc {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+        .performance-comparison {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+        .comparison-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .comparison-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .comparison-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .comparison-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .example-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .example-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .examples-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        .example-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid;
+        }
+        .llm-example {
+            border-top-color: #e74c3c;
+        }
+        .rag-example {
+            border-top-color: #3498db;
+        }
+        .example-subtitle {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .example-input {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .example-output {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+        .output-label {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .output-content {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">AI推理模块架构</div>
+            <div class="header-subtitle">
+                大语言模型推理 + RAG威胁情报增强的智能分析引擎
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Modules Grid -->
+            <div class="modules-grid">
+                <!-- LLM Module -->
+                <div class="module-card llm-module">
+                    <div class="module-header">
+                        <div class="module-icon">🤖</div>
+                        <div class="module-title">大语言模型推理模块</div>
+                    </div>
+
+                    <div class="optimization-tech">
+                        <div class="tech-title">
+                            <span class="tech-icon">⚡</span>
+                            Qwen2-7B-Instruct 专项优化
+                        </div>
+                        <div class="tech-details">
+                            <div class="tech-item">
+                                <div class="tech-name">INT4量化技术</div>
+                                <div class="tech-desc">显存占用从14GB降至6GB</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-name">bfloat16精度计算</div>
+                                <div class="tech-desc">减少50%显存消耗</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-name">注意力切片技术</div>
+                                <div class="tech-desc">支持长序列告警分析</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-name">12GB显存优化</div>
+                                <div class="tech-desc">GPU流畅运行</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="performance-metrics">
+                        <div class="metrics-title">🚀 性能指标</div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <div class="metric-value">1-2秒</div>
+                                <div class="metric-label">单条威胁推理时间</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">15.3秒</div>
+                                <div class="metric-label">批量50条告警耗时</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">10倍</div>
+                                <div class="metric-label">较CPU推理效率提升</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">6GB</div>
+                                <div class="metric-label">量化后显存占用</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RAG Module -->
+                <div class="module-card rag-module">
+                    <div class="module-header">
+                        <div class="module-icon">🔍</div>
+                        <div class="module-title">RAG威胁情报增强模块</div>
+                    </div>
+
+                    <div class="rag-workflow">
+                        <div class="workflow-title">
+                            <span class="tech-icon">🔄</span>
+                            检索-推理-融合流程
+                        </div>
+                        <div class="workflow-steps">
+                            <div class="workflow-step">
+                                <div class="step-circle">1</div>
+                                <div class="step-name">检索</div>
+                                <div class="step-desc">语义相似度≥0.7</div>
+                            </div>
+                            <div class="workflow-step">
+                                <div class="step-circle">2</div>
+                                <div class="step-name">推理</div>
+                                <div class="step-desc">情报关联分析</div>
+                            </div>
+                            <div class="workflow-step">
+                                <div class="step-circle">3</div>
+                                <div class="step-name">融合</div>
+                                <div class="step-desc">结果增强输出</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="database-info">
+                        <div class="db-title">📊 向量数据库架构</div>
+                        <div class="db-details">
+                            <div class="db-component">
+                                <div class="component-name">sentence-transformers</div>
+                                <div class="component-desc">高维向量转化</div>
+                            </div>
+                            <div class="db-component">
+                                <div class="component-name">Chroma DB</div>
+                                <div class="component-desc">向量数据库存储</div>
+                            </div>
+                            <div class="db-component">
+                                <div class="component-name">语义检索</div>
+                                <div class="component-desc">相似度匹配</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="performance-metrics" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+                        <div class="metrics-title">📈 增强效果</div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <div class="metric-value">8-12%</div>
+                                <div class="metric-label">分析准确率提升</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">40%</div>
+                                <div class="metric-label">误报率降低</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">0.7</div>
+                                <div class="metric-label">语义相似度阈值</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">显著</div>
+                                <div class="metric-label">可解释性增强</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Comparison -->
+            <div class="performance-comparison">
+                <div class="comparison-title">📊 模型优化技术对比效果</div>
+                <div class="comparison-metrics">
+                    <div class="comparison-item">
+                        <div class="comparison-value">14GB→6GB</div>
+                        <div class="comparison-label">INT4量化显存优化</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value">50%</div>
+                        <div class="comparison-label">bfloat16显存消耗减少</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value">10倍</div>
+                        <div class="comparison-label">GPU vs CPU推理效率</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value">15.3秒</div>
+                        <div class="comparison-label">批量50条处理时间</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-container">
+                <canvas id="optimizationChart"></canvas>
+            </div>
+
+            <!-- Examples Section -->
+            <div class="example-section">
+                <div class="example-title">💡 实际应用案例</div>
+                <div class="examples-grid">
+                    <div class="example-card llm-example">
+                        <div class="example-subtitle">🤖 大语言模型语义理解</div>
+                        <div class="example-input">
+                            1'UNION SELECT username, password FROM users--
+                        </div>
+                        <div class="example-output">
+                            <div class="output-label">✅ 攻击意图推理结果：</div>
+                            <div class="output-content">
+                                <strong>攻击意图：</strong>窃取用户账号密码<br>
+                                <strong>攻击类型：</strong>SQL注入攻击<br>
+                                <strong>攻击链重构：</strong>联合查询获取敏感信息<br>
+                                <strong>历史案例关联：</strong>同类攻击成功窃取用户数据案例
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-card rag-example">
+                        <div class="example-subtitle">🔍 RAG威胁情报增强</div>
+                        <div class="example-input">
+                            Log4j漏洞攻击告警
+                        </div>
+                        <div class="example-output">
+                            <div class="output-label">✅ 情报关联分析结果：</div>
+                            <div class="output-content">
+                                <strong>CVE编号：</strong>CVE-2021-44228<br>
+                                <strong>利用方式：</strong>JNDI注入，远程代码执行<br>
+                                <strong>受影响版本：</strong>Log4j 2.0-beta9 ~ 2.14.1<br>
+                                <strong>修复建议：</strong>升级至Log4j 2.15.0+版本<br>
+                                <strong>历史攻击：</strong>已发现多起针对该漏洞的利用攻击
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            🧠 智能语义理解 + 🔍 威胁情报增强 = 🎯 精准威胁分析
+        </div>
+    </div>
+
+    <script>
+        // 优化技术对比图表
+        const ctx = document.getElementById('optimizationChart').getContext('2d');
+
+        const optimizationChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['原始模型', 'INT4量化', 'bfloat16精度', '注意力切片'],
+                datasets: [
+                    {
+                        label: '显存占用 (GB)',
+                        data: [14, 6, 7, 8],
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    },
+                    {
+                        label: '推理速度 (相对值)',
+                        data: [1, 2.5, 2.2, 3.0],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    },
+                    {
+                        label: '准确率保持 (%)',
+                        data: [100, 95, 98, 97],
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Qwen2-7B模型优化技术效果对比',
+                        font: {
+                            size: 18,
+                            weight: 'bold'
+                        },
+                        padding: 20,
+                        color: '#2c3e50'
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y;
+
+                                if (context.datasetIndex === 0) {
+                                    label += 'GB';
+                                } else if (context.datasetIndex === 1) {
+                                    label += 'x';
+                                } else {
+                                    label += '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '数值',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.module-card, .example-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // 数值动画
+            const animateValue = (element, start, end, duration, suffix = '') => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    let value;
+
+                    if (suffix.includes('→')) {
+                        const [startVal, endVal] = suffix.match(/(\d+)→(\d+)/).slice(1);
+                        const currentVal = Math.floor(progress * (parseInt(endVal) - parseInt(startVal)) + parseInt(startVal));
+                        element.textContent = currentVal + '→' + endVal + 'GB';
+                    } else if (suffix.includes('GB')) {
+                        value = Math.floor(progress * (end - start) + start);
+                        element.textContent = value + suffix;
+                    } else if (suffix.includes('秒')) {
+                        value = (progress * (end - start) + start).toFixed(1);
+                        element.textContent = value + suffix;
+                    } else {
+                        value = Math.floor(progress * (end - start) + start);
+                        element.textContent = value + suffix;
+                    }
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            // 监听性能指标进入视口
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const valueElement = entry.target.querySelector('.metric-value, .comparison-value');
+                        if (valueElement) {
+                            const text = valueElement.textContent;
+
+                            if (text.includes('GB')) {
+                                const match = text.match(/(\d+)→(\d+)GB/);
+                                if (match) {
+                                    animateValue(valueElement, 0, 1, 2000, '14→6GB');
+                                } else {
+                                    const value = parseInt(text);
+                                    animateValue(valueElement, 0, value, 2000, 'GB');
+                                }
+                            } else if (text.includes('秒')) {
+                                const value = parseFloat(text);
+                                animateValue(valueElement, 0, value, 2000, '秒');
+                            } else if (text.includes('倍')) {
+                                valueElement.textContent = '10倍';
+                            } else if (text.includes('%')) {
+                                const match = text.match(/(\d+)%/);
+                                if (match) {
+                                    animateValue(valueElement, 0, parseInt(match[1]), 2000, '%');
+                                }
+                            } else {
+                                valueElement.textContent = text;
+                            }
+                        }
+
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.metric-item, .comparison-item').forEach(item => {
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>

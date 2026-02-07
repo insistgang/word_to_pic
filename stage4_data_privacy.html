@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据隐私安全</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 40px;
+        }
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .privacy-intro {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .intro-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .intro-text {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        .source-ref {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .concept-visual {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .concept-card {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        .concept-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .concept-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .concept-desc {
+            font-size: 16px;
+            color: #7f8c8d;
+            position: relative;
+            z-index: 1;
+        }
+        .security-layers {
+            background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .layers-title {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .layers-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .security-layer {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .security-layer:hover {
+            transform: translateX(10px);
+        }
+        .layer-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .layer-content {
+            flex: 1;
+        }
+        .layer-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .layer-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .encryption-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .demo-box {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+        }
+        .demo-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .demo-content {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .original-data {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .encrypted-data {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .data-masking {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .masking-title {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .masking-example {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .masking-item {
+            text-align: center;
+        }
+        .masking-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .masking-text {
+            font-size: 16px;
+            color: #34495e;
+        }
+        .protection-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        .feature-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .security-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🔒 碳资产保护阶段：数据隐私安全</h1>
+
+        <div class="privacy-intro">
+            <h2 class="intro-title">企业数据共享面临的挑战</h2>
+            <p class="intro-text">
+                根据《环境气候风险数据治理白皮书》(2023)显示，企业因担心商业机密泄露，<br>
+                数据共享意愿较低，严重制约了碳资产交易的透明度和效率
+            </p>
+            <div class="source-ref">数据来源：中国金融学会绿色金融专业委员会</div>
+        </div>
+
+        <div class="concept-visual">
+            <div class="concept-card">
+                <div class="concept-icon">👁️</div>
+                <h3 class="concept-title">传统模式</h3>
+                <p class="concept-desc">数据可见<br>隐私泄露风险高<br>企业顾虑多</p>
+            </div>
+
+            <div class="concept-card">
+                <div class="concept-icon">🛡️</div>
+                <h3 class="concept-title">我们的方案</h3>
+                <p class="concept-desc"><strong>数据可用不可见</strong><br>隐私保护技术<br>企业放心共享</p>
+                <div class="security-badge">安全加密</div>
+            </div>
+        </div>
+
+        <div class="security-layers">
+            <h3 class="layers-title">多层安全防护体系</h3>
+            <div class="layers-stack">
+                <div class="security-layer">
+                    <div class="layer-icon">🔐</div>
+                    <div class="layer-content">
+                        <h4 class="layer-title">端到端加密</h4>
+                        <p class="layer-desc">采用AES-256加密算法，确保数据传输和存储全链路安全</p>
+                    </div>
+                </div>
+
+                <div class="security-layer">
+                    <div class="layer-icon">🎭</div>
+                    <div class="layer-content">
+                        <h4 class="layer-title">数据脱敏处理</h4>
+                        <p class="layer-desc">对敏感商业信息进行脱敏，保护企业核心机密</p>
+                    </div>
+                </div>
+
+                <div class="security-layer">
+                    <div class="layer-icon">🔑</div>
+                    <div class="layer-content">
+                        <h4 class="layer-title">权限控制</h4>
+                        <p class="layer-desc">基于角色的访问控制，确保数据仅对授权方可见</p>
+                    </div>
+                </div>
+
+                <div class="security-layer">
+                    <div class="layer-icon">📝</div>
+                    <div class="layer-content">
+                        <h4 class="layer-title">审计追踪</h4>
+                        <p class="layer-desc">完整的操作日志，所有数据访问可追溯、可审计</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="encryption-demo">
+            <div class="demo-box original-data">
+                <h3 class="demo-title">原始数据（示例）</h3>
+                <div class="demo-content">
+                    {<br>
+                    &nbsp;&nbsp;"企业名称": "绿色能源有限公司",<br>
+                    &nbsp;&nbsp;"碳排放量": "1,250吨",<br>
+                    &nbsp;&nbsp;"联系人": "张经理",<br>
+                    &nbsp;&nbsp;"电话": "138****5678",<br>
+                    &nbsp;&nbsp;"地址": "北京市朝阳区..."<br>
+                    }
+                </div>
+            </div>
+
+            <div class="demo-box encrypted-data">
+                <h3 class="demo-title">脱敏处理后</h3>
+                <div class="demo-content">
+                    {<br>
+                    &nbsp;&nbsp;"企业ID": "EN******001",<br>
+                    &nbsp;&nbsp;"碳排放量": "1,250吨",<br>
+                    &nbsp;&nbsp;"联系人": "***",<br>
+                    &nbsp;&nbsp;"电话": "138****5678",<br>
+                    &nbsp;&nbsp;"地区": "华北地区"<br>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="data-masking">
+            <h3 class="masking-title">脱敏技术应用场景</h3>
+            <div class="masking-example">
+                <div class="masking-item">
+                    <div class="masking-icon">💼</div>
+                    <div class="masking-text">企业基本信息<br>部分脱敏</div>
+                </div>
+                <div class="masking-arrow">→</div>
+                <div class="masking-item">
+                    <div class="masking-icon">📊</div>
+                    <div class="masking-text">碳排放数据<br>完整保留</div>
+                </div>
+                <div class="masking-arrow">→</div>
+                <div class="masking-item">
+                    <div class="masking-icon">🔒</div>
+                    <div class="masking-text">商业机密<br>完全隐藏</div>
+                </div>
+                <div class="masking-arrow">→</div>
+                <div class="masking-item">
+                    <div class="masking-icon">✅</div>
+                    <div class="masking-text">可用于分析<br>不可溯源</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="protection-features">
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h4 class="feature-title">零知识证明</h4>
+                <p class="feature-desc">验证数据真实性<br>不泄露具体内容</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔑</div>
+                <h4 class="feature-title">同态加密</h4>
+                <p class="feature-desc">密文直接计算<br>保护原始数据</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h4 class="feature-title">差分隐私</h4>
+                <p class="feature-desc">添加噪声保护<br>保持统计特征</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

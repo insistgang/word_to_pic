@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碳资产交易模拟系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .market-overview {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .market-stats {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+        }
+        .stats-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats-value {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .stats-label {
+            font-size: 16px;
+            text-align: center;
+            opacity: 0.9;
+        }
+        .chart-container {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            padding: 20px;
+        }
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, #2E8B57, #27ae60);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .bar:hover {
+            opacity: 0.8;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .trading-system {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .system-title {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .blockchain-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .block-node {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .node-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        .node-label {
+            font-size: 12px;
+            text-align: center;
+        }
+        .block-arrow {
+            font-size: 30px;
+            color: #3498db;
+        }
+        .smart-contract {
+            background: #ecf0f1;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .contract-title {
+            font-size: 24px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .code-box {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        .code-comment {
+            color: #95a5a6;
+        }
+        .code-keyword {
+            color: #3498db;
+        }
+        .code-string {
+            color: #2ecc71;
+        }
+        .case-simulation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .case-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .case-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .case-number {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: #3498db;
+        }
+        .case-label {
+            font-size: 14px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        .transaction-flow {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .flow-title {
+            font-size: 22px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flow-step {
+            text-align: center;
+            flex: 1;
+        }
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 24px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .step-arrow {
+            font-size: 24px;
+            color: #e74c3c;
+        }
+        .step-text {
+            font-size: 14px;
+            color: #34495e;
+        }
+        .data-source {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .source-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .source-data {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">💹 碳资产成熟阶段：交易模拟系统</h1>
+
+        <div class="market-overview">
+            <div class="market-stats">
+                <h3 class="stats-title">全国碳市场概览</h3>
+                <div style="display: flex; justify-content: space-around;">
+                    <div>
+                        <div class="stats-value">6.3亿</div>
+                        <div class="stats-label">累计成交量（吨）</div>
+                    </div>
+                    <div>
+                        <div class="stats-value">430.33亿</div>
+                        <div class="stats-label">累计成交额（元）</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <small>数据来源：生态环境部（截至2024年底）</small>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 style="text-align: center; color: #2c3e50; margin-bottom: 10px;">年度交易量增长趋势</h3>
+                <div class="bar-chart">
+                    <div class="bar" style="height: 40%;">
+                        <span class="bar-value">0.5亿</span>
+                        <span class="bar-label">2021</span>
+                    </div>
+                    <div class="bar" style="height: 60%;">
+                        <span class="bar-value">1.2亿</span>
+                        <span class="bar-label">2022</span>
+                    </div>
+                    <div class="bar" style="height: 80%;">
+                        <span class="bar-value">2.8亿</span>
+                        <span class="bar-label">2023</span>
+                    </div>
+                    <div class="bar" style="height: 100%;">
+                        <span class="bar-value">6.3亿</span>
+                        <span class="bar-label">2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="trading-system">
+            <h3 class="system-title">区块链交易流程</h3>
+            <div class="blockchain-flow">
+                <div class="block-node">
+                    <div class="node-icon">📝</div>
+                    <div class="node-label">交易创建</div>
+                </div>
+                <div class="block-arrow">→</div>
+                <div class="block-node">
+                    <div class="node-icon">🔍</div>
+                    <div class="node-label">身份验证</div>
+                </div>
+                <div class="block-arrow">→</div>
+                <div class="block-node">
+                    <div class="node-icon">⚡</div>
+                    <div class="node-label">智能合约</div>
+                </div>
+                <div class="block-arrow">→</div>
+                <div class="block-node">
+                    <div class="node-icon">🔗</div>
+                    <div class="node-label">区块链记账</div>
+                </div>
+                <div class="block-arrow">→</div>
+                <div class="block-node">
+                    <div class="node-icon">✅</div>
+                    <div class="node-label">交易完成</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="smart-contract">
+            <h3 class="contract-title">智能合约执行机制</h3>
+            <div class="code-box">
+                <span class="code-comment">// 智能合约伪代码示例</span><br>
+                <span class="code-keyword">contract</span> CarbonTrading {<br>
+                &nbsp;&nbsp;<span class="code-keyword">function</span> executeTrade(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;address buyer,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;address seller,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;uint256 amount<br>
+                &nbsp;&nbsp;) <span class="code-keyword">public</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 验证买家信用额度</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">require</span>(checkCredit(buyer) >= amount);<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 自动执行转账</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;transferToken(buyer, seller, amount);<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 记录交易到区块链</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;recordTransaction(buyer, seller, amount);<br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+        </div>
+
+        <div class="case-simulation">
+            <div class="case-card">
+                <h3 class="case-title">模拟交易案例</h3>
+                <div class="case-number">187</div>
+                <div class="case-label">碳资产交易案例总数</div>
+            </div>
+            <div class="case-card">
+                <h3 class="case-title">区块链记录</h3>
+                <div class="case-number">1,247</div>
+                <div class="case-label">交易记录笔数</div>
+            </div>
+        </div>
+
+        <div class="transaction-flow">
+            <h3 class="flow-title">小额碳资产打包交易流程</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="step-icon">📦</div>
+                    <div class="step-text">资产收集</div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-icon">📊</div>
+                    <div class="step-text">标准化打包</div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-icon">💰</div>
+                    <div class="step-text">定价评估</div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-icon">🤝</div>
+                    <div class="step-text">市场交易</div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="flow-step">
+                    <div class="step-icon">📈</div>
+                    <div class="step-text">收益分配</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-source">
+            <h3 class="source-title">系统数据存储格式</h3>
+            <div class="source-data">采用JSON数据格式存储，支持智能合约自动执行</div>
+        </div>
+    </div>
+</body>
+</html>

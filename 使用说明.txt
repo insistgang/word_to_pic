@@ -1,0 +1,52 @@
+碳资产管理系统 - HTML配图使用说明
+==================================
+
+📁 文件列表：
+1. stage1_data_collection.html - 智能数据采集模块配图
+2. stage2_esg_evaluation.html - ESG评价模块配图
+3. stage3_carbon_trading.html - 碳资产交易模拟系统配图
+4. stage4_data_privacy.html - 数据隐私安全配图
+
+📏 图片规格：
+- 尺寸：1200px × 800px
+- 格式：HTML网页格式
+- 兼容性：支持现代浏览器，可嵌入Word文档
+
+🔧 Word嵌入方法：
+
+方法一：直接嵌入HTML（推荐）
+1. 打开Word文档
+2. 点击"插入" → "对象" → "文件中的文本"
+3. 选择HTML文件
+4. HTML内容会直接显示在文档中
+
+方法二：截图插入
+1. 在浏览器中打开HTML文件
+2. 调整浏览器窗口到合适大小（建议1920x1080分辨率）
+3. 使用截图工具（如Snipaste）截取图片
+4. 在Word中"插入" → "图片" → 选择截图文件
+
+方法三：打印为PDF
+1. 浏览器打开HTML文件
+2. Ctrl+P 或 Command+P 打印
+3. 选择"另存为PDF"
+4. 将PDF插入Word文档
+
+⚠️ 注意事项：
+1. HTML文件中的字体使用了"Microsoft YaHei"，确保系统已安装该字体
+2. 建议使用Chrome、Edge或Firefox等现代浏览器打开
+3. 如需修改文字内容，可直接编辑HTML文件
+4. 颜色和样式可在HTML的<style>标签中调整
+
+🎨 自定义修改：
+- 修改标题：搜索 <h1 class="title"> 标签
+- 修改颜色：调整background和color属性
+- 修改尺寸：修改.container的width属性
+- 添加Logo：在合适位置添加<img>标签
+
+📞 如有问题，请检查：
+1. 浏览器是否支持CSS3特性
+2. 网络连接是否正常（部分需要加载字体）
+3. 是否有JavaScript错误（本配图无JS，更稳定）
+
+祝您使用愉快！🎉

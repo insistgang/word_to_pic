@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLM vs Geometric Safeguard Logic Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+        .panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid;
+        }
+        .vlm-panel {
+            border-color: #e74c3c;
+        }
+        .solution-panel {
+            border-color: #27ae60;
+        }
+        .panel-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .vlm-title {
+            color: #e74c3c;
+        }
+        .solution-title {
+            color: #27ae60;
+        }
+        .diagram {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            min-height: 400px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* VLM Diagram Elements */
+        .component {
+            width: 100px;
+            height: 60px;
+            background: #34495e;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: absolute;
+        }
+        .vlm-comp1 { top: 50px; left: 50px; }
+        .vlm-comp2 { top: 50px; right: 50px; }
+        .vlm-comp3 { bottom: 50px; left: 50px; }
+        .vlm-comp4 { bottom: 50px; right: 50px; }
+
+        /* VLM Connections */
+        .connection {
+            position: absolute;
+            background: #95a5a6;
+        }
+        .vlm-conn1 {
+            width: 3px;
+            height: 100px;
+            top: 110px;
+            left: 98px;
+        }
+        .vlm-conn2 {
+            width: 3px;
+            height: 100px;
+            bottom: 110px;
+            right: 98px;
+        }
+
+        /* VLM Errors */
+        .error-connection {
+            position: absolute;
+            border: 3px dashed #e74c3c;
+            background: transparent;
+        }
+        .error-conn1 {
+            width: 300px;
+            height: 3px;
+            top: 80px;
+            left: 150px;
+            transform: rotate(-15deg);
+        }
+        .error-conn2 {
+            width: 300px;
+            height: 3px;
+            bottom: 80px;
+            right: 150px;
+            transform: rotate(15deg);
+        }
+
+        /* Missed Connection */
+        .missed-connection {
+            position: absolute;
+            width: 200px;
+            height: 3px;
+            background: #e74c3c;
+            opacity: 0.5;
+            left: 100px;
+            bottom: 150px;
+            transform: rotate(-30deg);
+        }
+
+        /* Solution Elements */
+        .yolo-box {
+            position: absolute;
+            border: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 5px;
+        }
+        .sol-box1 { top: 45px; left: 45px; width: 110px; height: 70px; }
+        .sol-box2 { top: 45px; right: 45px; width: 110px; height: 70px; }
+        .sol-box3 { bottom: 45px; left: 45px; width: 110px; height: 70px; }
+        .sol-box4 { bottom: 45px; right: 45px; width: 110px; height: 70px; }
+
+        /* Solution Connections */
+        .sol-connection {
+            position: absolute;
+            background: #27ae60;
+            box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
+        }
+        .sol-conn1 {
+            width: 4px;
+            height: 100px;
+            top: 115px;
+            left: 98px;
+        }
+        .sol-conn2 {
+            width: 4px;
+            height: 100px;
+            bottom: 115px;
+            right: 98px;
+        }
+        .sol-conn3 {
+            width: 300px;
+            height: 4px;
+            top: 198px;
+            left: 155px;
+        }
+
+        /* Labels */
+        .label {
+            position: absolute;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .hallucination-label {
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            top: 150px;
+            left: 280px;
+        }
+        .missed-label {
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            bottom: 100px;
+            left: 120px;
+        }
+        .coord-label {
+            color: #3498db;
+            border: 2px solid #3498db;
+            top: 20px;
+            left: 80px;
+            font-size: 12px;
+        }
+        .pixel-label {
+            color: #27ae60;
+            border: 2px solid #27ae60;
+            top: 180px;
+            right: 100px;
+        }
+
+        /* Legend */
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #34495e;
+        }
+        .legend-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .legend-items {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .legend-line {
+            width: 40px;
+            height: 3px;
+        }
+        .solid-black { background: #34495e; }
+        .dashed-red { border-top: 3px dashed #e74c3c; background: transparent; }
+        .solid-blue { border: 3px solid #3498db; background: rgba(52, 152, 219, 0.1); }
+        .solid-green { background: #27ae60; box-shadow: 0 0 5px rgba(39, 174, 96, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">VLM vs Geometric Safeguard 逻辑关系对比</h1>
+
+        <div class="comparison">
+            <!-- Left Panel: VLM Limitations -->
+            <div class="panel vlm-panel">
+                <h2 class="panel-title vlm-title">The Challenge: VLM 局限性</h2>
+                <div class="diagram">
+                    <!-- Components -->
+                    <div class="component vlm-comp1">组件 A</div>
+                    <div class="component vlm-comp2">组件 B</div>
+                    <div class="component vlm-comp3">组件 C</div>
+                    <div class="component vlm-comp4">组件 D</div>
+
+                    <!-- Real Connections -->
+                    <div class="connection vlm-conn1"></div>
+                    <div class="connection vlm-conn2"></div>
+
+                    <!-- VLM Errors -->
+                    <div class="error-connection error-conn1"></div>
+                    <div class="error-connection error-conn2"></div>
+                    <div class="missed-connection"></div>
+
+                    <!-- Labels -->
+                    <div class="label hallucination-label">幻觉 (Hallucination)</div>
+                    <div class="label missed-label">漏检 (Missed)</div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Geometric Safeguard Solution -->
+            <div class="panel solution-panel">
+                <h2 class="panel-title solution-title">Our Solution: 几何兜底机制</h2>
+                <div class="diagram">
+                    <!-- Components -->
+                    <div class="component vlm-comp1">组件 A</div>
+                    <div class="component vlm-comp2">组件 B</div>
+                    <div class="component vlm-comp3">组件 C</div>
+                    <div class="component vlm-comp4">组件 D</div>
+
+                    <!-- YOLO Bounding Boxes -->
+                    <div class="yolo-box sol-box1"></div>
+                    <div class="yolo-box sol-box2"></div>
+                    <div class="yolo-box sol-box3"></div>
+                    <div class="yolo-box sol-box4"></div>
+
+                    <!-- Solution Connections -->
+                    <div class="sol-connection sol-conn1"></div>
+                    <div class="sol-connection sol-conn2"></div>
+                    <div class="sol-connection sol-conn3"></div>
+
+                    <!-- Labels -->
+                    <div class="label coord-label">坐标锚定 (YOLO)</div>
+                    <div class="label pixel-label">像素追踪</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-title">图例说明</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-line solid-black"></div>
+                    <span>真实连接</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line dashed-red"></div>
+                    <span>VLM幻觉连接</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line solid-blue"></div>
+                    <span>YOLO坐标框</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line solid-green"></div>
+                    <span>像素追踪路径</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

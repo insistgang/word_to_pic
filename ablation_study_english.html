@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ablation Study Comparison Analysis</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #ffffff;
+            color: #2c3e50;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .main-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* Method Cards */
+        .method-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid transparent;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        /* YOLO Method - Red Theme */
+        .method-card:nth-child(1) {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            border-color: #ff6b6b;
+        }
+
+        /* VLM Method - Blue Theme */
+        .method-card:nth-child(2) {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f7ff 100%);
+            border-color: #4fc3f7;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Best Method Special Style */
+        .method-card.best {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .method-card.best::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        /* Method Header */
+        .method-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .method-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .method-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-fail {
+            background: #fee;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .badge-best {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            color: #667eea;
+            border: 2px solid #667eea;
+            font-weight: 700;
+        }
+
+        /* Metrics Bar Chart */
+        .metrics-chart {
+            margin-bottom: 30px;
+        }
+
+        .metric-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .metric-label {
+            width: 120px;
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .metric-bar-container {
+            flex: 1;
+            height: 35px;
+            background: #f1f3f5;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .metric-bar {
+            height: 100%;
+            border-radius: 18px;
+            position: relative;
+            transition: width 0.8s ease-out;
+        }
+
+        .metric-value {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Method Colors */
+        .yolo-bar {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        }
+
+        .vlm-bar {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .ours-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Overall Score Display */
+        .score-display {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* YOLO Method Score Display */
+        .method-card:nth-child(1) .score-display {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        /* VLM Method Score Display */
+        .method-card:nth-child(2) .score-display {
+            background: rgba(79, 195, 247, 0.1);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .yolo-score { color: #ff6b6b; }
+        .vlm-score { color: #4fc3f7; }
+        .ours-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Evaluation */
+        .evaluation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* YOLO Method Evaluation */
+        .method-card:nth-child(1) .evaluation {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        /* VLM Method Evaluation */
+        .method-card:nth-child(2) .evaluation {
+            border-left-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.05);
+        }
+
+        .eval-icon {
+            font-size: 20px;
+        }
+
+        .eval-text {
+            font-size: 14px;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            margin-top: 60px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid #e9ecef;
+        }
+
+        .summary-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .insight-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .insight-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        .insight-card:nth-child(1) .insight-icon {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        }
+
+        .insight-card:nth-child(2) .insight-icon {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .insight-card:nth-child(3) .insight-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .insight-content h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .insight-content p {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 32px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Ours Method - No Animation */
+        .method-card.best {
+            animation: none !important;
+        }
+
+        .method-card.best .metric-bar {
+            width: 95% !important;
+            transition: none !important;
+        }
+
+        .method-card.best .metric-bar:nth-child(2) {
+            width: 66% !important;
+        }
+
+        .method-card.best .metric-bar:nth-child(3) {
+            width: 84.89% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">Ablation Study Comparison</h1>
+            <p class="subtitle">Performance Analysis of Different Approaches</p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- YOLO Only Method -->
+            <div class="method-card">
+                <div class="method-header">
+                    <h2 class="method-name">YOLO Only</h2>
+                    <div class="method-badge badge-fail">
+                        <span>❌</span>
+                        <span>Failed</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">Localization</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 95%;">
+                                <span class="metric-value">95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Reasoning</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 0%;">
+                                <span class="metric-value">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Overall</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar yolo-bar" style="width: 30%;">
+                                <span class="metric-value">30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">Overall Score</div>
+                    <div class="score-value yolo-score">30%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">💭</span>
+                    <span class="eval-text">Cannot understand circuit logic, only performs object detection</span>
+                </div>
+            </div>
+
+            <!-- VLM Only Method -->
+            <div class="method-card">
+                <div class="method-header">
+                    <h2 class="method-name">VLM Only</h2>
+                    <div class="method-badge badge-fail">
+                        <span>❌</span>
+                        <span>Failed</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">Localization</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 65%;">
+                                <span class="metric-value">65%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Reasoning</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 75%;">
+                                <span class="metric-value">75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Overall</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar vlm-bar" style="width: 55%;">
+                                <span class="metric-value">55%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">Overall Score</div>
+                    <div class="score-value vlm-score">55%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">🎯</span>
+                    <span class="eval-text">Coordinate localization is inaccurate despite logical understanding</span>
+                </div>
+            </div>
+
+            <!-- Fusion Method - No Animation -->
+            <div class="method-card best">
+                <div class="method-header">
+                    <h2 class="method-name">Ours (Fusion)</h2>
+                    <div class="method-badge badge-best">
+                        <span>✨</span>
+                        <span>Best</span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart">
+                    <div class="metric-row">
+                        <div class="metric-label">Localization</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Reasoning</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">66%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-label">Overall</div>
+                        <div class="metric-bar-container">
+                            <div class="metric-bar ours-bar">
+                                <span class="metric-value">84.89%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-label">Overall Score</div>
+                    <div class="score-value ours-score">84.89%</div>
+                </div>
+
+                <div class="evaluation">
+                    <span class="eval-icon">🏆</span>
+                    <span class="eval-text">Perfectly combines YOLO's localization with VLM's reasoning for optimal performance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h3 class="summary-title">Key Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-icon">📊</div>
+                    <div class="insight-content">
+                        <h4>Localization Advantage</h4>
+                        <p>Fusion method fully inherits YOLO's high-precision localization (95%), ensuring accurate component detection</p>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-icon">🧠</div>
+                    <div class="insight-content">
+                        <h4>Reasoning Enhancement</h4>
+                        <p>VLM integration provides 66% reasoning capability, far surpassing YOLO-only approach at 0%</p>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-icon">⚡</div>
+                    <div class="insight-content">
+                        <h4>Optimal Performance</h4>
+                        <p>84.89% overall score demonstrates fusion strategy effectiveness, significantly outperforming single approaches</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

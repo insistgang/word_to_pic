@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络安全威胁智能分析系统 - 作品概述</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .hero-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .system-title {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+        .system-subtitle {
+            font-size: 1.3em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .challenges-section {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        .challenges-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .challenges-icon {
+            font-size: 1.2em;
+            margin-right: 15px;
+        }
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .challenge-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .challenge-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .challenge-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .challenge-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .solution-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+        .solution-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .tech-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid;
+            transition: transform 0.3s ease;
+        }
+        .tech-item:hover {
+            transform: translateX(10px);
+        }
+        .tech-item:nth-child(1) { border-left-color: #3498db; }
+        .tech-item:nth-child(2) { border-left-color: #e74c3c; }
+        .tech-item:nth-child(3) { border-left-color: #2ecc71; }
+        .tech-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .tech-desc {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        .architecture-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .workflow-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .workflow-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .step-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .step-desc {
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        .applications-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+        .applications-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .industry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .industry-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .industry-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        .industry-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .industry-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .industry-desc {
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        .industry-scenario {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .value-proposition {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease-out 1.4s both;
+        }
+        .value-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .value-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .value-metric {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .value-metric:hover {
+            transform: scale(1.05);
+        }
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            font-size: 1.1em;
+            animation: fadeInUp 1s ease-out 1.6s both;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="system-title">网络安全威胁智能分析系统</h1>
+                <p class="system-subtitle">
+                    基于多智能体协同架构与大模型推理的下一代网络安全威胁分析解决方案<br>
+                    融合多智能体协同、Qwen2-7B大语言模型、RAG威胁情报增强技术
+                </p>
+            </div>
+        </div>
+
+        <!-- Current Challenges -->
+        <div class="challenges-section">
+            <div class="challenges-title">
+                <span class="challenges-icon">⚠️</span>
+                当前网络安全面临的挑战
+            </div>
+            <div class="challenges-grid">
+                <div class="challenge-item">
+                    <div class="challenge-title">
+                        <span class="challenge-icon">🎯</span>
+                        威胁复杂化
+                    </div>
+                    <div>APT攻击、零日漏洞利用等高级威胁频发，传统检测手段难以应对</div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-title">
+                        <span class="challenge-icon">🤖</span>
+                        攻击智能化
+                    </div>
+                    <div>AI驱动的自动化攻击工具普及，攻击手段更加隐蔽和精准</div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-title">
+                        <span class="challenge-icon">🔄</span>
+                        威胁多样化
+                    </div>
+                    <div>攻击载体、攻击路径、攻击目标呈现多元化特征</div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-title">
+                        <span class="challenge-icon">⏱️</span>
+                        响应滞后
+                    </div>
+                    <div>传统系统检测延迟高，难以满足实时防护需求</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solution Architecture -->
+        <div class="solution-section">
+            <div class="solution-title">🚀 创新技术架构</div>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <div class="tech-name">多智能体协同架构</div>
+                    <div class="tech-desc">
+                        专业化分工的智能体网络，实现威胁精准分发与协同分析，提升处理效率和准确性
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-name">Qwen2-7B大语言模型</div>
+                    <div class="tech-desc">
+                        基于先进的大模型推理能力，实现深层次语义理解和智能威胁识别
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-name">RAG威胁情报增强</div>
+                    <div class="tech-desc">
+                        实时检索和关联威胁情报，增强分析的准确性和上下文理解能力
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture Diagram -->
+        <div class="architecture-section">
+            <div class="solution-title">📊 系统架构全景</div>
+            <div class="chart-container">
+                <canvas id="architectureChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Workflow Process -->
+        <div class="workflow-section">
+            <div class="solution-title">🔄 全流程分析体系</div>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">数据接入</div>
+                    <div class="step-desc">
+                        多源数据采集与预处理<br>
+                        日志、流量、告警统一接入
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">智能分析</div>
+                    <div class="step-desc">
+                        多智能体协同分析<br>
+                        大模型推理与RAG增强
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">结果输出</div>
+                    <div class="step-desc">
+                        可视化展示与API服务<br>
+                        威胁情报与分析报告
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Scenarios -->
+        <div class="applications-section">
+            <div class="applications-title">🏢 关键行业应用场景</div>
+            <div class="industry-grid">
+                <div class="industry-card">
+                    <div class="industry-icon">🏦</div>
+                    <div class="industry-name">金融行业</div>
+                    <div class="industry-desc">
+                        实时监测交易系统安全，防范金融数据泄露和欺诈攻击
+                    </div>
+                    <div class="industry-scenario">
+                        <strong>典型场景：</strong>SQL注入攻击检测、交易异常行为分析
+                    </div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-icon">⚡</div>
+                    <div class="industry-name">能源行业</div>
+                    <div class="industry-desc">
+                        保障工控系统安全，识别针对关键基础设施的网络攻击
+                    </div>
+                    <div class="industry-scenario">
+                        <strong>典型场景：</strong>工控系统异常连接检测、SCADA系统防护
+                    </div>
+                </div>
+                <div class="industry-card">
+                    <div class="industry-icon">🏛️</div>
+                    <div class="industry-name">政府部门</div>
+                    <div class="industry-desc">
+                        保护政务数据和敏感信息，防范APT攻击和数据泄露
+                    </div>
+                    <div class="industry-scenario">
+                        <strong>典型场景：</strong>政务系统安全监测、敏感数据保护
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Value Proposition -->
+        <div class="value-proposition">
+            <div class="value-title">💎 核心价值主张</div>
+            <div class="value-metrics">
+                <div class="value-metric">
+                    <div class="metric-value">95.62%</div>
+                    <div class="metric-label">威胁识别准确率</div>
+                </div>
+                <div class="value-metric">
+                    <div class="metric-value">67ms</div>
+                    <div class="metric-label">平均响应时间</div>
+                </div>
+                <div class="value-metric">
+                    <div class="metric-value">1200</div>
+                    <div class="metric-label">告警/秒处理能力</div>
+                </div>
+                <div class="value-metric">
+                    <div class="metric-value">89%</div>
+                    <div class="metric-label">新攻击识别率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>🛡️ 为关键信息基础设施安全防护提供技术支撑</div>
+            <div style="margin-top: 10px; opacity: 0.8;">新一代网络安全威胁智能分析解决方案</div>
+        </div>
+    </div>
+
+    <script>
+        // 系统架构图
+        const ctx = document.getElementById('architectureChart').getContext('2d');
+
+        // 创建架构流程图
+        const architectureChart = new Chart(ctx, {
+            type: 'bubble',
+            data: {
+                datasets: [
+                    // 数据层
+                    {
+                        label: '数据接入层',
+                        data: [
+                            {x: 2, y: 8, r: 25, label: '日志数据'},
+                            {x: 4, y: 8, r: 25, label: '流量数据'},
+                            {x: 6, y: 8, r: 25, label: '告警数据'},
+                            {x: 8, y: 8, r: 25, label: '情报数据'}
+                        ],
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2
+                    },
+                    // 路由层
+                    {
+                        label: '路由智能体',
+                        data: [
+                            {x: 5, y: 6, r: 30, label: '路由分发'}
+                        ],
+                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 3
+                    },
+                    // 专家智能体层
+                    {
+                        label: '专家智能体',
+                        data: [
+                            {x: 2, y: 4, r: 25, label: 'Web攻击专家'},
+                            {x: 4, y: 4, r: 25, label: '漏洞专家'},
+                            {x: 6, y: 4, r: 25, label: '恶意代码专家'},
+                            {x: 8, y: 4, r: 25, label: '异常连接专家'}
+                        ],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2
+                    },
+                    // 核心技术层
+                    {
+                        label: '核心技术',
+                        data: [
+                            {x: 3, y: 2, r: 28, label: 'Qwen2-7B大模型'},
+                            {x: 7, y: 2, r: 28, label: 'RAG情报增强'}
+                        ],
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 3
+                    },
+                    // 输出层
+                    {
+                        label: '输出层',
+                        data: [
+                            {x: 2, y: 0.5, r: 20, label: '可视化界面'},
+                            {x: 5, y: 0.5, r: 20, label: 'API服务'},
+                            {x: 8, y: 0.5, r: 20, label: '分析报告'}
+                        ],
+                        backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                        borderColor: 'rgba(241, 196, 15, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 20
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const point = context.raw;
+                                return context.dataset.label + ': ' + point.label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false,
+                        min: 0,
+                        max: 10
+                    },
+                    y: {
+                        display: false,
+                        min: -1,
+                        max: 10
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 添加连接线的自定义插件
+        const connectionLines = {
+            id: 'connectionLines',
+            beforeDatasetsDraw(chart, args, options) {
+                const {ctx, chartArea: {top, bottom, left, right}, scales: {x, y}} = chart;
+
+                ctx.save();
+                ctx.strokeStyle = 'rgba(149, 165, 166, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+
+                // 绘制连接线
+                const connections = [
+                    // 数据层到路由层
+                    {from: {x: 2, y: 8}, to: {x: 5, y: 6}},
+                    {from: {x: 4, y: 8}, to: {x: 5, y: 6}},
+                    {from: {x: 6, y: 8}, to: {x: 5, y: 6}},
+                    {from: {x: 8, y: 8}, to: {x: 5, y: 6}},
+
+                    // 路由层到专家层
+                    {from: {x: 5, y: 6}, to: {x: 2, y: 4}},
+                    {from: {x: 5, y: 6}, to: {x: 4, y: 4}},
+                    {from: {x: 5, y: 6}, to: {x: 6, y: 4}},
+                    {from: {x: 5, y: 6}, to: {x: 8, y: 4}},
+
+                    // 专家层到核心技术层
+                    {from: {x: 2, y: 4}, to: {x: 3, y: 2}},
+                    {from: {x: 4, y: 4}, to: {x: 3, y: 2}},
+                    {from: {x: 6, y: 4}, to: {x: 7, y: 2}},
+                    {from: {x: 8, y: 4}, to: {x: 7, y: 2}},
+
+                    // 核心技术层到输出层
+                    {from: {x: 3, y: 2}, to: {x: 2, y: 0.5}},
+                    {from: {x: 3, y: 2}, to: {x: 5, y: 0.5}},
+                    {from: {x: 7, y: 2}, to: {x: 5, y: 0.5}},
+                    {from: {x: 7, y: 2}, to: {x: 8, y: 0.5}}
+                ];
+
+                connections.forEach(conn => {
+                    const fromX = x.getPixelForValue(conn.from.x);
+                    const fromY = y.getPixelForValue(conn.from.y);
+                    const toX = x.getPixelForValue(conn.to.x);
+                    const toY = y.getPixelForValue(conn.to.y);
+
+                    ctx.beginPath();
+                    ctx.moveTo(fromX, fromY);
+                    ctx.lineTo(toX, toY);
+                    ctx.stroke();
+                });
+
+                ctx.restore();
+            }
+        };
+
+        // 注册插件
+        Chart.register(connectionLines);
+
+        // 页面加载完成后的动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为数值添加动画计数效果
+            const animateValue = (element, start, end, duration) => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+
+                    if (element.textContent.includes('%')) {
+                        element.textContent = value + '%';
+                    } else if (element.textContent.includes('ms')) {
+                        element.textContent = value + 'ms';
+                    } else {
+                        element.textContent = value;
+                    }
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            // 观察器，当元素进入视口时触发动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const metricValue = entry.target.querySelector('.metric-value');
+                        if (metricValue) {
+                            const text = metricValue.textContent;
+                            let endValue = parseFloat(text);
+
+                            if (text.includes('%')) {
+                                animateValue(metricValue, 0, endValue, 2000);
+                            } else if (text.includes('ms')) {
+                                animateValue(metricValue, 0, endValue, 1500);
+                            } else {
+                                animateValue(metricValue, 0, endValue, 2000);
+                            }
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            // 观察所有价值指标元素
+            document.querySelectorAll('.value-metric').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

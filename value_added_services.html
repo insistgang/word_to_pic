@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台增值服务模块</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            padding: 50px;
+            position: relative;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .main-title {
+            font-size: 40px;
+            color: #2E8B57;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            font-size: 20px;
+            color: #7f8c8d;
+        }
+
+        .services-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .service-header {
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* 三种不同的渐变色 */
+        .policy-service .service-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .judicial-service .service-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .finance-service .service-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .service-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            flex-shrink: 0;
+        }
+
+        .service-title-area {
+            flex: 1;
+        }
+
+        .service-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .service-desc {
+            font-size: 16px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .service-content {
+            padding: 30px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .features-area {
+            flex: 1;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: #ecf0f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 20px;
+        }
+
+        .policy-service .feature-icon {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .judicial-service .feature-icon {
+            background: rgba(240, 147, 251, 0.1);
+            color: #f093fb;
+        }
+
+        .finance-service .feature-icon {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .feature-detail {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .metrics-area {
+            width: 350px;
+            flex-shrink: 0;
+        }
+
+        .metrics-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metrics-title {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metric-item {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .metric-value {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .policy-service .metric-value {
+            color: #667eea;
+        }
+
+        .judicial-service .metric-value {
+            color: #f093fb;
+        }
+
+        .finance-service .metric-value {
+            color: #4facfe;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            animation: progressAnimation 2s ease-out;
+        }
+
+        @keyframes progressAnimation {
+            from { width: 0; }
+        }
+
+        .bottom-summary {
+            margin-top: 50px;
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .summary-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .summary-desc {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-left: 15px;
+        }
+
+        /* 连接线装饰 */
+        .connector {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-section">
+            <h1 class="main-title">🚀 平台增值服务模块</h1>
+            <p class="subtitle">将政策优势转化为市场价值</p>
+        </div>
+
+        <div class="services-container">
+            <!-- 政策适配咨询服务 -->
+            <div class="service-card policy-service">
+                <div class="service-header">
+                    <div class="service-icon">📋</div>
+                    <div class="service-title-area">
+                        <h2 class="service-title">
+                            政策适配咨询服务
+                            <span class="badge">效率提升70%</span>
+                        </h2>
+                        <p class="service-desc">
+                            提供绿色金融政策解读，辅导企业完善项目申报材料，提高融资成功率
+                        </p>
+                    </div>
+                </div>
+                <div class="service-content">
+                    <div class="features-area">
+                        <div class="feature-item">
+                            <div class="feature-icon">📖</div>
+                            <div class="feature-text">
+                                <div class="feature-title">政策解读</div>
+                                <div class="feature-detail">深度解析碳金融相关政策要求</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📝</div>
+                            <div class="feature-text">
+                                <div class="feature-title">材料辅导</div>
+                                <div class="feature-detail">专业团队协助完善项目申报材料</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💡</div>
+                            <div class="feature-text">
+                                <div class="feature-title">融资对接</div>
+                                <div class="feature-detail">精准匹配金融机构，提高成功率</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-area">
+                        <div class="metrics-card">
+                            <div class="metrics-title">服务效率</div>
+                            <div class="metric-item">
+                                <div class="metric-value">15分钟</div>
+                                <div class="metric-label">单笔交易处理时长</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">70%</div>
+                                <div class="metric-label">较传统模式效率提升</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 70%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 司法生态赔偿对接服务 -->
+            <div class="service-card judicial-service">
+                <div class="service-header">
+                    <div class="service-icon">⚖️</div>
+                    <div class="service-title-area">
+                        <h2 class="service-title">司法生态赔偿对接服务</h2>
+                        <p class="service-desc">
+                            与最高人民法院"生态环境损害赔偿系统"对接，认购碳汇抵消环境责任
+                        </p>
+                    </div>
+                </div>
+                <div class="service-content">
+                    <div class="features-area">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔗</div>
+                            <div class="feature-text">
+                                <div class="feature-title">系统对接</div>
+                                <div class="feature-detail">直连最高人民法院生态环境损害赔偿系统</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌳</div>
+                            <div class="feature-text">
+                                <div class="feature-title">碳汇认购</div>
+                                <div class="feature-detail">企业通过平台认购碳汇抵消环境责任</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📈</div>
+                            <div class="feature-text">
+                                <div class="feature-title">场景拓展</div>
+                                <div class="feature-detail">为碳资产提供新的应用场景，拓展市场空间</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-area">
+                        <div class="metrics-card">
+                            <div class="metrics-title">碳汇消纳新渠道</div>
+                            <div class="metric-item">
+                                <div class="metric-value">司法+生态</div>
+                                <div class="metric-label">创新对接模式</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">责任转化</div>
+                                <div class="metric-label">环境责任→碳资产价值</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 绿色金融配套服务 -->
+            <div class="service-card finance-service">
+                <div class="service-header">
+                    <div class="service-icon">💰</div>
+                    <div class="service-title-area">
+                        <h2 class="service-title">绿色金融配套服务</h2>
+                        <p class="service-desc">
+                            协助企业获取政策性资金支持，联合银行共建"碳汇贷"产品
+                        </p>
+                    </div>
+                </div>
+                <div class="service-content">
+                    <div class="features-area">
+                        <div class="feature-item">
+                            <div class="feature-icon">🏦</div>
+                            <div class="feature-text">
+                                <div class="feature-title">碳汇贷产品</div>
+                                <div class="feature-detail">与银行联合共建，专属融资产品</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⭐</div>
+                            <div class="feature-text">
+                                <div class="feature-title">ESG评级服务</div>
+                                <div class="feature-detail">为ESG评级良好企业提供融资对接</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-text">
+                                <div class="feature-title">风险缓释</div>
+                                <div class="feature-detail">绿色信贷承销、环保部门决策支持</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-area">
+                        <div class="metrics-card">
+                            <div class="metrics-title">县域减排支持</div>
+                            <div class="metric-item">
+                                <div class="metric-value">数据分析</div>
+                                <div class="metric-label">提供县域减排分析报告</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">政策支撑</div>
+                                <div class="metric-label">支撑环保部门政策决策</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-summary">
+            <h3 class="summary-title">2025年第四季度跨场景交易成果</h3>
+            <div class="summary-value">12亿元+</div>
+            <p class="summary-desc">累计促成跨场景交易额突破12亿元，政策优势成功转化为市场价值</p>
+        </div>
+    </div>
+</body>
+</html>

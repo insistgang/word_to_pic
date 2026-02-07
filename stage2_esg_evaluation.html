@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG评价模块</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 40px;
+        }
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .esg-container {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .esg-radar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .radar-chart {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            background: conic-gradient(
+                from 0deg,
+                rgba(46, 139, 87, 0.3) 0deg 144deg,
+                rgba(52, 152, 219, 0.3) 144deg 252deg,
+                rgba(241, 196, 15, 0.3) 252deg 360deg
+            );
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .radar-center {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .radar-percentage {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .esg-dimensions {
+            flex: 1;
+        }
+        .dimension-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .dimension-card:hover {
+            transform: translateY(-5px);
+        }
+        .dimension-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .dimension-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        .environment {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .social {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        .governance {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+        }
+        .dimension-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .dimension-weight {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .dimension-features {
+            list-style: none;
+        }
+        .dimension-features li {
+            padding: 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .tech-architecture {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .arch-title {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .arch-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .arch-layer {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+        }
+        .arch-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .arch-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .arch-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+        .arch-tech {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        .rural-indicators {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .indicators-title {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .indicator-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .indicator-item:hover {
+            transform: translateY(-3px);
+        }
+        .indicator-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .indicator-text {
+            font-size: 14px;
+            color: #34495e;
+        }
+        .data-source {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .data-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌿 碳资产成长阶段：ESG评价模块</h1>
+
+        <div class="esg-container">
+            <div class="esg-radar">
+                <h3 style="margin-bottom: 20px; color: #2c3e50;">ESG评价体系</h3>
+                <div class="radar-chart">
+                    <div class="radar-center">
+                        <div class="radar-percentage">ESG</div>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 18px; color: #27ae60;">环境 40%</span> |
+                    <span style="font-size: 18px; color: #3498db;">社会 30%</span> |
+                    <span style="font-size: 18px; color: #f39c12;">治理 30%</span>
+                </div>
+            </div>
+
+            <div class="esg-dimensions">
+                <div class="dimension-card">
+                    <div class="dimension-header">
+                        <div class="dimension-icon environment">🌍</div>
+                        <div>
+                            <div class="dimension-title" style="color: #27ae60;">环境维度</div>
+                        </div>
+                        <div class="dimension-weight">40%</div>
+                    </div>
+                    <ul class="dimension-features">
+                        <li>碳排放量监控</li>
+                        <li>可再生能源使用</li>
+                        <li>废物处理效率</li>
+                        <li>生态环境保护</li>
+                    </ul>
+                </div>
+
+                <div class="dimension-card">
+                    <div class="dimension-header">
+                        <div class="dimension-icon social">👥</div>
+                        <div>
+                            <div class="dimension-title" style="color: #e74c3c;">社会维度</div>
+                        </div>
+                        <div class="dimension-weight">30%</div>
+                    </div>
+                    <ul class="dimension-features">
+                        <li>员工福利保障</li>
+                        <li>社区贡献度</li>
+                        <li>供应链责任</li>
+                        <li>产品安全合规</li>
+                    </ul>
+                </div>
+
+                <div class="dimension-card">
+                    <div class="dimension-header">
+                        <div class="dimension-icon governance">🏛️</div>
+                        <div>
+                            <div class="dimension-title" style="color: #f39c12;">治理维度</div>
+                        </div>
+                        <div class="dimension-weight">30%</div>
+                    </div>
+                    <ul class="dimension-features">
+                        <li>董事会独立性</li>
+                        <li>风险管理体系</li>
+                        <li>透明度与披露</li>
+                        <li>合规制度建设</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-architecture">
+            <h3 class="arch-title">系统技术架构</h3>
+            <div class="arch-diagram">
+                <div class="arch-layer">
+                    <div class="arch-box">
+                        <div class="arch-icon">🎨</div>
+                        <div class="arch-name">前端界面</div>
+                        <div class="arch-tech">HTML5 + Bootstrap5<br>响应式设计<br>数据可视化</div>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="arch-box">
+                        <div class="arch-icon">🔗</div>
+                        <div class="arch-name">API接口</div>
+                        <div class="arch-tech">RESTful API<br>JSON数据格式<br>安全认证</div>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="arch-box">
+                        <div class="arch-icon">⚙️</div>
+                        <div class="arch-name">后端处理</div>
+                        <div class="arch-tech">Python<br>Z-score标准化<br>层次分析法</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rural-indicators">
+            <h3 class="indicators-title">🌾 农村特色指标（新增12项）</h3>
+            <div class="indicators-grid">
+                <div class="indicator-item">
+                    <div class="indicator-icon">📈</div>
+                    <div class="indicator-text">农民增收</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">👨‍🌾</div>
+                    <div class="indicator-text">农村就业</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">🏡</div>
+                    <div class="indicator-text">乡村建设</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">🌱</div>
+                    <div class="indicator-text">生态农业</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">💡</div>
+                    <div class="indicator-text">清洁能源</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">🚜</div>
+                    <div class="indicator-text">农机现代化</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">📚</div>
+                    <div class="indicator-text">教育培训</div>
+                </div>
+                <div class="indicator-item">
+                    <div class="indicator-icon">🏥</div>
+                    <div class="indicator-text">医疗保障</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-source">
+            <h3>基于真实企业数据建模</h3>
+            <div class="data-stats">
+                <div class="stat-item">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">中国企业</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">32</div>
+                    <div class="stat-label">农村新能源企业</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2,156</div>
+                    <div class="stat-label">真实数据条</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

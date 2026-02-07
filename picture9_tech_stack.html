@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究方法技术栈架构</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 2800px;
+            height: 1800px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .tech-container {
+            padding: 80px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+            gap: 70px;
+        }
+
+        /* 技术栈布局 */
+        .tech-stack {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 60px;
+            flex: 1;
+        }
+
+        .tech-module {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tech-module:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        /* 模块样式 */
+        .feature-module {
+            border-top: 6px solid #3498db;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .fusion-module {
+            border-top: 6px solid #e74c3c;
+            background: linear-gradient(135deg, #fff8f8 0%, #ffffff 100%);
+        }
+
+        .transfer-module {
+            border-top: 6px solid #27ae60;
+            background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+        }
+
+        .system-module {
+            border-top: 6px solid #f39c12;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        /* 模块头部 */
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .module-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            color: white;
+            margin-right: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .fusion-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .transfer-icon { background: linear-gradient(135deg, #27ae60, #229954); }
+        .system-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+
+        .module-title-container {
+            flex: 1;
+        }
+
+        .module-title {
+            font-size: 38px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .module-subtitle {
+            font-size: 24px;
+            color: #7f8c8d;
+        }
+
+        /* 技术组件 */
+        .tech-components {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .tech-component {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 18px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-component:hover {
+            background: #f8f9fa;
+            border-color: #bdc3c7;
+            transform: translateX(10px);
+        }
+
+        .component-icon {
+            width: 75px;
+            height: 75px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: white;
+            margin-right: 25px;
+            flex-shrink: 0;
+        }
+
+        .feature-component { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .fusion-component { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .transfer-component { background: linear-gradient(135deg, #27ae60, #229954); }
+        .system-component { background: linear-gradient(135deg, #f39c12, #e67e22); }
+
+        .component-content {
+            flex: 1;
+        }
+
+        .component-name {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+
+        .component-desc {
+            font-size: 20px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        /* 技术亮点 */
+        .tech-highlights {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .highlight-tag {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .feature-highlight { background: #3498db; }
+        .fusion-highlight { background: #e74c3c; }
+        .transfer-highlight { background: #27ae60; }
+        .system-highlight { background: #f39c12; }
+
+  
+        /* 版本标签 */
+        .version-badge {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: rgba(255,255,255,0.9);
+            color: #9b59b6;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            🔧 研究方法技术栈架构
+        </div>
+
+        <div class="tech-container">
+            <div class="tech-stack">
+                <!-- 特征提取模块 -->
+                <div class="tech-module feature-module">
+                    <div class="version-badge">核心算法</div>
+                    <div class="module-header">
+                        <div class="module-icon feature-icon">🔍</div>
+                        <div class="module-title-container">
+                            <div class="module-title">特征提取</div>
+                            <div class="module-subtitle">多尺度特征表征学习</div>
+                        </div>
+                    </div>
+
+                    <div class="tech-components">
+                        <div class="tech-component">
+                            <div class="component-icon feature-component">SW</div>
+                            <div class="component-content">
+                                <div class="component-name">Swin Transformer</div>
+                                <div class="component-desc">层次化视觉Transformer，提取多尺度语义特征</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-component">
+                            <div class="component-icon feature-component">FP</div>
+                            <div class="component-content">
+                                <div class="component-name">Feature Pyramid Network</div>
+                                <div class="component-desc">特征金字塔网络，增强多尺度特征融合</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-highlights">
+                            <div class="highlight-tag feature-highlight">层次化注意力</div>
+                            <div class="highlight-tag feature-highlight">滑动窗口机制</div>
+                            <div class="highlight-tag feature-highlight">多尺度特征</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 融合策略模块 -->
+                <div class="tech-module fusion-module">
+                    <div class="version-badge">关键创新</div>
+                    <div class="module-header">
+                        <div class="module-icon fusion-icon">🤝</div>
+                        <div class="module-title-container">
+                            <div class="module-title">融合策略</div>
+                            <div class="module-subtitle">跨尺度智能特征融合</div>
+                        </div>
+                    </div>
+
+                    <div class="tech-components">
+                        <div class="tech-component">
+                            <div class="component-icon fusion-component">CA</div>
+                            <div class="component-content">
+                                <div class="component-name">Multi-Scale Cross-Attention</div>
+                                <div class="component-desc">多尺度交叉注意力机制，实现卫星-无人机特征对齐</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-component">
+                            <div class="component-icon fusion-component">SA</div>
+                            <div class="component-content">
+                                <div class="component-name">Self-Attention Weighting</div>
+                                <div class="component-desc">自适应加权，动态分配不同尺度特征权重</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-highlights">
+                            <div class="highlight-tag fusion-highlight">跨模态融合</div>
+                            <div class="highlight-tag fusion-highlight">自适应加权</div>
+                            <div class="highlight-tag fusion-highlight">特征对齐</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 迁移策略模块 -->
+                <div class="tech-module transfer-module">
+                    <div class="version-badge">域适应</div>
+                    <div class="module-header">
+                        <div class="module-icon transfer-icon">🔄</div>
+                        <div class="module-title-container">
+                            <div class="module-title">迁移策略</div>
+                            <div class="module-subtitle">跨域知识迁移与学习</div>
+                        </div>
+                    </div>
+
+                    <div class="tech-components">
+                        <div class="tech-component">
+                            <div class="component-icon transfer-component">MM</div>
+                            <div class="component-content">
+                                <div class="component-name">Maximum Mean Discrepancy</div>
+                                <div class="component-desc">最大均值差异域适应，减小卫星-无人机域差异</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-component">
+                            <div class="component-icon transfer-component">FT</div>
+                            <div class="component-content">
+                                <div class="component-name">Fine-Tune Optimization</div>
+                                <div class="component-desc">微调优化，提升目标域检测性能</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-highlights">
+                            <div class="highlight-tag transfer-highlight">域差异最小化</div>
+                            <div class="highlight-tag transfer-highlight">知识迁移</div>
+                            <div class="highlight-tag transfer-highlight">小样本学习</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统实现模块 -->
+                <div class="tech-module system-module">
+                    <div class="version-badge">工程落地</div>
+                    <div class="module-header">
+                        <div class="module-icon system-icon">💻</div>
+                        <div class="module-title-container">
+                            <div class="module-title">系统实现</div>
+                            <div class="module-subtitle">完整应用系统开发</div>
+                        </div>
+                    </div>
+
+                    <div class="tech-components">
+                        <div class="tech-component">
+                            <div class="component-icon system-component">PY</div>
+                            <div class="component-content">
+                                <div class="component-name">Python Backend</div>
+                                <div class="component-desc">Python深度学习框架，核心算法实现</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-component">
+                            <div class="component-icon system-component">FL</div>
+                            <div class="component-content">
+                                <div class="component-name">Flask Web Framework</div>
+                                <div class="component-desc">Flask轻量级Web框架，API接口开发</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-component">
+                            <div class="component-icon system-component">UI</div>
+                            <div class="component-content">
+                                <div class="component-name">Frontend Visualization</div>
+                                <div class="component-desc">前端可视化界面，检测结果交互展示</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-highlights">
+                            <div class="highlight-tag system-highlight">RESTful API</div>
+                            <div class="highlight-tag system-highlight">实时推理</div>
+                            <div class="highlight-tag system-highlight">交互界面</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+          </div>
+    </div>
+</body>
+</html>

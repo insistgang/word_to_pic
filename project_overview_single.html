@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络安全威胁智能分析系统 - 核心概览</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .overview-container {
+            width: 100%;
+            max-width: 1400px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .header-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: white;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+        .system-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .system-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .main-content {
+            padding: 40px;
+            padding-top: 60px;
+        }
+        .challenges-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .section-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            height: 100%;
+            border-top: 4px solid;
+        }
+        .challenges-box {
+            border-top-color: #e74c3c;
+        }
+        .solution-box {
+            border-top-color: #27ae60;
+        }
+        .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .section-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .challenges-list {
+            list-style: none;
+        }
+        .challenges-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #2c3e50;
+        }
+        .challenges-list li::before {
+            content: '⚠️';
+            position: absolute;
+            left: 0;
+        }
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .tech-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #27ae60;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .tech-name {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+        .tech-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .architecture-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .architecture-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 0 auto;
+        }
+        .applications-section {
+            margin-bottom: 40px;
+        }
+        .applications-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .industry-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .industry-card:hover {
+            transform: translateY(-5px);
+        }
+        .industry-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .industry-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .industry-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .value-metrics {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+        }
+        .metrics-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .metric-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .footer-tagline {
+            text-align: center;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="overview-container">
+        <!-- Header -->
+        <div class="header-banner">
+            <div class="system-title">网络安全威胁智能分析系统</div>
+            <div class="system-subtitle">
+                基于多智能体协同 + Qwen2-7B大模型 + RAG威胁情报增强的<br>
+                下一代网络安全威胁分析解决方案
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Challenges & Solution -->
+            <div class="challenges-solution">
+                <div class="section-box challenges-box">
+                    <div class="section-title">
+                        <span class="section-icon">⚠️</span>
+                        当前安全挑战
+                    </div>
+                    <ul class="challenges-list">
+                        <li>威胁复杂化：APT攻击、零日漏洞利用</li>
+                        <li>攻击智能化：AI驱动的自动化攻击</li>
+                        <li>传统系统误报率高、新威胁识别弱</li>
+                        <li>响应滞后，难以应对高级威胁</li>
+                    </ul>
+                </div>
+
+                <div class="section-box solution-box">
+                    <div class="section-title">
+                        <span class="section-icon">🚀</span>
+                        创新解决方案
+                    </div>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <div class="tech-name">多智能体协同架构</div>
+                            <div class="tech-desc">专业化分工与智能化协同，提升威胁分析准确性和实时性</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-name">Qwen2-7B大语言模型</div>
+                            <div class="tech-desc">深层语义理解，实现智能威胁识别</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-name">RAG威胁情报增强</div>
+                            <div class="tech-desc">实时情报检索，增强分析上下文理解</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Architecture -->
+            <div class="architecture-section">
+                <div class="architecture-title">🏗️ 系统架构全流程</div>
+                <div class="chart-container">
+                    <canvas id="architectureChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Application Scenarios -->
+            <div class="applications-section">
+                <div class="applications-title">🏢 关键行业应用场景</div>
+                <div class="industries-grid">
+                    <div class="industry-card">
+                        <div class="industry-icon">🏦</div>
+                        <div class="industry-name">金融行业</div>
+                        <div class="industry-desc">实时监测交易系统SQL注入攻击</div>
+                    </div>
+                    <div class="industry-card">
+                        <div class="industry-icon">⚡</div>
+                        <div class="industry-name">能源行业</div>
+                        <div class="industry-desc">识别工控系统异常连接攻击</div>
+                    </div>
+                    <div class="industry-card">
+                        <div class="industry-icon">🏛️</div>
+                        <div class="industry-name">政府部门</div>
+                        <div class="industry-desc">政务系统安全与敏感数据保护</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Value Metrics -->
+            <div class="value-metrics">
+                <div class="metrics-title">💎 核心价值指标</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">95.62%</div>
+                        <div class="metric-label">威胁识别准确率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">67ms</div>
+                        <div class="metric-label">平均响应时间</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">1200</div>
+                        <div class="metric-label">告警/秒处理能力</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">89%</div>
+                        <div class="metric-label">新攻击识别率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-tagline">
+            🛡️ 为关键信息基础设施安全防护提供技术支撑
+        </div>
+    </div>
+
+    <script>
+        // 系统架构流程图
+        const ctx = document.getElementById('architectureChart').getContext('2d');
+
+        const architectureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['数据接入', '智能路由', '专家分析', '大模型推理', 'RAG增强', '结果输出'],
+                datasets: [{
+                    label: '系统处理流程',
+                    data: [100, 100, 100, 100, 100, 100],
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 8,
+                    pointBackgroundColor: [
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(155, 89, 182, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(241, 196, 15, 1)',
+                        'rgba(52, 152, 219, 1)'
+                    ],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                const labels = {
+                                    '数据接入': '日志、流量、告警、情报数据统一接入',
+                                    '智能路由': '多智能体协同分发与协调',
+                                    '专家分析': 'Web攻击、漏洞、恶意代码、异常连接专家',
+                                    '大模型推理': 'Qwen2-7B深层语义理解',
+                                    'RAG增强': '实时威胁情报检索与关联',
+                                    '结果输出': '可视化界面、API服务、分析报告'
+                                };
+                                return labels[context.label] || '';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        display: false,
+                        min: 0,
+                        max: 120
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 添加数值动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateValue = (element, start, end, duration, suffix = '') => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+                    element.textContent = value + suffix;
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            // 监听指标元素进入视口
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const valueElement = entry.target.querySelector('.metric-value');
+                        const text = valueElement.textContent;
+
+                        if (text.includes('%')) {
+                            const value = parseFloat(text);
+                            animateValue(valueElement, 0, value, 2000, '%');
+                        } else if (text.includes('ms')) {
+                            const value = parseInt(text);
+                            animateValue(valueElement, 0, value, 1500, 'ms');
+                        } else {
+                            const value = parseInt(text);
+                            animateValue(valueElement, 0, value, 2000, '');
+                        }
+
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.metric-item').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碳资产管理系统四层架构</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #2E8B57, #3498db, #f39c12, #e74c3c);
+        }
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .layers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+            min-height: 1000px;
+        }
+        .layer {
+            border-radius: 15px;
+            padding: 35px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            min-height: 200px;
+        }
+        .layer:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .layer::after {
+            content: '';
+            position: absolute;
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            opacity: 0.1;
+            font-size: 80px;
+        }
+
+        /* 数据层 */
+        .data-layer {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        .data-layer::after {
+            content: '📊';
+        }
+
+        /* 评价层 */
+        .evaluation-layer {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+        }
+        .evaluation-layer::after {
+            content: '📈';
+        }
+
+        /* 交易层 */
+        .trading-layer {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        .trading-layer::after {
+            content: '💹';
+        }
+
+        /* 金融层 */
+        .finance-layer {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        .finance-layer::after {
+            content: '💰';
+        }
+
+        .layer-icon {
+            width: 140px;
+            height: 140px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-right: 40px;
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .layer-content {
+            flex: 1;
+        }
+
+        .layer-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .layer-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-left: 20px;
+            font-weight: normal;
+        }
+
+        .layer-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .detail-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.95);
+        }
+
+        .detail-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .standard-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .flow-diagram {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flow-arrow {
+            width: 2px;
+            height: 20px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .indicator-item {
+            background: rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        .method-box {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .method-item {
+            background: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 10px;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .bottom-info {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .info-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .info-content {
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌱 碳资产管理系统四层架构</h1>
+
+        <div class="layers-container">
+            <!-- 数据层 -->
+            <div class="layer data-layer">
+                <div class="layer-icon">📊</div>
+                <div class="layer-content">
+                    <h2 class="layer-title">
+                        数据层面
+                        <span class="layer-badge">核算基础</span>
+                    </h2>
+                    <div class="layer-details">
+                        <div class="detail-item">
+                            <div class="detail-title">📋 国家标准体系</div>
+                            <div class="detail-content">
+                                严格遵循<span class="highlight">国家碳排放统计核算体系</span><br>
+                                符合生态环境部《企业温室气体排放核算方法与报告指南》(2022年修订版)
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">🌍 国际核算依据</div>
+                            <div class="detail-content">
+                                采用<span class="highlight">IPCC 2006年国家温室气体清单指南</span><br>
+                                使用标准排放因子进行精确计算
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评价层 -->
+            <div class="layer evaluation-layer">
+                <div class="layer-icon">📈</div>
+                <div class="layer-content">
+                    <h2 class="layer-title">
+                        评价层面
+                        <span class="layer-badge">ESG评估</span>
+                    </h2>
+                    <div class="layer-details">
+                        <div class="detail-item">
+                            <div class="detail-title">🏆 国际标准框架</div>
+                            <div class="detail-content">
+                                基于GRI可持续发展报告标准(2021)<br>
+                                参考SASB行业标准
+                            </div>
+                            <div class="standard-tags">
+                                <span class="tag">GRI Standards</span>
+                                <span class="tag">SASB</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">⚖️ 评价维度</div>
+                            <div class="detail-content">
+                                环境(40%) | 社会(30%) | 治理(30%)<br>
+                                农村特色指标占比约30%
+                            </div>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <div class="detail-title">🌾 农村特色指标(12项)</div>
+                            <div class="indicator-grid">
+                                <div class="indicator-item">农民增收情况</div>
+                                <div class="indicator-item">农村就业带动</div>
+                                <div class="indicator-item">土地流转收益</div>
+                                <div class="indicator-item">村集体经济发展</div>
+                                <div class="indicator-item">清洁能源普及</div>
+                                <div class="indicator-item">生态农业发展</div>
+                                <div class="indicator-item">农村基础设施</div>
+                                <div class="indicator-item">农民技能培训</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易层 -->
+            <div class="layer trading-layer">
+                <div class="layer-icon">💹</div>
+                <div class="layer-content">
+                    <h2 class="layer-title">
+                        交易层面
+                        <span class="layer-badge">双轨交易</span>
+                    </h2>
+                    <div class="layer-details">
+                        <div class="detail-item">
+                            <div class="detail-title">🔄 交易模式</div>
+                            <div class="detail-content">
+                                支持<span class="highlight">全国碳市场(CEA)</span>和<span class="highlight">自愿减排市场(CCER)</span>双轨交易<br>
+                                2024年1月全国温室气体自愿减排交易市场重启后完成对接
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">📝 CCER方法学</div>
+                            <div class="detail-content">
+                                系统已对接4类CCER方法学
+                            </div>
+                            <div class="method-box">
+                                <div class="method-item">并网光伏发电</div>
+                                <div class="method-item">并网海上风力发电</div>
+                                <div class="method-item">红树林营造</div>
+                                <div class="method-item">造林碳汇项目</div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">🔄 完整流程</div>
+                            <div class="detail-content">
+                                项目备案 → 方法学备案 → 登记开户 → 交易结算
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 金融层 -->
+            <div class="layer finance-layer">
+                <div class="layer-icon">💰</div>
+                <div class="layer-content">
+                    <h2 class="layer-title">
+                        金融层面
+                        <span class="layer-badge">绿色金融</span>
+                    </h2>
+                    <div class="layer-details">
+                        <div class="detail-item">
+                            <div class="detail-title">🏦 绿色贷款支持</div>
+                            <div class="detail-content">
+                                评价结果作为<span class="highlight">绿色贷款的参考依据</span><br>
+                                为企业提供环境风险分析数据支持
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">📊 标准化输出</div>
+                            <div class="detail-content">
+                                符合中国人民银行《金融机构环境信息披露指南》要求<br>
+                                设计标准化的ESG数据输出接口
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-title">🎯 金融服务</div>
+                            <div class="detail-content">
+                                • 环境风险分析<br>
+                                • 绿色资产识别<br>
+                                • ESG评级支持<br>
+                                • 碳资产估值
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-info">
+            <h3 class="info-title">系统特色</h3>
+            <p class="info-content">
+                整合国家标准与国际标准 | 覆盖全业务流程 | 支持多场景应用 | 提供金融级数据服务
+            </p>
+        </div>
+    </div>
+</body>
+</html>

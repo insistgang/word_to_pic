@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预期成果金字塔图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 2000px;
+            height: 1400px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 35px;
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .pyramid-container {
+            padding: 60px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pyramid-wrapper {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .pyramid {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            width: 1000px;
+        }
+
+        .pyramid-level {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pyramid-level:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .level-1 {
+            width: 100%;
+            height: 130px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 15px 15px 0 0;
+            font-size: 30px;
+            z-index: 5;
+        }
+
+        .level-2 {
+            width: 85%;
+            height: 120px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            font-size: 28px;
+            z-index: 4;
+        }
+
+        .level-3 {
+            width: 70%;
+            height: 115px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            font-size: 26px;
+            z-index: 3;
+        }
+
+        .level-4 {
+            width: 55%;
+            height: 110px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            font-size: 24px;
+            z-index: 2;
+        }
+
+        .level-5 {
+            width: 40%;
+            height: 105px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            font-size: 22px;
+            border-radius: 0 0 15px 15px;
+            z-index: 1;
+        }
+
+        .level-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .level-icon {
+            font-size: 40px;
+        }
+
+        .level-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .level-desc {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        /* 侧边详细说明 */
+        .details-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            width: 100%;
+            margin-top: 50px;
+        }
+
+        .detail-card {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-top: 5px solid transparent;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-application {
+            border-top-color: #e74c3c;
+            background: linear-gradient(135deg, #fff8f8 0%, #ffffff 100%);
+        }
+
+        .card-academic {
+            border-top-color: #f39c12;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        .card-technical {
+            border-top-color: #3498db;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .detail-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            margin-right: 20px;
+        }
+
+        .application-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .academic-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .technical-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .metric-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            padding: 18px;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid transparent;
+        }
+
+        .application-item { border-left-color: #e74c3c; }
+        .academic-item { border-left-color: #f39c12; }
+        .technical-item { border-left-color: #3498db; }
+
+        .metric-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 15px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .application-number { color: #e74c3c; }
+        .academic-number { color: #f39c12; }
+        .technical-number { color: #3498db; }
+
+        .metric-text {
+            font-size: 18px;
+            color: #34495e;
+            flex: 1;
+        }
+
+        /* 金字塔装饰元素 */
+        .pyramid-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(103, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .pyramid-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            color: #ffd700;
+            font-size: 20px;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .star1 { top: 10%; left: 20%; animation-delay: 0s; }
+        .star2 { top: 15%; right: 25%; animation-delay: 0.5s; }
+        .star3 { top: 5%; left: 50%; animation-delay: 1s; }
+        .star4 { bottom: 20%; left: 15%; animation-delay: 1.5s; }
+        .star5 { bottom: 10%; right: 20%; animation-delay: 2s; }
+
+        .value-stat {
+            position: absolute;
+            top: -50px;
+            right: -100px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+            z-index: 10;
+        }
+
+        .value-stat::before {
+            content: '💎';
+            margin-right: 10px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            🏆 预期成果金字塔：从数据到应用价值
+        </div>
+
+        <div class="pyramid-container">
+            <div class="pyramid-wrapper">
+                <div class="pyramid-glow"></div>
+                <div class="pyramid-stars">
+                    <div class="star star1">⭐</div>
+                    <div class="star star2">⭐</div>
+                    <div class="star star3">⭐</div>
+                    <div class="star star4">⭐</div>
+                    <div class="star star5">⭐</div>
+                </div>
+
+                <div class="pyramid">
+                    <div class="pyramid-level level-1">
+                        <div class="level-content">
+                            <div class="level-icon">🏙️</div>
+                            <div class="level-title">城市应用</div>
+                            <div class="level-desc">城管监测平台建设</div>
+                        </div>
+                        <div class="value-stat">应用价值</div>
+                    </div>
+
+                    <div class="pyramid-level level-2">
+                        <div class="level-content">
+                            <div class="level-icon">📚</div>
+                            <div class="level-title">学术成果</div>
+                            <div class="level-desc">中文核心/SCI论文</div>
+                        </div>
+                    </div>
+
+                    <div class="pyramid-level level-3">
+                        <div class="level-content">
+                            <div class="level-icon">💻</div>
+                            <div class="level-title">技术成果</div>
+                            <div class="level-desc">算法模型与系统</div>
+                        </div>
+                    </div>
+
+                    <div class="pyramid-level level-4">
+                        <div class="level-content">
+                            <div class="level-icon">🎯</div>
+                            <div class="level-title">算法指标</div>
+                            <div class="level-desc">精度与性能标准</div>
+                        </div>
+                    </div>
+
+                    <div class="pyramid-level level-5">
+                        <div class="level-content">
+                            <div class="level-icon">📊</div>
+                            <div class="level-title">数据集</div>
+                            <div class="level-desc">高质量影像数据</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详细指标展示 -->
+            <div class="details-container">
+                <div class="detail-card card-application">
+                    <div class="detail-header">
+                        <div class="detail-icon application-icon">🎯</div>
+                        <div class="detail-title">应用价值</div>
+                    </div>
+                    <div class="metric-list">
+                        <div class="metric-item application-item">
+                            <div class="metric-number application-number">90%</div>
+                            <div class="metric-text">人工巡查成本降低</div>
+                        </div>
+                        <div class="metric-item application-item">
+                            <div class="metric-number application-number">95%+</div>
+                            <div class="metric-text">违建识别准确率</div>
+                        </div>
+                        <div class="metric-item application-item">
+                            <div class="metric-number application-number">7×24h</div>
+                            <div class="metric-text">全天候智能监测</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card card-academic">
+                    <div class="detail-header">
+                        <div class="detail-icon academic-icon">📚</div>
+                        <div class="detail-title">学术成果</div>
+                    </div>
+                    <div class="metric-list">
+                        <div class="metric-item academic-item">
+                            <div class="metric-number academic-number">1篇</div>
+                            <div class="metric-text">SCI 期刊论文</div>
+                        </div>
+                        <div class="metric-item academic-item">
+                            <div class="metric-number academic-number">1篇</div>
+                            <div class="metric-text">中文核心论文</div>
+                        </div>
+                        <div class="metric-item academic-item">
+                            <div class="metric-number academic-number">2项</div>
+                            <div class="metric-text">软件著作权</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card card-technical">
+                    <div class="detail-header">
+                        <div class="detail-icon technical-icon">💻</div>
+                        <div class="detail-title">技术成果</div>
+                    </div>
+                    <div class="metric-list">
+                        <div class="metric-item technical-item">
+                            <div class="metric-number technical-number">≥2000张</div>
+                            <div class="metric-text">高精度标注数据集</div>
+                        </div>
+                        <div class="metric-item technical-item">
+                            <div class="metric-number technical-number">F1≥0.88</div>
+                            <div class="metric-text">算法检测精度指标</div>
+                        </div>
+                        <div class="metric-item technical-item">
+                            <div class="metric-number technical-number">&lt;2s/张</div>
+                            <div class="metric-text">单张检测处理时间</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

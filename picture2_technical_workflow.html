@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术路线流程图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1400px;
+            height: 800px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .workflow-container {
+            padding: 40px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .main-flow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 60px;
+            right: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #9b59b6, #e74c3c, #f39c12, #27ae60);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .flow-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 140px;
+        }
+
+        .step-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 4px solid white;
+        }
+
+        .step1 { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .step2 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .step3 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .step4 { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .step5 { background: linear-gradient(135deg, #27ae60, #229954); }
+        .step6 { background: linear-gradient(135deg, #16a085, #138d75); }
+
+        .step-label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        .key-modules {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .module-card {
+            flex: 1;
+            margin: 0 15px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            background: white;
+            border-top: 5px solid transparent;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .swin-module {
+            border-top-color: #3498db;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%);
+        }
+
+        .attention-module {
+            border-top-color: #e74c3c;
+            background: linear-gradient(135deg, #fff8f8 0%, #ffe8e8 100%);
+        }
+
+        .mmd-module {
+            border-top-color: #27ae60;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8ffe8 100%);
+        }
+
+        .module-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .swin-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .attention-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .mmd-icon { background: linear-gradient(135deg, #27ae60, #229954); }
+
+        .module-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .module-features {
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #34495e;
+        }
+
+        .feature-icon {
+            color: #3498db;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .attention-feature .feature-icon { color: #e74c3c; }
+        .mmd-feature .feature-icon { color: #27ae60; }
+
+        .data-sources {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .data-source {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .data-icon {
+            font-size: 40px;
+        }
+
+        .satellite-icon { color: #3498db; }
+        .drone-icon { color: #e74c3c; }
+
+        .data-info h4 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .data-info p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .arrow-down {
+            text-align: center;
+            font-size: 30px;
+            color: #95a5a6;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            多尺度违建检测技术路线图
+        </div>
+
+        <div class="workflow-container">
+            <!-- 数据源 -->
+            <div class="data-sources">
+                <div class="data-source">
+                    <div class="data-icon satellite-icon">🛰️</div>
+                    <div class="data-info">
+                        <h4>卫星影像</h4>
+                        <p>LEVIR-CD 公共数据集</p>
+                    </div>
+                </div>
+                <div class="data-source">
+                    <div class="data-icon drone-icon">🚁</div>
+                    <div class="data-info">
+                        <h4>无人机影像</h4>
+                        <p>自建双时相数据集</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- 主流程 -->
+            <div class="main-flow">
+                <div class="flow-step">
+                    <div class="step-circle step1">📊</div>
+                    <div class="step-label">数据采集</div>
+                    <div class="step-desc">多尺度影像获取</div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle step2">🔧</div>
+                    <div class="step-label">预处理</div>
+                    <div class="step-desc">数据增强与标注</div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle step3">🧠</div>
+                    <div class="step-label">特征提取</div>
+                    <div class="step-desc">Swin Transformer</div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle step4">🔄</div>
+                    <div class="step-label">多尺度融合</div>
+                    <div class="step-desc">Cross-Attention</div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle step5">🎯</div>
+                    <div class="step-label">违建检测</div>
+                    <div class="step-desc">变化检测分类</div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="step-circle step6">🖥️</div>
+                    <div class="step-label">系统可视化</div>
+                    <div class="step-desc">Web界面展示</div>
+                </div>
+            </div>
+
+            <!-- 关键技术模块 -->
+            <div class="key-modules">
+                <div class="module-card swin-module">
+                    <div class="module-icon swin-icon">🔍</div>
+                    <div class="module-title">Swin Transformer</div>
+                    <div class="module-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>层次化特征提取</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>滑动窗口注意力</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>多层语义表示</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card attention-module">
+                    <div class="module-icon attention-icon">🤝</div>
+                    <div class="module-title">Cross-Attention</div>
+                    <div class="module-features attention-feature">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>多尺度特征对齐</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>自适应加权融合</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>跨域特征匹配</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card mmd-module">
+                    <div class="module-icon mmd-icon">🚀</div>
+                    <div class="module-title">MMD 域适应</div>
+                    <div class="module-features mmd-feature">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>卫星→无人机迁移</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>小样本泛化增强</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>域差异最小化</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

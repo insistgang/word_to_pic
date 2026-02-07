@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多智能体协同模块架构</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            animation: gradient 3s ease-in-out infinite;
+        }
+        @keyframes gradient {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        .header-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .core-competency {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .competency-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .metrics-row {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .metric-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            flex: 1;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .routing-agent {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #3498db;
+        }
+        .section-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+        .section-icon {
+            margin-right: 15px;
+            font-size: 1.3em;
+        }
+        .routing-mechanism {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .feature-extraction {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        .feature-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        .feature-list {
+            list-style: none;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #2c3e50;
+        }
+        .feature-list li::before {
+            content: '🔍';
+            position: absolute;
+            left: 0;
+        }
+        .decision-logic {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        .decision-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        .decision-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .decision-step {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 40px;
+        }
+        .decision-step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .expert-agents {
+            margin-bottom: 40px;
+        }
+        .agents-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+        .agent-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border-top: 5px solid;
+        }
+        .agent-card:hover {
+            transform: translateY(-10px);
+        }
+        .web-agent {
+            border-top-color: #e74c3c;
+        }
+        .vulnerability-agent {
+            border-top-color: #f39c12;
+        }
+        .connection-agent {
+            border-top-color: #2ecc71;
+        }
+        .agent-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .agent-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .agent-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .agent-focus {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .focus-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .threat-list {
+            list-style: none;
+        }
+        .threat-list li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        .web-agent .threat-list li::before {
+            content: '🕷️';
+            position: absolute;
+            left: 0;
+        }
+        .vulnerability-agent .threat-list li::before {
+            content: '🔓';
+            position: absolute;
+            left: 0;
+        }
+        .connection-agent .threat-list li::before {
+            content: '🌐';
+            position: absolute;
+            left: 0;
+        }
+        .capability-list {
+            margin-top: 15px;
+        }
+        .capability-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 5px 5px 0;
+        }
+        .workflow-visualization {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .workflow-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .example-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .example-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .example-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+        }
+        .web-example {
+            border-left-color: #e74c3c;
+        }
+        .vulnerability-example {
+            border-left-color: #f39c12;
+        }
+        .connection-example {
+            border-left-color: #2ecc71;
+        }
+        .example-scenario {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .example-code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .example-result {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">多智能体协同模块架构</div>
+            <div class="header-subtitle">系统核心竞争力的智能化协同分析引擎</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Core Competency Metrics -->
+            <div class="core-competency">
+                <div class="competency-title">🎯 核心竞争力指标</div>
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <div class="metric-value">93%+</div>
+                        <div class="metric-label">路由准确率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">&lt;100ms</div>
+                        <div class="metric-label">路由决策时间</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">0.7</div>
+                        <div class="metric-label">匹配置信度阈值</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Routing Agent Section -->
+            <div class="routing-agent">
+                <div class="section-title">
+                    <span class="section-icon">🧭</span>
+                    路由智能体 - 告警分类与任务分发
+                </div>
+                <div class="routing-mechanism">
+                    <div class="feature-extraction">
+                        <div class="feature-title">🔍 关键特征提取</div>
+                        <ul class="feature-list">
+                            <li>攻击载荷分析</li>
+                            <li>源IP地址识别</li>
+                            <li>目标端口检测</li>
+                            <li>协议类型判断</li>
+                            <li>时间戳关联</li>
+                        </ul>
+                    </div>
+                    <div class="decision-logic">
+                        <div class="decision-title">🧠 智能决策逻辑</div>
+                        <div class="decision-steps">
+                            <div class="decision-step" data-step="1">
+                                关键词匹配初筛
+                            </div>
+                            <div class="decision-step" data-step="2">
+                                大模型语义分析
+                            </div>
+                            <div class="decision-step" data-step="3">
+                                历史路由准确率权重
+                            </div>
+                            <div class="decision-step" data-step="4">
+                                计算匹配置信度
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expert Agents Section -->
+            <div class="expert-agents">
+                <div class="agents-title">👥 专家智能体团队</div>
+                <div class="agents-grid">
+                    <!-- Web Attack Expert -->
+                    <div class="agent-card web-agent">
+                        <div class="agent-header">
+                            <div class="agent-icon">🕷️</div>
+                            <div class="agent-name">Web攻击专家</div>
+                        </div>
+                        <div class="agent-focus">
+                            <div class="focus-title">专注领域</div>
+                            <ul class="threat-list">
+                                <li>SQL注入攻击</li>
+                                <li>XSS跨站脚本</li>
+                                <li>CSRF跨站伪造</li>
+                                <li>文件上传漏洞</li>
+                            </ul>
+                        </div>
+                        <div class="capability-list">
+                            <div class="capability-item">OWASP Top10知识图谱</div>
+                            <div class="capability-item">编码混淆识别</div>
+                            <div class="capability-item">语义匹配分析</div>
+                            <div class="capability-item">载荷解码能力</div>
+                        </div>
+                    </div>
+
+                    <!-- Vulnerability Expert -->
+                    <div class="agent-card vulnerability-agent">
+                        <div class="agent-header">
+                            <div class="agent-icon">🔓</div>
+                            <div class="agent-name">漏洞专家</div>
+                        </div>
+                        <div class="agent-focus">
+                            <div class="focus-title">专注领域</div>
+                            <ul class="threat-list">
+                                <li>命令注入攻击</li>
+                                <li>目录遍历漏洞</li>
+                                <li>权限提升漏洞</li>
+                                <li>缓冲区溢出</li>
+                            </ul>
+                        </div>
+                        <div class="capability-list">
+                            <div class="capability-item">CVSS评分体系</div>
+                            <div class="capability-item">NVD漏洞库集成</div>
+                            <div class="capability-item">攻击路径关联</div>
+                            <div class="capability-item">危害程度评估</div>
+                        </div>
+                    </div>
+
+                    <!-- Illegal Connection Expert -->
+                    <div class="agent-card connection-agent">
+                        <div class="agent-header">
+                            <div class="agent-icon">🌐</div>
+                            <div class="agent-name">非法连接专家</div>
+                        </div>
+                        <div class="agent-focus">
+                            <div class="focus-title">专注领域</div>
+                            <ul class="threat-list">
+                                <li>DDoS攻击</li>
+                                <li>暴力破解攻击</li>
+                                <li>DNS隧道通信</li>
+                                <li>HTTP隧道C2</li>
+                            </ul>
+                        </div>
+                        <div class="capability-list">
+                            <div class="capability-item">流量特征分析</div>
+                            <div class="capability-item">连接模式识别</div>
+                            <div class="capability-item">时间序列分析</div>
+                            <div class="capability-item">APT攻击检测</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Visualization -->
+            <div class="workflow-visualization">
+                <div class="workflow-title">🔄 协同工作流程</div>
+                <div class="chart-container">
+                    <canvas id="workflowChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Examples Section -->
+            <div class="example-section">
+                <div class="example-title">💡 实际应用案例</div>
+                <div class="examples-grid">
+                    <div class="example-card web-example">
+                        <div class="example-scenario">Web攻击识别案例</div>
+                        <div class="example-code">
+                            %3Cscript%3Ealert('XSS')%3C/script%3E
+                        </div>
+                        <div class="example-result">
+                            ✅ URL编码XSS攻击成功识别
+                        </div>
+                    </div>
+                    <div class="example-card vulnerability-example">
+                        <div class="example-scenario">漏洞利用检测案例</div>
+                        <div class="example-code">
+                            ;cat /etc/passwd
+                        </div>
+                        <div class="example-result">
+                            ✅ 命令注入漏洞利用行为检测
+                        </div>
+                    </div>
+                    <div class="example-card connection-example">
+                        <div class="example-scenario">隐蔽通信检测案例</div>
+                        <div class="example-code">
+                            a.b.c.d.evil.com C2通信
+                        </div>
+                        <div class="example-result">
+                            ✅ DNS隧道隐蔽C2通信识别
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            🤖 专业化分工 + 智能化协同 = 高效精准的威胁分析体系
+        </div>
+    </div>
+
+    <script>
+        // 协同工作流程图
+        const ctx = document.getElementById('workflowChart').getContext('2d');
+
+        const workflowChart = new Chart(ctx, {
+            type: 'bubble',
+            data: {
+                datasets: [
+                    // 输入层
+                    {
+                        label: '告警输入',
+                        data: [
+                            {x: 2, y: 9, r: 20, label: '网络告警'},
+                            {x: 4, y: 9, r: 20, label: '系统告警'},
+                            {x: 6, y: 9, r: 20, label: '应用告警'},
+                            {x: 8, y: 9, r: 20, label: '安全告警'}
+                        ],
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2
+                    },
+                    // 路由智能体
+                    {
+                        label: '路由智能体',
+                        data: [
+                            {x: 5, y: 7, r: 25, label: '智能路由分发'}
+                        ],
+                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 3
+                    },
+                    // 专家智能体
+                    {
+                        label: '专家智能体',
+                        data: [
+                            {x: 2, y: 5, r: 22, label: 'Web攻击专家'},
+                            {x: 4, y: 5, r: 22, label: '漏洞专家'},
+                            {x: 6, y: 5, r: 22, label: '非法连接专家'},
+                            {x: 8, y: 5, r: 22, label: '多专家协同'}
+                        ],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2
+                    },
+                    // 大模型推理
+                    {
+                        label: '大模型推理',
+                        data: [
+                            {x: 3, y: 3, r: 20, label: 'Qwen2-7B推理'},
+                            {x: 7, y: 3, r: 20, label: '语义分析'}
+                        ],
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2
+                    },
+                    // RAG增强
+                    {
+                        label: 'RAG增强',
+                        data: [
+                            {x: 5, y: 1, r: 20, label: '威胁情报检索'}
+                        ],
+                        backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                        borderColor: 'rgba(241, 196, 15, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 20
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            color: 'white',
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const point = context.raw;
+                                return context.dataset.label + ': ' + point.label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false,
+                        min: 0,
+                        max: 10
+                    },
+                    y: {
+                        display: false,
+                        min: 0,
+                        max: 10
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 添加连接线插件
+        const connectionLines = {
+            id: 'connectionLines',
+            beforeDatasetsDraw(chart, args, options) {
+                const {ctx, scales: {x, y}} = chart;
+
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+
+                // 绘制连接线
+                const connections = [
+                    // 告警输入到路由智能体
+                    {from: {x: 2, y: 9}, to: {x: 5, y: 7}},
+                    {from: {x: 4, y: 9}, to: {x: 5, y: 7}},
+                    {from: {x: 6, y: 9}, to: {x: 5, y: 7}},
+                    {from: {x: 8, y: 9}, to: {x: 5, y: 7}},
+
+                    // 路由智能体到专家智能体
+                    {from: {x: 5, y: 7}, to: {x: 2, y: 5}},
+                    {from: {x: 5, y: 7}, to: {x: 4, y: 5}},
+                    {from: {x: 5, y: 7}, to: {x: 6, y: 5}},
+                    {from: {x: 5, y: 7}, to: {x: 8, y: 5}},
+
+                    // 专家智能体到大模型推理
+                    {from: {x: 2, y: 5}, to: {x: 3, y: 3}},
+                    {from: {x: 4, y: 5}, to: {x: 3, y: 3}},
+                    {from: {x: 6, y: 5}, to: {x: 7, y: 3}},
+                    {from: {x: 8, y: 5}, to: {x: 7, y: 3}},
+
+                    // 大模型推理到RAG增强
+                    {from: {x: 3, y: 3}, to: {x: 5, y: 1}},
+                    {from: {x: 7, y: 3}, to: {x: 5, y: 1}}
+                ];
+
+                connections.forEach(conn => {
+                    const fromX = x.getPixelForValue(conn.from.x);
+                    const fromY = y.getPixelForValue(conn.from.y);
+                    const toX = x.getPixelForValue(conn.to.x);
+                    const toY = y.getPixelForValue(conn.to.y);
+
+                    ctx.beginPath();
+                    ctx.moveTo(fromX, fromY);
+                    ctx.lineTo(toX, toY);
+                    ctx.stroke();
+                });
+
+                ctx.restore();
+            }
+        };
+
+        // 注册插件
+        Chart.register(connectionLines);
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.agent-card, .example-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // 数值动画
+            const animateValue = (element, start, end, duration, suffix = '') => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+                    element.textContent = value + suffix;
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+
+            // 监听核心指标进入视口
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const valueElement = entry.target.querySelector('.metric-value');
+                        const text = valueElement.textContent;
+
+                        if (text.includes('%')) {
+                            const match = text.match(/(\d+)%/);
+                            if (match) {
+                                animateValue(valueElement, 0, parseInt(match[1]), 2000, '%');
+                            }
+                        } else if (text.includes('ms')) {
+                            valueElement.textContent = '<100ms';
+                        } else {
+                            valueElement.textContent = '≥0.7';
+                        }
+
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.metric-item').forEach(item => {
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>

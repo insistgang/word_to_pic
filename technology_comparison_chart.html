@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术优势对比分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            margin: 20px 0;
+            height: 450px;
+        }
+        .large-chart {
+            height: 500px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .advantage-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .advantage-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .key-improvements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .improvement-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .improvement-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .improvement-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .breakthrough-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #fff;
+        }
+        .breakthrough-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .chart-row {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-col {
+            flex: 1;
+        }
+        .system-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .our-system {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 2px solid #27ae60;
+        }
+        .traditional {
+            background: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+            border: 2px solid #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>系统技术优势对比分析</h1>
+
+        <div class="advantage-highlight">
+            <div>本系统 vs 传统规则引擎</div>
+            <div class="advantage-value">全面性能超越</div>
+            <div>在攻击识别、响应速度、并发处理等关键指标上具备代际优势</div>
+        </div>
+
+        <div class="key-improvements">
+            <div class="improvement-card">
+                <div class="improvement-value">+17.32%</div>
+                <div class="improvement-label">攻击识别准确率提升</div>
+            </div>
+            <div class="improvement-card">
+                <div class="improvement-value">-8.7%</div>
+                <div class="improvement-label">误报率降低</div>
+            </div>
+            <div class="improvement-card">
+                <div class="improvement-value">+57%</div>
+                <div class="improvement-label">新攻击识别率提升</div>
+            </div>
+            <div class="improvement-card">
+                <div class="improvement-value">-97.6%</div>
+                <div class="improvement-label">响应时间缩短</div>
+            </div>
+            <div class="improvement-card">
+                <div class="improvement-value">+11900%</div>
+                <div class="improvement-label">并发处理能力提升</div>
+            </div>
+        </div>
+
+        <div class="breakthrough-box">
+            <div class="breakthrough-title">🚀 代际技术突破</div>
+            <div>新攻击识别率: <span class="system-badge our-system">本系统 89%</span> vs <span class="system-badge traditional">传统引擎 32%</span></div>
+            <div>响应速度: <span class="system-badge our-system">67ms</span> vs <span class="system-badge traditional">2.8秒</span></div>
+            <div>并发能力: <span class="system-badge our-system">1200告警/秒</span> vs <span class="system-badge traditional">10QPS</span></div>
+        </div>
+
+        <div class="chart-container large-chart">
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-col">
+                <div class="chart-container">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-col">
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 五维性能对比雷达图
+        const ctx1 = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(ctx1, {
+            type: 'radar',
+            data: {
+                labels: [
+                    '攻击识别准确率',
+                    '误报率(反向)',
+                    '新攻击识别率',
+                    '响应速度(反向)',
+                    '并发处理能力'
+                ],
+                datasets: [
+                    {
+                        label: '本系统',
+                        data: [95.62, 96.2, 89, 97.6, 95],
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgba(46, 204, 113, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: '传统规则引擎',
+                        data: [78.3, 87.5, 32, 3, 8],
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgba(231, 76, 60, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '五维技术性能对比雷达图',
+                        font: {
+                            size: 20,
+                            weight: 'bold'
+                        },
+                        padding: 20
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                let value = context.parsed.r;
+
+                                // 特殊处理某些指标
+                                if (context.label.includes('误报率')) {
+                                    label += (100 - value) + '%';
+                                } else if (context.label.includes('响应速度')) {
+                                    label += (100 - value) + '分';
+                                } else if (context.label.includes('并发')) {
+                                    label += value + '分';
+                                } else {
+                                    label += value + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            font: {
+                                size: 10
+                            }
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 识别准确率对比图
+        const ctx2 = document.getElementById('accuracyChart').getContext('2d');
+        const accuracyChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['攻击识别准确率', '新攻击识别率'],
+                datasets: [
+                    {
+                        label: '本系统',
+                        data: [95.62, 89],
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '传统规则引擎',
+                        data: [78.3, 32],
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '识别能力对比',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '准确率 (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 性能指标对比图
+        const ctx3 = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['响应时间', '并发处理能力'],
+                datasets: [
+                    {
+                        label: '本系统',
+                        data: [67, 1200],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '传统规则引擎',
+                        data: [2800, 10],
+                        backgroundColor: 'rgba(155, 89, 182, 0.8)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 2,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '性能指标对比',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                let value = context.parsed.y;
+                                if (context.dataIndex === 0) {
+                                    label += value + 'ms';
+                                } else {
+                                    label += value + '告警/秒';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'logarithmic',
+                        title: {
+                            display: true,
+                            text: '数值 (对数刻度)'
+                        },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value >= 1000) {
+                                    return value + '';
+                                } else if (value >= 100) {
+                                    return value + '';
+                                } else if (value >= 10) {
+                                    return value + '';
+                                } else {
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 添加数据标签到雷达图
+        setTimeout(() => {
+            const originalDraw = radarChart.draw;
+            radarChart.draw = function() {
+                originalDraw.apply(this, arguments);
+
+                const ctx = this.ctx;
+                ctx.font = 'bold 12px Microsoft YaHei';
+                ctx.fillStyle = '#2c3e50';
+                ctx.textAlign = 'center';
+
+                // 在每个数据点上添加具体数值
+                this.data.datasets.forEach((dataset, i) => {
+                    const meta = this.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const data = dataset.data[index];
+                        let label = '';
+
+                        if (index === 0) { // 攻击识别准确率
+                            label = data + '%';
+                        } else if (index === 1) { // 误报率
+                            label = (100 - data) + '%';
+                        } else if (index === 2) { // 新攻击识别率
+                            label = data + '%';
+                        } else if (index === 3) { // 响应速度
+                            label = '67ms';
+                        } else if (index === 4) { // 并发能力
+                            label = '1200';
+                        }
+
+                        ctx.fillText(label, bar.x, bar.y - 15);
+                    });
+                });
+            };
+            radarChart.update();
+        }, 100);
+    </script>
+</body>
+</html>

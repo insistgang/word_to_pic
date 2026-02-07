@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户体系与运营闭环</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            padding: 50px;
+            position: relative;
+        }
+
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        /* 用户体系部分 */
+        .users-section {
+            margin-bottom: 50px;
+        }
+        .section-title {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::before {
+            content: '';
+            width: 5px;
+            height: 30px;
+            background: #2E8B57;
+            margin-right: 15px;
+            border-radius: 3px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .user-header {
+            padding: 25px;
+            color: white;
+            position: relative;
+        }
+
+        /* 四种用户类型的不同渐变 */
+        .enterprise-user .user-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .growth-user .user-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .project-user .user-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .personal-user .user-header {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .user-type {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-level {
+            background: rgba(255,255,255,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .user-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 20px auto;
+        }
+
+        .user-content {
+            padding: 25px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #34495e;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+            background: #ecf0f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .enterprise-user .feature-icon {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .growth-user .feature-icon {
+            background: rgba(240, 147, 251, 0.1);
+            color: #f093fb;
+        }
+
+        .project-user .feature-icon {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+        }
+
+        .personal-user .feature-icon {
+            background: rgba(67, 233, 123, 0.1);
+            color: #43e97b;
+        }
+
+        /* 项目统计 */
+        .project-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* 运营闭环 */
+        .workflow-section {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .workflow-title {
+            text-align: center;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        .workflow-diagram {
+            position: relative;
+            padding: 20px;
+        }
+
+        .workflow-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .workflow-flow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #4facfe);
+            z-index: 1;
+        }
+
+        .workflow-step {
+            width: 200px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .workflow-step:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            font-size: 18px;
+        }
+
+        .step-1 .step-number { background: #667eea; }
+        .step-2 .step-number { background: #764ba2; }
+        .step-3 .step-number { background: #f093fb; }
+        .step-4 .step-number { background: #4facfe; }
+        .step-5 .step-number { background: #43e97b; }
+
+        .step-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        /* 服务亮点 */
+        .service-highlights {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .highlight-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .highlight-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .highlight-text {
+            font-size: 14px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        /* 箭头动画 */
+        @keyframes arrowMove {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .flow-arrow {
+            animation: arrowMove 2s ease-in-out infinite;
+        }
+
+        /* 底部总结 */
+        .bottom-summary {
+            margin-top: 40px;
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .summary-text {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">👥 用户体系与运营闭环</h1>
+
+        <!-- 用户体系部分 -->
+        <div class="users-section">
+            <h2 class="section-title">四类用户服务体系</h2>
+
+            <div class="users-grid">
+                <!-- 优质企业客户 -->
+                <div class="user-card enterprise-user">
+                    <div class="user-header">
+                        <div class="user-type">
+                            <h3 class="user-title">优质企业客户</h3>
+                            <span class="user-level">A+ 至 A级</span>
+                        </div>
+                        <div class="user-icon">🏢</div>
+                    </div>
+                    <div class="user-content">
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <div class="feature-icon">🔍</div>
+                                <span>按行业、评价等级筛选企业</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">📊</div>
+                                <span>详细记录企业基本信息、ESG评分</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">🔄</div>
+                                <span>ESG深度评价、碳资产开发</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">⛓️</div>
+                                <span>区块链交易、融资对接服务</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 成长型企业客户 -->
+                <div class="user-card growth-user">
+                    <div class="user-header">
+                        <div class="user-type">
+                            <h3 class="user-title">成长型企业客户</h3>
+                            <span class="user-level">B+ 至 B级</span>
+                        </div>
+                        <div class="user-icon">📈</div>
+                    </div>
+                    <div class="user-content">
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <div class="feature-icon">📏</div>
+                                <span>标准ESG评价服务，滑动条打分</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">📝</div>
+                                <span>自动生成综合评分和改进建议</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">🌱</div>
+                                <span>碳资产开发辅导、交易撮合</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">📊</div>
+                                <span>帮助企业提升ESG表现</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 碳资产项目主体 -->
+                <div class="user-card project-user">
+                    <div class="user-header">
+                        <div class="user-type">
+                            <h3 class="user-title">碳资产项目主体</h3>
+                            <span class="user-level">187个项目</span>
+                        </div>
+                        <div class="user-icon">🌍</div>
+                    </div>
+                    <div class="user-content">
+                        <div class="project-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">89</div>
+                                <div class="stat-label">林业碳汇项目</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">73</div>
+                                <div class="stat-label">新能源项目</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">25</div>
+                                <div class="stat-label">节能改造项目</div>
+                            </div>
+                        </div>
+                        <ul class="feature-list" style="margin-top: 20px;">
+                            <li class="feature-item">
+                                <div class="feature-icon">📊</div>
+                                <span>多类型、多地区项目集中管理</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">💰</div>
+                                <span>智能估值系统自动计算市场价格</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 个人用户 -->
+                <div class="user-card personal-user">
+                    <div class="user-header">
+                        <div class="user-type">
+                            <h3 class="user-title">个人用户</h3>
+                            <span class="user-level">C端入口</span>
+                        </div>
+                        <div class="user-icon">👤</div>
+                    </div>
+                    <div class="user-content">
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <div class="feature-icon">💳</div>
+                                <span>小额购买碳汇，获得电子证书</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">📈</div>
+                                <span>查看项目收益分配情况</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">🌱</div>
+                                <span>参与碳中和行动</span>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-icon">🎯</div>
+                                <span>选择不同地区、类型碳汇项目</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 运营闭环 -->
+        <div class="workflow-section">
+            <h2 class="workflow-title">🔄 运营闭环流程</h2>
+
+            <div class="workflow-diagram">
+                <div class="workflow-flow">
+                    <div class="workflow-step step-1">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">数据采集</div>
+                        <div class="step-desc">企业管理系统完成信息录入</div>
+                    </div>
+
+                    <div class="workflow-step step-2">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">评价分析</div>
+                        <div class="step-desc">ESG评价模块生成评级报告</div>
+                    </div>
+
+                    <div class="workflow-step step-3">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">💰</div>
+                        <div class="step-title">资产估值</div>
+                        <div class="step-desc">碳资产模块进行估值计算</div>
+                    </div>
+
+                    <div class="workflow-step step-4">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">⛓️</div>
+                        <div class="step-title">资产交易</div>
+                        <div class="step-desc">区块链系统交易上链监控</div>
+                    </div>
+
+                    <div class="workflow-step step-5">
+                        <div class="step-number">5</div>
+                        <div class="step-icon">🔍</div>
+                        <div class="step-title">监控追溯</div>
+                        <div class="step-desc">系统监控模块保障稳定运行</div>
+                    </div>
+                </div>
+
+                <div class="service-highlights">
+                    <div class="highlight-item">
+                        <div class="highlight-icon">🎯</div>
+                        <div class="highlight-text">一站式服务</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-icon">📱</div>
+                        <div class="highlight-text">全程数字化</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-icon">🔍</div>
+                        <div class="highlight-text">可追溯透明</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-icon">⚡</div>
+                        <div class="highlight-text">降低参与门槛</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-summary">
+            <h3 class="summary-title">从企业注册到碳资产变现，全流程服务体系</h3>
+            <p class="summary-text">通过数字化、智能化的闭环管理，提升运营效率，实现碳资产价值最大化</p>
+        </div>
+    </div>
+</body>
+</html>

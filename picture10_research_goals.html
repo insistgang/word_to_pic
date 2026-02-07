@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究内容与目标规划</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            width: 3000px;
+            height: 2400px;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 60px;
+            font-size: 56px;
+            font-weight: bold;
+        }
+
+        .content-container {
+            padding: 100px;
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+            gap: 100px;
+        }
+
+        /* 目标卡片布局 */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 80px;
+            flex: 1;
+        }
+
+        .goal-card {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .goal-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        }
+
+        /* 目标1 - 多尺度检测模型 */
+        .model-goal {
+            border-top: 8px solid #3498db;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .model-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 50px 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .model-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            color: #3498db;
+            margin-right: 35px;
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .model-title {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .model-content {
+            padding: 60px;
+            flex: 1;
+        }
+
+        .model-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .feature-box {
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-box:hover {
+            border-color: #3498db;
+            background: #f8f9ff;
+            transform: scale(1.05);
+        }
+
+        .feature-icon {
+            font-size: 55px;
+            color: #3498db;
+            margin-bottom: 25px;
+        }
+
+        .feature-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .feature-desc {
+            font-size: 20px;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .model-highlights {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .highlight-tag {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* 目标2 - 数据集构建 */
+        .dataset-goal {
+            border-top: 8px solid #27ae60;
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+        }
+
+        .dataset-header {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 50px 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dataset-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            color: #27ae60;
+            margin-right: 35px;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        .dataset-title {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .dataset-content {
+            padding: 60px;
+            flex: 1;
+        }
+
+        .dataset-workflow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+
+        .workflow-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step-icon {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            margin: 0 auto 25px;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+
+        .step-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .workflow-arrow {
+            font-size: 40px;
+            color: #27ae60;
+            margin: 0 20px;
+        }
+
+        .dataset-metrics {
+            background: #f8fff8;
+            border: 2px solid #27ae60;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .metrics-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* 目标3 - 系统工程化 */
+        .system-goal {
+            border-top: 8px solid #f39c12;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        .system-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 60px 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .system-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            color: #f39c12;
+            margin-right: 35px;
+            box-shadow: 0 5px 20px rgba(243, 156, 18, 0.3);
+        }
+
+        .system-title {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .system-content {
+            padding: 60px;
+            flex: 1;
+        }
+
+        .system-architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .arch-layer {
+            background: white;
+            border: 3px solid #f39c12;
+            border-radius: 20px;
+            padding: 35px 40px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .arch-layer:hover {
+            background: #fff9e6;
+            transform: translateX(10px);
+        }
+
+        .layer-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-right: 30px;
+            flex-shrink: 0;
+        }
+
+        .layer-content {
+            flex: 1;
+            font-size: 22px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .system-benefits {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .benefit-box {
+            background: linear-gradient(135deg, #fff9e6, #fff3d4);
+            border: 2px solid #f39c12;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .benefit-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 15px;
+        }
+
+        .benefit-desc {
+            font-size: 20px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        /* 徽章 */
+        .goal-badge {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            background: rgba(255,255,255,0.95);
+            padding: 20px 35px;
+            border-radius: 35px;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .model-badge { color: #3498db; border: 2px solid #3498db; }
+        .dataset-badge { color: #27ae60; border: 2px solid #27ae60; }
+        .system-badge { color: #f39c12; border: 2px solid #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            🎯 研究内容与目标规划
+        </div>
+
+        <div class="content-container">
+            <div class="goals-grid">
+                <!-- 目标1：多尺度检测模型 -->
+                <div class="goal-card model-goal">
+                    <div class="goal-badge model-badge">核心目标</div>
+                    <div class="model-header">
+                        <div class="model-icon">🤖</div>
+                        <div class="model-title">多尺度违建检测模型</div>
+                    </div>
+                    <div class="model-content">
+                        <div class="model-features">
+                            <div class="feature-box">
+                                <div class="feature-icon">🎯</div>
+                                <div class="feature-title">跨尺度识别</div>
+                                <div class="feature-desc">卫星影像(0.5m) ↔ 无人机影像(5-10cm)智能融合</div>
+                            </div>
+                            <div class="feature-box">
+                                <div class="feature-icon">🔄</div>
+                                <div class="feature-title">跨平台支持</div>
+                                <div class="feature-desc">统一算法框架，适配多种数据源和平台</div>
+                            </div>
+                        </div>
+
+                        <div class="model-highlights">
+                            <div class="highlight-tag">自动识别</div>
+                            <div class="highlight-tag">智能融合</div>
+                            <div class="highlight-tag">端到端检测</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 目标2：数据集构建 -->
+                <div class="goal-card dataset-goal">
+                    <div class="goal-badge dataset-badge">数据支撑</div>
+                    <div class="dataset-header">
+                        <div class="dataset-icon">📊</div>
+                        <div class="dataset-title">无人机建筑数据集构建</div>
+                    </div>
+                    <div class="dataset-content">
+                        <div class="dataset-workflow">
+                            <div class="workflow-step">
+                                <div class="step-icon">🚁</div>
+                                <div class="step-title">数据采集</div>
+                                <div class="workflow-arrow">→</div>
+                            </div>
+                            <div class="workflow-step">
+                                <div class="step-icon">🏷️</div>
+                                <div class="step-title">精准标注</div>
+                                <div class="workflow-arrow">→</div>
+                            </div>
+                            <div class="workflow-step">
+                                <div class="step-icon">✅</div>
+                                <div class="step-title">算法验证</div>
+                            </div>
+                        </div>
+
+                        <div class="dataset-metrics">
+                            <div class="metrics-title">📈 数据集规模与质量</div>
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <div class="metric-value">2000+</div>
+                                    <div class="metric-label">高质量影像</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">5-10cm</div>
+                                    <div class="metric-label">超高分辨率</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">双时相</div>
+                                    <div class="metric-label">变化检测支持</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 目标3：系统工程化 -->
+                <div class="goal-card system-goal">
+                    <div class="goal-badge system-badge">应用落地</div>
+                    <div class="system-header">
+                        <div class="system-icon">🖥️</div>
+                        <div class="system-title">算法到系统工程化落地</div>
+                    </div>
+                    <div class="system-content">
+                        <div class="system-architecture">
+                            <div class="arch-layer">
+                                <div class="layer-number">1</div>
+                                <div class="layer-content">Python后端框架 - 核心算法API实现</div>
+                            </div>
+                            <div class="arch-layer">
+                                <div class="layer-number">2</div>
+                                <div class="layer-content">Flask Web服务 - HTTP接口与业务逻辑</div>
+                            </div>
+                            <div class="arch-layer">
+                                <div class="layer-number">3</div>
+                                <div class="layer-content">前端可视化 - 结果展示与用户交互</div>
+                            </div>
+                        </div>
+
+                        <div class="system-benefits">
+                            <div class="benefit-box">
+                                <div class="benefit-title">🚀 技术转化</div>
+                                <div class="benefit-desc">科研成果转化为可部署的实际应用系统</div>
+                            </div>
+                            <div class="benefit-box">
+                                <div class="benefit-title">📊 性能优化</div>
+                                <div class="benefit-desc">模型压缩与加速，满足实时检测需求</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

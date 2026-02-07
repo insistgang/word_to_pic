@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E维度技术架构 - CV视觉识别与物联网监测</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 1800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+        }
+
+        .title {
+            text-align: center;
+            color: #2E8B57;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        /* 技术架构流程图 */
+        .architecture-flow {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .flow-title {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .flow-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .flow-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            min-width: 320px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .flow-box::after {
+            content: '↓';
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #3498db;
+        }
+
+        .flow-box:last-child::after {
+            display: none;
+        }
+
+        .flow-title-small {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .flow-content {
+            font-size: 14px;
+            color: #34495e;
+            line-height: 1.5;
+        }
+
+        /* 核心功能展示 */
+        .features-section {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            min-height: 400px;
+        }
+
+        /* 功能1：卫星遥感 */
+        .feature-1 {
+            border-left: 5px solid #3498db;
+        }
+
+        .feature-2 {
+            border-left: 5px solid #2E8B57;
+        }
+
+        .feature-3 {
+            border-left: 5px solid #e74c3c;
+        }
+
+        .feature-left {
+            width: 35%;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .feature-2 .feature-left {
+            background: linear-gradient(135deg, #2E8B57 0%, #27ae60 100%);
+        }
+
+        .feature-3 .feature-left {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .feature-desc {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .feature-right {
+            width: 65%;
+            padding: 30px;
+            flex: 1;
+        }
+
+        /* 案例展示 */
+        .case-title {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .case-title::before {
+            content: '📍';
+            margin-right: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table th {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .risk-yellow {
+            background: #f1c40f;
+            color: white;
+        }
+
+        .measures {
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .measures-title {
+            font-size: 16px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .measures-list {
+            list-style: none;
+        }
+
+        .measures-list li {
+            padding: 5px 0;
+            font-size: 14px;
+            color: #34495e;
+        }
+
+        .measures-list li::before {
+            content: '✓';
+            color: #27ae60;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        /* IoT监测 */
+        .iot-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .iot-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2E8B57;
+        }
+
+        .iot-title {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .iot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .iot-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .iot-icon {
+            width: 40px;
+            height: 40px;
+            background: #2E8B57;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .iot-text {
+            font-size: 14px;
+            color: #34495e;
+        }
+
+        /* 预警系统 */
+        .warning-system {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .warning-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .warning-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .warning-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .warning-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .warning-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 统计数据 */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .accuracy-badge {
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🛰️ E维度技术架构：CV视觉识别 + 物联网监测</h1>
+
+        <!-- 技术架构流程 -->
+        <div class="architecture-flow">
+            <h2 class="flow-title">技术架构流程图</h2>
+            <div class="flow-container">
+                <div class="flow-box">
+                    <h3 class="flow-title-small">📊 多源数据融合层</h3>
+                    <div class="flow-content">
+                        🛰️ 卫星遥感数据<br>
+                        &nbsp;&nbsp;• NDVI植被指数<br>
+                        &nbsp;&nbsp;• 土地覆盖分类<br><br>
+                        🚁 无人机拍摄<br>
+                        &nbsp;&nbsp;• 高分辨率正射影像<br>
+                        &nbsp;&nbsp;• 3D点云<br><br>
+                        📡 物理传感器<br>
+                        &nbsp;&nbsp;• 光伏逆变器<br>
+                        &nbsp;&nbsp;• 林木湿度/温度<br><br>
+                        👥 农户申报数据<br>
+                        &nbsp;&nbsp;• 面积、装机量<br>
+                        &nbsp;&nbsp;• 维护记录
+                    </div>
+                </div>
+
+                <div class="flow-box">
+                    <h3 class="flow-title-small">🧹 数据清洗与冲突解析</h3>
+                    <div class="flow-content">
+                        • 多源数据校验<br>
+                        • 优先级排序<br>
+                        • 异常值检测<br>
+                        • 数据标准化<br>
+                        • 时间戳对齐
+                    </div>
+                </div>
+
+                <div class="flow-box">
+                    <h3 class="flow-title-small">🤖 CV识别与异常检测</h3>
+                    <div class="flow-content">
+                        • Mask R-CNN卫星图识别<br>
+                        • YOLOv8实时目标检测<br>
+                        • 植被指数趋势分析<br>
+                        • 变化监测(时间序列)<br>
+                        • 异常告警(自动触发)
+                    </div>
+                </div>
+
+                <div class="flow-box">
+                    <h3 class="flow-title-small">📈 风险评估与定量化</h3>
+                    <div class="flow-content">
+                        • 面积虚报概率<br>
+                        • 碳减排量风险等级<br>
+                        • 资产劣化可能性<br>
+                        • 融资风险调整
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心功能展示 -->
+        <div class="features-section">
+            <!-- 功能1：卫星遥感核验 -->
+            <div class="feature-card feature-1">
+                <div class="feature-left">
+                    <div class="feature-icon">🛰️</div>
+                    <h3 class="feature-title">核心功能1</h3>
+                    <p class="feature-desc">卫星遥感 vs 申报核验</p>
+                    <p style="margin-top: 20px; font-size: 14px;">
+                        通过AI图像识别技术，精准核验农户申报面积，防止虚报，降低融资风险
+                    </p>
+                </div>
+                <div class="feature-right">
+                    <h3 class="case-title">江西武宁8村试点案例</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>申报面积</th>
+                                <th>卫星识别</th>
+                                <th>虚报率</th>
+                                <th>风险等级</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>100亩<br><small>(农户声称)</small></td>
+                                <td>84亩<br><small>(AI核验)</small></td>
+                                <td style="color: #e74c3c; font-weight: bold;">16%</td>
+                                <td><span class="risk-badge risk-yellow">黄色(需关注)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="measures">
+                        <h4 class="measures-title">应对措施</h4>
+                        <ul class="measures-list">
+                            <li>自动调整融资额度 -16% → 减少融资风险敞口</li>
+                            <li>评级降一级 → 银行审批更严格</li>
+                            <li>建议农户补充地界证明</li>
+                        </ul>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value">20万</div>
+                            <div class="stat-label">年度避免虚高(元)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">84万</div>
+                            <div class="stat-label">调整后融资额(元)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能2：物联网实时监测 -->
+            <div class="feature-card feature-2">
+                <div class="feature-left">
+                    <div class="feature-icon">📡</div>
+                    <h3 class="feature-title">核心功能2</h3>
+                    <p class="feature-desc">物联网实时监测 + 动态更新</p>
+                    <p style="margin-top: 20px; font-size: 14px;">
+                        5分钟级实时数据采集，主动预防 > 被动追罚
+                    </p>
+                </div>
+                <div class="feature-right">
+                    <h3 class="case-title">浙江某村100kW分布式光伏项目</h3>
+
+                    <div class="iot-diagram">
+                        <div class="iot-box">
+                            <h4 class="iot-title">📡 实时数据接入</h4>
+                            <div class="iot-grid">
+                                <div class="iot-item">
+                                    <div class="iot-icon">⚡</div>
+                                    <div class="iot-text">逆变器实时功率</div>
+                                </div>
+                                <div class="iot-item">
+                                    <div class="iot-icon">📊</div>
+                                    <div class="iot-text">电网并网小时数</div>
+                                </div>
+                                <div class="iot-item">
+                                    <div class="iot-icon">🔍</div>
+                                    <div class="iot-text">组件污染程度</div>
+                                </div>
+                                <div class="iot-item">
+                                    <div class="iot-icon">📈</div>
+                                    <div class="iot-text">预期vs实际偏差</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="iot-box">
+                            <h4 class="iot-title">🤖 AI分析模块</h4>
+                            <div class="iot-grid">
+                                <div class="iot-item">
+                                    <div class="iot-icon">📉</div>
+                                    <div class="iot-text">实际vs预期发电</div>
+                                </div>
+                                <div class="iot-item">
+                                    <div class="iot-icon">⚠️</div>
+                                    <div class="iot-text">异常告警(>15%)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="measures" style="background: #e3f2fd; margin-top: 20px;">
+                        <h4 class="measures-title" style="color: #2196f3;">2025年Q1实测数据</h4>
+                        <ul class="measures-list" style="color: #34495e;">
+                            <li>预期发电：12万度/年</li>
+                            <li>Q1实际：2.8万度</li>
+                            <li>预测全年：11.2万度(偏差-6.7%，可接受)</li>
+                        </ul>
+                        <div class="accuracy-badge">系统评估：发电效率正常</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能3：极端天气预警 -->
+            <div class="feature-card feature-3">
+                <div class="feature-left">
+                    <div class="feature-icon">🌀</div>
+                    <h3 class="feature-title">核心功能3</h3>
+                    <p class="feature-desc">极端天气风险预警</p>
+                    <p style="margin-top: 20px; font-size: 14px;">
+                        提前72小时预警，精准评估损失，保护投资安全
+                    </p>
+                </div>
+                <div class="feature-right">
+                    <h3 class="case-title">2024年台风预警案例</h3>
+
+                    <div class="warning-system">
+                        <div class="warning-card">
+                            <div class="warning-icon">📅</div>
+                            <div class="warning-title">实时天气监控</div>
+                            <div class="warning-desc">集成气象API<br>7×24小时监测</div>
+                        </div>
+                        <div class="warning-card">
+                            <div class="warning-icon">📊</div>
+                            <div class="warning-title">历史灾害分析</div>
+                            <div class="warning-desc">2015-2025年<br>灾害数据库</div>
+                        </div>
+                        <div class="warning-card">
+                            <div class="warning-icon">📢</div>
+                            <div class="warning-title">自动推送预案</div>
+                            <div class="warning-desc">多方联动<br>风险共担</div>
+                        </div>
+                    </div>
+
+                    <table class="data-table" style="margin-top: 30px;">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>预测损毁率</th>
+                                <th>实际损毁率</th>
+                                <th>误差</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>项目A(防护好)</td>
+                                <td>8%</td>
+                                <td>7%</td>
+                                <td>1%</td>
+                            </tr>
+                            <tr>
+                                <td>项目B(迎风面)</td>
+                                <td>32%</td>
+                                <td>31%</td>
+                                <td>1%</td>
+                            </tr>
+                            <tr>
+                                <td>项目C(山顶)</td>
+                                <td>58%</td>
+                                <td>59%</td>
+                                <td>1%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div class="accuracy-badge" style="font-size: 18px; padding: 10px 30px;">
+                            🎯 预测精度：99%+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
