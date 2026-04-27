@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSL 文件系统分析可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .chart-container-large {
+            position: relative;
+            height: 400px;
+        }
+        .project-list {
+            list-style: none;
+        }
+        .project-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .project-icon {
+            font-size: 1.5em;
+            margin-right: 12px;
+        }
+        .project-info {
+            flex: 1;
+        }
+        .project-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .project-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .project-size {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .file-type-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .file-type-name {
+            width: 80px;
+            font-weight: 500;
+        }
+        .file-type-bar-fill {
+            flex: 1;
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .file-type-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            transition: width 1s ease;
+        }
+        .file-type-count {
+            width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 30px;
+            padding: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-planning { background: #d1ecf1; color: #0c5460; }
+        .status-archive { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ WSL 文件系统分析</h1>
+        <p class="subtitle">/home/insistgang 可视化报告 | 生成时间: 2026-02-12</p>
+
+        <!-- 统计概览 -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">1007 GB</div>
+                <div class="stat-label">总磁盘容量</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">12 GB</div>
+                <div class="stat-label">已使用 (2%)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">7</div>
+                <div class="stat-label">主要项目</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Git 仓库</div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- 项目大小分布 - 饼图 -->
+            <div class="card">
+                <div class="card-title">📊 项目存储分布</div>
+                <div class="chart-container">
+                    <canvas id="projectSizeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 项目文件数 - 柱状图 -->
+            <div class="card">
+                <div class="card-title">📁 各项目文件数量</div>
+                <div class="chart-container">
+                    <canvas id="fileCountChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 文件类型分布 - 横向条形图 -->
+            <div class="card full-width">
+                <div class="card-title">📂 文件类型统计 (Top 10)</div>
+                <div class="chart-container">
+                    <canvas id="fileTypeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 项目详情列表 -->
+            <div class="card full-width">
+                <div class="card-title">🗂️ 项目详情概览</div>
+                <ul class="project-list">
+                    <li class="project-item">
+                        <span class="project-icon">📦</span>
+                        <div class="project-info">
+                            <div class="project-name">archive <span class="status-badge status-archive">归档</span></div>
+                            <div class="project-meta">33,675 个文件 | 历史项目归档</div>
+                        </div>
+                        <span class="project-size">350 MB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">📄</span>
+                        <div class="project-info">
+                            <div class="project-name">paper_assistant <span class="status-badge status-active">活跃</span></div>
+                            <div class="project-meta">73 个文件 | 20篇学术论文分析</div>
+                        </div>
+                        <span class="project-size">187 MB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">🎵</span>
+                        <div class="project-info">
+                            <div class="project-name">Leo <span class="status-badge status-progress">开发中</span></div>
+                            <div class="project-meta">200 个文件 | 抖音爬虫研究 ⭐最近活跃</div>
+                        </div>
+                        <span class="project-size">133 MB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">📊</span>
+                        <div class="project-info">
+                            <div class="project-name">word_to_pic <span class="status-badge status-active">已开源</span></div>
+                            <div class="project-meta">58 个文件 | 数据可视化工具</div>
+                        </div>
+                        <span class="project-size">2.6 MB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">🏗️</span>
+                        <div class="project-info">
+                            <div class="project-name">study_thougt_assiant <span class="status-badge status-progress">比赛中</span></div>
+                            <div class="project-meta">48 个文件 | 智慧城管比赛项目</div>
+                        </div>
+                        <span class="project-size">1.3 MB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">🎯</span>
+                        <div class="project-info">
+                            <div class="project-name">max_life <span class="status-badge status-planning">规划中</span></div>
+                            <div class="project-meta">19 个文件 | 人生管理系统</div>
+                        </div>
+                        <span class="project-size">292 KB</span>
+                    </li>
+                    <li class="project-item">
+                        <span class="project-icon">🔧</span>
+                        <div class="project-info">
+                            <div class="project-name">scripts <span class="status-badge status-archive">工具</span></div>
+                            <div class="project-meta">3 个文件 | 自动化脚本</div>
+                        </div>
+                        <span class="project-size">28 KB</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 技术栈分布 -->
+            <div class="card">
+                <div class="card-title">🔧 技术栈分布</div>
+                <div class="chart-container">
+                    <canvas id="techStackChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 磁盘使用 -->
+            <div class="card">
+                <div class="card-title">💾 磁盘使用情况</div>
+                <div class="chart-container">
+                    <canvas id="diskUsageChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>📈 完整报告: WSL文件系统分析报告.md</p>
+            <p>生成工具: Claude Code + Shell Commands | 2026-02-12</p>
+        </div>
+    </div>
+
+    <script>
+        // 项目大小分布 - 环形图
+        const projectSizeCtx = document.getElementById('projectSizeChart').getContext('2d');
+        new Chart(projectSizeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['archive', 'paper_assistant', 'Leo', 'word_to_pic', 'study_thougt_assiant', 'max_life', 'scripts'],
+                datasets: [{
+                    data: [350, 187, 133, 2.6, 1.3, 0.292, 0.028],
+                    backgroundColor: [
+                        '#6c757d',
+                        '#28a745',
+                        '#ffc107',
+                        '#17a2b8',
+                        '#fd7e14',
+                        '#6f42c1',
+                        '#20c997'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 15,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + ' MB';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 项目文件数 - 柱状图
+        const fileCountCtx = document.getElementById('fileCountChart').getContext('2d');
+        new Chart(fileCountCtx, {
+            type: 'bar',
+            data: {
+                labels: ['archive', 'Leo', 'paper_assistant', 'word_to_pic', 'study_thougt_assiant', 'max_life', 'scripts'],
+                datasets: [{
+                    label: '文件数量',
+                    data: [33675, 200, 73, 58, 48, 19, 3],
+                    backgroundColor: [
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(253, 126, 20, 0.8)',
+                        'rgba(111, 66, 193, 0.8)',
+                        'rgba(32, 201, 151, 0.8)'
+                    ],
+                    borderColor: [
+                        '#6c757d',
+                        '#ffc107',
+                        '#28a745',
+                        '#17a2b8',
+                        '#fd7e14',
+                        '#6f42c1',
+                        '#20c997'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        type: 'logarithmic',
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 文件类型统计 - 横向条形图
+        const fileTypeCtx = document.getElementById('fileTypeChart').getContext('2d');
+        new Chart(fileTypeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['.js', '.ts', '.map', '.svg', '.md', '.json', '无扩展名', '.py', '.tsx', '.html'],
+                datasets: [{
+                    label: '文件数量',
+                    data: [15469, 11903, 3265, 1666, 468, 428, 256, 100, 69, 67],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: '#667eea',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 技术栈分布 - 饼图
+        const techStackCtx = document.getElementById('techStackChart').getContext('2d');
+        new Chart(techStackCtx, {
+            type: 'pie',
+            data: {
+                labels: ['JavaScript/TypeScript (76.4%)', 'Source Map (9.1%)', 'SVG 图形 (4.7%)', 'Markdown (1.3%)', 'JSON (1.2%)', 'Python (0.3%)', '其他 (7%)'],
+                datasets: [{
+                    data: [76.4, 9.1, 4.7, 1.3, 1.2, 0.3, 7],
+                    backgroundColor: [
+                        '#f7df1e',
+                        '#3178c6',
+                        '#ffb13b',
+                        '#083fa1',
+                        '#000000',
+                        '#3776ab',
+                        '#e9ecef'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 磁盘使用 - 环形图
+        const diskUsageCtx = document.getElementById('diskUsageChart').getContext('2d');
+        new Chart(diskUsageCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['已使用 (12 GB)', '可用 (944 GB)'],
+                datasets: [{
+                    data: [12, 944],
+                    backgroundColor: [
+                        '#dc3545',
+                        '#28a745'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12 } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
