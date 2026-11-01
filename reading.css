@@ -1,16 +1,24 @@
 body {
   font-family: "PingFang SC", "Noto Sans SC", system-ui, sans-serif !important;
-  background: #f3f7f6 !important;
-  color: #14211f;
+  background: #f3f6f8 !important;
+  color: #172033 !important;
 }
-.container {
+.container, .dashboard-card {
   background: #fff !important;
+  border: 1px solid #e3e8ef !important;
   border-radius: 16px !important;
   box-shadow: none !important;
 }
 .header, header {
-  background: #0f3d3a !important;
-  color: #f4fffc !important;
+  background: #172033 !important;
+  color: #f8fafc !important;
 }
-h1 { letter-spacing: -0.03em; }
-a { color: #1c1915; }
+.card-icon { display: none !important; }
+.explore-btn, .dashboard-card .explore-btn {
+  background: none !important;
+  color: #1d4ed8 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
