@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据可视化仪表板集合</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="favicon.svg" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -38,6 +40,15 @@
         .header h1 {
             font-size: 3em;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+        .header h1 img {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
         }
         
         .header p {
@@ -386,7 +397,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚁 上海无人机配送数据分析平台</h1>
+            <h1><img src="favicon.svg" alt="">上海无人机配送数据分析平台</h1>
             <p>美团杨浦区3条航线运营数据深度分析</p>
             <div class="stats-summary">
                 <div class="stat-item">
