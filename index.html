@@ -13,31 +13,32 @@
         }
         
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+            background: #f4f1ea;
+            color: #1c1915;
             min-height: 100vh;
-            padding: 20px;
+            padding: 28px 16px 48px;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1120px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: transparent;
         }
         
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
+            background: #1c1915;
+            color: #f7f3ea;
+            padding: 48px 36px 36px;
+            border-radius: 18px;
+            text-align: left;
         }
         
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 15px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 560;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
         }
         
         .header p {
@@ -58,9 +59,9 @@
         }
         
         .stat-item .number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #f39c12;
+            font-size: 1.7rem;
+            font-weight: 560;
+            color: #e7d7b1;
         }
         
         .stat-item .label {
@@ -76,13 +77,13 @@
         }
         
         .dashboard-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid transparent;
+            background: #fffdf8;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: none;
+            text-align: left;
+            transition: border-color 0.2s ease;
+            border: 1px solid #e4ddd0;
         }
         
         .dashboard-card:hover {
@@ -99,8 +100,8 @@
         }
         
         .card-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
         }
         
         .delivery .card-icon {
@@ -112,9 +113,9 @@
         }
         
         .card-title {
-            font-size: 1.8em;
-            color: #2c3e50;
-            margin-bottom: 15px;
+            font-size: 1.35rem;
+            color: #1c1915;
+            margin-bottom: 10px;
         }
         
         .card-description {
@@ -160,14 +161,15 @@
         
         .explore-btn {
             display: inline-block;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 8px 0;
+            background: none;
+            color: #1c1915;
             text-decoration: none;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            border-bottom: 1px solid #1c1915;
+            border-radius: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: "Avenir Next", "PingFang SC", sans-serif;
         }
         
         .explore-btn:hover {
@@ -367,6 +369,16 @@
             color: #7f8c8d;
         }
         
+        a.explore-btn,
+        .dashboard-card .explore-btn {
+            background: none !important;
+            color: #1c1915 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .dashboard-grid { padding: 22px 0 0; gap: 14px; }
+        .footer { background: transparent; color: #6b645b; }
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -386,8 +398,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚁 上海无人机配送数据分析平台</h1>
-            <p>美团杨浦区3条航线运营数据深度分析</p>
+            <h1>低空经济数据看板</h1>
+            <p>二十个场景仪表板。数字用于演示，不是运营报表。</p>
             <div class="stats-summary">
                 <div class="stat-item">
                     <div class="number">20</div>
